@@ -1,22 +1,104 @@
 package model.prenotazione;
 
+
 import model.ruoli.Turista;
 
+import java.util.ArrayList;
 import java.util.List;
 
+
 /**
- * Rappresenta il gestore delle prenotazioni di un <code>Turista</code>.
- * @param <P> tipo di <code>Prenotazione</code>.
+ * Note:  una qualsiasi cambiamento dell' utente e delle prenotazioni
+ *  ad esso associate sarà scritto/sovrascritto su un determinato mezzo di
+ *  memorizzazione persistente
+ *
+ * @param <E> Esperienza
+ * @param <T> Turista
  */
-public class GestorePrenotazioni<P> {
-    private List<P> prenotazioni;
-    private final Turista turistaAssociato;
+public class GestorePrenotazioni<E extends IProprietaEsperienza,T extends Turista> implements IGestorePrenotazioni<E> {
 
     /**
-     * Permette di creare un gestore delle prenotazioni per il <code>Turista</code> dato.
-     * @param turistaAssociato <code>Turista</code> associato al gestore delle prenotazioni.
+     * il turista associato
      */
-    public GestorePrenotazioni(Turista turistaAssociato) {
-        this.turistaAssociato = turistaAssociato;
+    private T turista_associato;
+
+    private List<IObjPrenotazione> lista_prenotazioni;
+
+    private IDB databaseInterface;
+
+    /**
+     * Ogni gestore prenotazione è associato ad un singolo turista
+     * in relazione 1:1
+     *
+     * @param t turista
+     * @param databaseInterface il database di riferimento
+     */
+    public GestorePrenotazioni(T t,IDB databaseInterface) {
+        this.turista_associato = t;
+        setUpListaPrenotazioni();
+        this.databaseInterface = databaseInterface;
     }
+
+    /**
+     * recupera la lista delle prenotazioni dal DB
+     */
+    private void setUpListaPrenotazioni() {
+        //... TODO DB
+        if(lista_prenotazioni == null){
+            lista_prenotazioni = new ArrayList<>();
+        }
+    }
+
+    @Override
+    public BuilderPrenotazione prenotaEsperienza(E e){
+        return new BuilderPrenotazione(e);
+    }
+
+    @Override
+    public void aggiungiPrenotazione(ObjPrenotazione prenotazione){
+       lista_prenotazioni.add(prenotazione);
+       salvaPrenotazione(prenotazione);
+    }
+
+    /**
+     * Salvataggio nel DB
+     *
+     * @param prenotazione
+     */
+    private void salvaPrenotazione(ObjPrenotazione prenotazione){
+        //.. TODO DB
+        databaseInterface.inserisci(prenotazione);
+        //..
+    }
+
+
+    @Override
+    public void annullaPrenotazione(int indice){
+       lista_prenotazioni.remove(indice);
+       //.. TODO DB
+    }
+
+    @Override
+    public List<IObjPrenotazione> recuperaEsperienzeAssociate(){
+        return lista_prenotazioni;
+    }
+
+    @Override
+    public IBuilderInterface modificaPrenotazione(IObjPrenotazione objPrenotazione){
+        IBuilderInterface iBuilderInterface = new BuilderPrenotazione();
+        return iBuilderInterface.reBuild(objPrenotazione);
+    }
+
+    @Override
+    public void prenotazioneConInvito(List<String> nomi_turisti) {
+        //...
+    }
+
+
+    @Override
+    public void showAll(){
+        lista_prenotazioni.stream().forEach(iObjPrenotazione -> System.out.println(iObjPrenotazione.toString()));
+    }
+
+
 }
