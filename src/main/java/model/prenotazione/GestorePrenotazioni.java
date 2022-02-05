@@ -1,4 +1,4 @@
-package model;
+package model.prenotazione;
 
 import model.ruoli.Turista;
 

@@ -1,7 +1,7 @@
 package model.ruoli;
 
-import model.Esperienza;
-import model.GestoreEsperienze;
+import controller.InfoEsperienza;
+import model.esperienza.*;
 
 import java.util.List;
 
@@ -14,6 +14,8 @@ public class DefaultCicerone implements Cicerone {
     private String name;
     private String email;
     private GestoreEsperienze gestoreEsperienze;
+    private BuilderEsperienza builder;
+    private DirectorEsperienza director;
 
     /**
      * Permette di creare un nuovo utente <code>Cicerone</code> nella piattaforma Cicero.
@@ -21,15 +23,30 @@ public class DefaultCicerone implements Cicerone {
      * @param email email del <code>Cicerone</code>.
      */
     public DefaultCicerone(String name, String email) {
+        // TODO: id should be given by the database primary key of ciceroni table
+        this.id = this.hashCode();
         this.name = name;
         this.email = email;
+        // TODO: update ciceroni table with this new entry
         this.gestoreEsperienze = new GestoreEsperienze(this);
     }
 
     @Override
-    public void creaEsperienza() {
-        // create new esperienza
-        // add it to gestoreEsperienza
+    public void creaEsperienza(InfoEsperienza infoE) {
+        this.director = new DirectorEsperienza(infoE);
+
+        // TODO: check type,
+        //  if type == Visita,
+        //          create builderVisita
+        //          call director.creaVisita(builderVisita)
+        //  elseif type == Escursione,
+        //          create builderEscursione
+        //          call director.creaEscursione(builderEscursione)
+        this.builder = new BuilderSimpleEsperienza(this);
+
+        director.creaSimpleEsperienza(builder);
+        Esperienza nuovaEsperienza = builder.getResult();
+        getGestoreEsperienze().add(nuovaEsperienza);
     }
 
     @Override

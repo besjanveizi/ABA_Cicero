@@ -1,5 +1,7 @@
 package model;
 
+import model.esperienza.Esperienza;
+
 import java.util.List;
 
 /**

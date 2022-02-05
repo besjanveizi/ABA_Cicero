@@ -1,4 +1,6 @@
-package model;
+package model.prenotazione;
+
+import model.esperienza.Esperienza;
 
 /**
  * Rappresenta una semplice <code>Prenotazione</code> nella piattaforma.

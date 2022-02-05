@@ -1,9 +1,9 @@
 package model.ruoli;
 
 import model.Bacheca;
-import model.Esperienza;
-import model.GestorePrenotazioni;
-import model.Prenotazione;
+import model.esperienza.Esperienza;
+import model.prenotazione.GestorePrenotazioni;
+import model.prenotazione.Prenotazione;
 
 import java.util.List;
 

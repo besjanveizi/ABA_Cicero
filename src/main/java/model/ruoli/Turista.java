@@ -1,7 +1,7 @@
 package model.ruoli;
 
-import model.Esperienza;
-import model.Prenotazione;
+import model.esperienza.Esperienza;
+import model.prenotazione.Prenotazione;
 
 import java.util.List;
 

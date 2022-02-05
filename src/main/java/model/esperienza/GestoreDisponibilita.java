@@ -1,4 +1,6 @@
-package model;
+package model.esperienza;
+
+import model.prenotazione.Prenotazione;
 
 import java.util.List;
 

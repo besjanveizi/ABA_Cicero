@@ -1,7 +1,8 @@
 package model.ruoli;
 
 
-import model.Esperienza;
+import controller.InfoEsperienza;
+import model.esperienza.Esperienza;
 
 import java.util.List;
 
@@ -13,8 +14,9 @@ public interface Cicerone {
 
     /**
      * Permette di creare un'<code>Esperienza</code>.
+     * @param infoEsperienza informazioni relative all'<code>Esperienza</code>.
      */
-    void creaEsperienza();
+    void creaEsperienza(InfoEsperienza infoEsperienza);
 
     /**
      * Restituisce tutte le esperienze create dal <code>Cicerone</code>.

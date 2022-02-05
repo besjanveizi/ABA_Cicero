@@ -1,4 +1,4 @@
-package model;
+package model.esperienza;
 
 /**
  * Rappresenta un'esperienza proposta nella piattaforma.

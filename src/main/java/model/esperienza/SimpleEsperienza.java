@@ -1,4 +1,4 @@
-package model;
+package model.esperienza;
 
 import model.ruoli.Cicerone;
 
@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 /**
  * Rappresenta una semplice <code>Esperienza</code> nella piattaforma Cicero.
  */
-public class SimpleEsperienza implements Esperienza{
+public class SimpleEsperienza implements Esperienza {
 
     private int id;
     private String nome;
@@ -97,14 +97,14 @@ public class SimpleEsperienza implements Esperienza{
     @Override
     public String toString() {
         return "SimpleEsperienza{" +
-                "id=" + id +
-                ", nome='" + nome + '\'' +
-                ", dataInizio=" + dataInizio +
-                ", dataFine=" + dataFine +
-                ", maxPartecipanti=" + maxPartecipanti +
-                ", minPartecipanti=" + minPartecipanti +
-                ", ciceroneCreatore=" + ciceroneCreatore.toString() +
-                ", maxGiorniRiserva=" + maxGiorniRiserva +
-                '}';
+                " id = " + id +
+                ", nome = '" + nome + '\'' +
+                ", dataInizio = " + dataInizio +
+                ", dataFine = " + dataFine +
+                ", maxPartecipanti = " + maxPartecipanti +
+                ", minPartecipanti = " + minPartecipanti +
+                ", ciceroneCreatore = " + ciceroneCreatore.toString() +
+                ", maxGiorniRiserva = " + maxGiorniRiserva +
+                " }";
     }
 }

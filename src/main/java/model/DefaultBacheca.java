@@ -1,5 +1,6 @@
 package model;
 
+import model.esperienza.Esperienza;
 import model.ruoli.Cicerone;
 
 import java.util.List;
