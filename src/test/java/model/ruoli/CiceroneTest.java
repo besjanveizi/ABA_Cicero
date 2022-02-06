@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,7 +20,8 @@ class CiceroneTest {
         infoA = new InfoEsperienza("Esperienza A",
                 LocalDateTime.parse("2022-02-05T14:00:00"),
                 LocalDateTime.parse("2022-02-05T16:00:00"),
-                5, 15, 3);
+                5, 15, 3,
+                new ArrayList<>(), new ArrayList<>());
     }
 
     @Test
