@@ -1,5 +1,7 @@
 package model.esperienza;
 
+import java.util.List;
+
 /**
  * Rappresenta un'esperienza proposta nella piattaforma.
  */
@@ -39,4 +41,16 @@ public interface Esperienza {
      * @return nome dell'<code>Esperienza</code>.
      */
     String getName();
+
+    /**
+     *
+     * @return lista di {@link Tag} associati all'esperienza
+     */
+    List<Tag> getTagsAssociati();
+
+    /**
+     *
+     * @return lista di {@link Toponimo} associati all'esperienza
+     */
+    List<Toponimo> getToponimiAssociati();
 }

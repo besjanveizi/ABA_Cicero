@@ -1,6 +1,7 @@
 package model.esperienza;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Rappresenta l'interfaccia generale di un builder che si occupa di elaborare tutti i passi necessari per creare l'<code>Esperienza</code>.
@@ -44,6 +45,18 @@ public interface BuilderEsperienza {
      * @param maxGiorni numero massimo dei giorni di riserva per l'<code>Esperienza</code>
      */
     void setGiorniRiserva(int maxGiorni);
+
+    /**
+     * Permette di impostare i toponimi dell'<code>Esperienza</code>.
+     * @param toponimi lista dei toponimi relativi all'<code>Esperienza</code>.
+     */
+    void setToponimi(List<Toponimo> toponimi);
+
+    /**
+     * Permette di impostare i tags dell'<code>Esperienza</code>.
+     * @param tags lista dei tag relativi all'<code>Esperienza</code>.
+     */
+    void setTags(List<Tag> tags);
 
     /**
      * Restituisce l'<code>Esperienza</code> creata con i parametri dei setter invocati.
