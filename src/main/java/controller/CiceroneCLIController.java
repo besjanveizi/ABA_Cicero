@@ -1,10 +1,13 @@
 package controller;
 
+import model.esperienza.Tag;
+import model.esperienza.Toponimo;
 import model.ruoli.Cicerone;
 import view.IConsoleView;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Rappresenta un controller per un utente <code>Cicerone</code> che elabora le sue interazioni col sistema tramite la console.
@@ -49,10 +52,14 @@ public class CiceroneCLIController implements CiceroneController {
             maxRiserva = 2;
         }
 
+        List<Toponimo> toponimi = null;
+        List<Tag> tags = null;
+        // TODO: get list toponimi & tags form user
+
         boolean accetta = parseToBool(ciceroneView.ask("Vuoi confermare la creazione dell'esperienza [y/n]:"));
 
         if (accetta) {
-            InfoEsperienza cliE = new InfoEsperienza(nomeE, dI, dF, minP, maxP, maxRiserva);
+            InfoEsperienza cliE = new InfoEsperienza(nomeE, dI, dF, minP, maxP, maxRiserva, toponimi, tags);
             cicerone.creaEsperienza(cliE);
             ciceroneView.message("La creazione dell'esperienza è avvenuta con successo");
         }

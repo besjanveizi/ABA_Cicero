@@ -3,6 +3,8 @@ package model.esperienza;
 import model.ruoli.Cicerone;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Rappresenta un builder per una <code>SimpleEsperienza</code>.
@@ -16,6 +18,8 @@ public class BuilderSimpleEsperienza implements BuilderEsperienza {
     private int maxPartecipanti;
     private int minPartecipanti;
     private int maxGiorniRiserva;
+    private List<Toponimo> toponimi;
+    private List<Tag> tags;
 
     /**
      * Costruisce un builder per una <code>SimpleEsperienza</code>.
@@ -56,9 +60,19 @@ public class BuilderSimpleEsperienza implements BuilderEsperienza {
     }
 
     @Override
+    public void setToponimi(List<Toponimo> toponimi) {
+        this.toponimi = new ArrayList<>(toponimi);
+    }
+
+    @Override
+    public void setTags(List<Tag> tags) {
+        this.tags = new ArrayList<>(tags);
+    }
+
+    @Override
     public Esperienza getResult() {
         return new SimpleEsperienza(nomeEsperienza, cicerone, dataInizio, dataFine,
-                maxPartecipanti, minPartecipanti, maxGiorniRiserva);
+                maxPartecipanti, minPartecipanti, maxGiorniRiserva, toponimi, tags);
     }
 
     @Override

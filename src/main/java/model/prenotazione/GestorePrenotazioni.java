@@ -1,5 +1,6 @@
 package model.prenotazione;
 
+import model.esperienza.Esperienza;
 import model.ruoli.Turista;
 
 import java.util.List;
@@ -18,5 +19,14 @@ public class GestorePrenotazioni<P> {
      */
     public GestorePrenotazioni(Turista turistaAssociato) {
         this.turistaAssociato = turistaAssociato;
+    }
+
+    public void creaPrenotazione(Esperienza esperienza, int numeroPosti) {
+        Prenotazione nuovaPrenotazione = new SimplePrenotazione(esperienza, numeroPosti);
+        updatePrenotazioniEsperienza(esperienza);
+    }
+
+    private void updatePrenotazioniEsperienza(Esperienza esperienza) {
+
     }
 }

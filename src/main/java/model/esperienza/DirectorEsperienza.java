@@ -28,5 +28,7 @@ public class DirectorEsperienza {
         builder.setMin(infoE.getMinP());
         builder.setMax(infoE.getMaxP());
         builder.setGiorniRiserva(infoE.getMaxRiserva());
+        builder.setToponimi(infoE.getToponimi());
+        builder.setTags(infoE.getTags());
     }
 }

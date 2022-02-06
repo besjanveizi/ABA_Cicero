@@ -1,6 +1,11 @@
 package controller;
 
+import model.esperienza.Tag;
+import model.esperienza.Toponimo;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Rappresenta le informazioni riguardanti un <code>Esperienza</code> fornite dall'utente.
@@ -13,6 +18,8 @@ public class InfoEsperienza {
     private final int minP;
     private final int maxP;
     private final int maxRiserva;
+    private final List<Toponimo> listToponimi;
+    private final List<Tag> listTags;
 
     /**
      * Crea un istanza delle informazioni riguardanti l'<code>Esperienza</code> con i parametri dati.
@@ -23,13 +30,16 @@ public class InfoEsperienza {
      * @param maxP massimo numero dei partecipanti all'<code>Esperienza</code>.
      * @param maxRiserva massimo numero dei giorni di riserva per l'<code>Esperienza</code>.
      */
-    public InfoEsperienza(String nomeE, LocalDateTime dI, LocalDateTime dF, int minP, int maxP, int maxRiserva) {
+    public InfoEsperienza(String nomeE, LocalDateTime dI, LocalDateTime dF, int minP, int maxP, int maxRiserva,
+                          List<Toponimo> listToponimi, List<Tag> listTags) {
         this.nomeE = nomeE;
         this.dI = dI;
         this.dF = dF;
         this.minP = minP;
         this.maxP = maxP;
         this.maxRiserva = maxRiserva;
+        this.listToponimi = new ArrayList<>(listToponimi);
+        this.listTags = new ArrayList<>(listTags);
     }
 
     /**
@@ -37,7 +47,7 @@ public class InfoEsperienza {
      * @return nome dell'<code>Esperienza</code>.
      */
     public String getNomeE() {
-        return nomeE;
+        return this.nomeE;
     }
 
     /**
@@ -45,7 +55,7 @@ public class InfoEsperienza {
      * @return data d'inizio dell'<code>Esperienza</code>.
      */
     public LocalDateTime get_dI() {
-        return dI;
+        return this.dI;
     }
 
     /**
@@ -53,7 +63,7 @@ public class InfoEsperienza {
      * @return data di conclusione dell'<code>Esperienza</code>.
      */
     public LocalDateTime get_dF() {
-        return dF;
+        return this.dF;
     }
 
     /**
@@ -61,7 +71,7 @@ public class InfoEsperienza {
      * @return numero minimo dei partecipanti all'<code>Esperienza</code>.
      */
     public int getMinP() {
-        return minP;
+        return this.minP;
     }
 
     /**
@@ -69,7 +79,7 @@ public class InfoEsperienza {
      * @return numero massimo dei partecipanti all'<code>Esperienza</code>.
      */
     public int getMaxP() {
-        return maxP;
+        return this.maxP;
     }
 
     /**
@@ -77,6 +87,14 @@ public class InfoEsperienza {
      * @return numero massimo di giorni di riserva per l'<code>Esperienza</code>.
      */
     public int getMaxRiserva() {
-        return maxRiserva;
+        return this.maxRiserva;
+    }
+
+    public List<Toponimo> getToponimi() {
+        return this.listToponimi;
+    }
+
+    public List<Tag> getTags() {
+        return this.listTags;
     }
 }
