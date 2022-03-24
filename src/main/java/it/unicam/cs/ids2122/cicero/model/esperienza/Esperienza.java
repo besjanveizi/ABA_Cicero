@@ -1,9 +1,8 @@
 package it.unicam.cs.ids2122.cicero.model.esperienza;
 
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
-import it.unicam.cs.ids2122.cicero.model.territorio.Toponimo;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Rappresenta un'esperienza proposta nella piattaforma.
@@ -25,13 +24,7 @@ public interface Esperienza {
      * Calcola il numero di posti disponibili per prenotarsi all'esperienza.
      * @return numero intero di posti disponibili per prenotarsi.
      */
-    int calculateAvailability();
-
-    /**
-     * Aggiorna i posti disponibili dell'esperienza.
-     * @param postiDisponibili nuovo valore dei posti disponibili.
-     */
-    void updateAvailability(int postiDisponibili);
+    int getPostiDisponibili();
 
     /**
      * Restituisce l'identificativo dell'<code>Esperienza</code>.
@@ -47,13 +40,13 @@ public interface Esperienza {
 
     /**
      *
-     * @return lista di {@link Tag} associati all'esperienza
+     * @return insieme dei tags associati all'esperienza
      */
-    List<Tag> getTagsAssociati();
+    Set<Tag> getTagsAssociati();
 
     /**
      *
-     * @return lista di {@link Toponimo} associati all'esperienza
+     * @return insieme dei toponimi associati all'esperienza
      */
-    List<Toponimo> getToponimiAssociati();
+    Set<String> getToponimiAssociati();
 }
