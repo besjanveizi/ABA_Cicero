@@ -1,8 +1,8 @@
 package model.ruoli;
 
 import it.unicam.cs.ids2122.cicero.model.service.InfoEsperienza;
-import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
-import it.unicam.cs.ids2122.cicero.ruoli.DefaultCicerone;
+import it.unicam.cs.ids2122.cicero.ruoli_LEGACY.Cicerone;
+import it.unicam.cs.ids2122.cicero.ruoli_LEGACY.DefaultCicerone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

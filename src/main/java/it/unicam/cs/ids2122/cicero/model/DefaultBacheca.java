@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model;
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
+import it.unicam.cs.ids2122.cicero.ruoli_LEGACY.Cicerone;
 
 import java.util.ArrayList;
 import java.util.HashMap;

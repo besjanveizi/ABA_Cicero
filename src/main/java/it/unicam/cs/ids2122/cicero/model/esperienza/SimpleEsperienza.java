@@ -2,7 +2,7 @@ package it.unicam.cs.ids2122.cicero.model.esperienza;
 
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.territorio.Toponimo;
-import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
+import it.unicam.cs.ids2122.cicero.ruoli_LEGACY.Cicerone;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.ruoli;
+package it.unicam.cs.ids2122.cicero.ruoli_LEGACY;
 
 import it.unicam.cs.ids2122.cicero.model.service.InfoEsperienza;
 import it.unicam.cs.ids2122.cicero.model.esperienza.*;

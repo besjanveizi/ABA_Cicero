@@ -3,8 +3,7 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione;
 
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.*;
-import it.unicam.cs.ids2122.cicero.ruoli.Turista;
+import it.unicam.cs.ids2122.cicero.ruoli_LEGACY.Turista;
 import it.unicam.cs.ids2122.cicero.view.CLI;
 
 import java.util.ArrayList;

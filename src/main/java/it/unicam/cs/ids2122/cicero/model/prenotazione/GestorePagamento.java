@@ -1,6 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione;
 
-import it.unicam.cs.ids2122.cicero.ruoli.Turista;
+import it.unicam.cs.ids2122.cicero.ruoli_LEGACY.Turista;
 
 import java.util.ArrayList;
 import java.util.List;
