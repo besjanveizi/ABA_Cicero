@@ -1,26 +1,17 @@
 package it.unicam.cs.ids2122.cicero.ruoli;
 
-
-import it.unicam.cs.ids2122.cicero.model.service.InfoEsperienza;
-import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
-
-import java.util.List;
-
 /**
- * Rappresenta un esperto e conoscitore del territorio che si propone di
- * assistere i turisti nell’<code>Esperienza</code> di visita di una città o di una escursione.
+ * Rappresenta un utente autenticato nel sistema come cicerone.
  */
-public interface Cicerone {
+public class Cicerone extends UtenteAutenticato {
 
     /**
-     * Permette di creare un'<code>Esperienza</code>.
-     * @param infoEsperienza informazioni relative all'<code>Esperienza</code>.
+     * Crea un cicerone.
+     * @param uid user id del cicerone.
+     * @param username username del cicerone.
+     * @param email email del cicerone.
      */
-    void creaEsperienza(InfoEsperienza infoEsperienza);
-
-    /**
-     * Restituisce tutte le esperienze create dal <code>Cicerone</code>.
-     * @return una collezione delle esperienze create dal <code>Cicerone</code>.
-     */
-    List<Esperienza> getAllEsperienze();
+    public Cicerone(int uid, String username, String email) {
+        super(uid, username, email, UtenteType.CICERONE);
+    }
 }
