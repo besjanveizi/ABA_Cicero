@@ -3,7 +3,7 @@ package it.unicam.cs.ids2122.cicero.ruoli_LEGACY;
 import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.GestorePrenotazioni;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.Prenotazione;
-import it.unicam.cs.ids2122.cicero.model.Bacheca;
+import it.unicam.cs.ids2122.cicero.model.service.ricerca.IBacheca;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * Rappresenta un utente <code>Turista</code> nella piattaforma Cicero.
  */
 public class DefaultTurista implements Turista {
-    private Bacheca bacheca;
+    private IBacheca bacheca;
 
     private final GestorePrenotazioni gestorePrenotazioni;
 

@@ -1,30 +1,37 @@
 package it.unicam.cs.ids2122.cicero.model;
 
-import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.ruoli_LEGACY.Cicerone;
 
-import java.util.List;
+import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.service.ricerca.IBacheca;
+
+import java.util.*;
 
 /**
- * Rappresenta un raccoglitore di tutte le esperienze pubbliche nella piattaforma Cicero.
+ * Classe singleton che rappresenta una bacheca globale nella piattaforma cicero.
  */
-public interface Bacheca {
+public class Bacheca implements IBacheca {
 
-    /**
-     * Restituisce tutte le esperienze pubbliche nella piattaforma.
-     * @return lista di tutte le esperienze pubblicate.
-     */
-    List<Esperienza> getAllEsperienze();
+    private static Bacheca instance=null;
+    private Set<Esperienza> esperienze;
 
-    /**
-     * Restituisce l'<code>Esperienza</code> cui identificativo corrisponde a quello dato.
-     * @param id identificativo dell'<code>Esperienza</code> che si vuole ottenere.
-     * @return <code>Esperienza</code> corrispondente all'identificativo dato.
+    private Bacheca() {
+        //ottengo esperienze
+    }
+
+    public static Bacheca getInstance(){
+        if(instance == null)
+            instance= new Bacheca();
+        return instance;
+    }
+
+    @Override
+    public Set<Esperienza> getAllEsperienze() {
+        return esperienze;
+    }
+
+    /*
+    public Set<Esperienza> gettAllValidEsperienze(){
+         return esperienze;
+    }
      */
-    Esperienza getEsperienza(int id);
-    /**
-     * Aggiunge un nuovo cicerone e le relative esperienze alla bacheca
-     * @param c {@link Cicerone} che si vuole aggiungere
-     */
-    void addCicerone(Cicerone c);
 }

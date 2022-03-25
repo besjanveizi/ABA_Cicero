@@ -117,6 +117,11 @@ public class SimpleEsperienza implements Esperienza {
     }
 
     @Override
+    public String shortToString() {
+        return "Esperienza "+nome+", ID:"+id+", inizio: "+dataInizio+", fine: "+dataFine+", Tag: "+tags.stream().map(t->t.getName()).collect(Collectors.toSet())+" Toponimi: "+toponimi.stream().map(t->t.getToponimo()).collect(Collectors.toSet());
+    }
+
+    @Override
     public String toString() {
         return "SimpleEsperienza{" +
                 "nome='" + nome + '\'' +

@@ -49,4 +49,10 @@ public interface Esperienza {
      * @return insieme dei toponimi associati all'esperienza
      */
     Set<String> getToponimiAssociati();
+
+    /**
+     *
+     * @return informazioni basilari sull'esperienza (ID, nome, data, tag e toponimi associati)
+     */
+    String shortToString();
 }
