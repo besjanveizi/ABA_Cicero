@@ -11,17 +11,24 @@ import java.util.*;
 /**
  * Gestore di tutte le esperienze create dal <code>Cicerone</code> associato.
  */
-public class GestoreEsperienze{
+public class GestoreEsperienze {
+
     private Set<Esperienza> esperienze;
     private Cicerone cicerone;
+    private static GestoreEsperienze instance = null;
 
     /**
      * Crea un gestore delle esperienze per il dato <code>Cicerone</code>.
      * @param cicerone <code>Cicerone</code> a cui il gestore si riferisce.
      */
-    public GestoreEsperienze(Cicerone cicerone) {
+    private GestoreEsperienze(Cicerone cicerone) {
         this.cicerone = cicerone;
         esperienze = updateEsperienze();
+    }
+
+    public static GestoreEsperienze getInstance(Cicerone cicerone) {
+        if (instance == null) instance = new GestoreEsperienze(cicerone);
+        return instance;
     }
 
     private Set<Esperienza> updateEsperienze() {

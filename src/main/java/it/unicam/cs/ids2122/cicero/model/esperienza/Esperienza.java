@@ -1,18 +1,18 @@
 package it.unicam.cs.ids2122.cicero.model.esperienza;
 
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
+import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 
 import java.util.Set;
 
 /**
- * Rappresenta un'esperienza proposta nella piattaforma.
+ * Rappresenta un'esperienza che &egrave stata proposta nella piattaforma da un <code>Cicerone</code>.
  */
 public interface Esperienza {
     /**
-     * Controlla se un'esperienza è valida per essere eseguita.
-     * @return true se è valida, false altrimenti.
+     * @return lo stato dell'<code>Esperienza</code>.
      */
-    boolean isValid();
+    EsperienzaStatus getStatus();
 
     /**
      * Controlla se un'esperienza ha posti disponibili per prenotarsi.
@@ -42,17 +42,10 @@ public interface Esperienza {
      *
      * @return insieme dei tags associati all'esperienza
      */
-    Set<Tag> getTagsAssociati();
+    Set<Tag> getTags();
 
     /**
-     *
-     * @return insieme dei toponimi associati all'esperienza
+     * @return insieme delle aree associate all'<code>Esperienza</code>.
      */
-    Set<String> getToponimiAssociati();
-
-    /**
-     *
-     * @return informazioni basilari sull'esperienza (ID, nome, data, tag e toponimi associati)
-     */
-    String shortToString();
+    Set<Area> getAree();
 }

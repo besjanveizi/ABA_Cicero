@@ -29,10 +29,10 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     public Ctrl_Cicerone(IView<String> view, Cicerone cicerone) {
         super(view, cicerone);
         impostaMenu();
-        gestoreAree = new GestoreAree();
+        gestoreAree = GestoreAree.getInstance();
         gestorePercorso = new GestorePercorso(view, gestoreAree);
-        gestoreTag = new GestoreTag();
-        gestoreEsperienze = new GestoreEsperienze(cicerone);
+        gestoreTag = GestoreTag.getInstance();
+        gestoreEsperienze = GestoreEsperienze.getInstance(cicerone);
     }
 
     @Override

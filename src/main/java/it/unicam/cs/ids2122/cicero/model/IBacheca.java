@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.service.ricerca;
+package it.unicam.cs.ids2122.cicero.model;
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 
@@ -11,7 +11,7 @@ public interface IBacheca {
 
     /**
      * Restituisce tutte le esperienze pubbliche nella piattaforma.
-     * @return lista di tutte le esperienze pubblicate.
+     * @return insieme di tutte le esperienze pubblicate nella piattaforma.
      */
     Set<Esperienza> getAllEsperienze();
 }

@@ -19,6 +19,12 @@ public class CLIView implements IView<String> {
     }
 
     @Override
+    public void message(String message, Collection<String> items) {
+        message(message);
+        items.forEach(System.out::println);
+    }
+
+    @Override
     public String ask(String message) {
         message(message);
         return fetch();
@@ -32,12 +38,6 @@ public class CLIView implements IView<String> {
             e.printStackTrace();
         }
         return "";
-    }
-
-    @Override
-    public void message(String message, Collection<String> items) {
-        message(message);
-        items.forEach(System.out::println);
     }
 
     @Override
@@ -129,7 +129,6 @@ public class CLIView implements IView<String> {
     @Override
     public Money fetchMoney() {
         int euro, cents;
-        Currency valuta = Currency.getInstance("EUR");
         while (true) {
             message("euro: ");
             euro = fetchInt();
@@ -142,6 +141,6 @@ public class CLIView implements IView<String> {
             if (cents >= 0 && cents <= 99) break;
             else message("Errore: devi inserire un valore tra 0 e 99");
         }
-        return new Money(valuta, new BigDecimal(euro+"."+cents));
+        return new Money(new BigDecimal(euro+"."+cents));
     }
 }

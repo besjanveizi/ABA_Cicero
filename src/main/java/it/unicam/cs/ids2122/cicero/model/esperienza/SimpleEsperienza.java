@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  */
 public class SimpleEsperienza implements Esperienza {
 
-    private int id;
+    private final int id;
     private String nome;
     private Cicerone ciceroneCreatore;
     private LocalDateTime dataInizio;
@@ -26,8 +26,9 @@ public class SimpleEsperienza implements Esperienza {
     private Money costoIndividuale;
     private int maxGiorniRiserva;
     private Set<Tag> tags;
-    private Set<Area> toponimi;
+    private Set<Area> aree;
     private int postiDisponibili;
+    private EsperienzaStatus status;
 
     /**
      * Crea un'<code>Esperienza</code> semplice impostando i suoi parametri.
@@ -54,6 +55,15 @@ public class SimpleEsperienza implements Esperienza {
         this.costoIndividuale = costoIndividuale;
         this.maxGiorniRiserva = maxGiorniRiserva;
         this.tags=tags;
+        this.status = EsperienzaStatus.IDLE;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public Cicerone getCiceroneCreatore() {
+        return ciceroneCreatore;
     }
 
     public LocalDateTime getDataInizio() {
@@ -72,8 +82,16 @@ public class SimpleEsperienza implements Esperienza {
         return minPartecipanti;
     }
 
-    public Cicerone getCiceroneCreatore() {
-        return ciceroneCreatore;
+    public Percorso getPercorso() {
+        return percorso;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public Money getCostoIndividuale() {
+        return costoIndividuale;
     }
 
     public int getMaxGiorniRiserva() {
@@ -91,9 +109,8 @@ public class SimpleEsperienza implements Esperienza {
     }
 
     @Override
-    public boolean isValid() {
-        //  TODO: insert stato esperienza
-        return false;
+    public EsperienzaStatus getStatus() {
+        return status;
     }
 
     @Override
@@ -107,35 +124,26 @@ public class SimpleEsperienza implements Esperienza {
     }
 
     @Override
-    public Set<Tag> getTagsAssociati() {
-        return tags;
-    }
-
-    @Override
-    public Set<String> getToponimiAssociati() {
-        return percorso.getAree().stream().map(Area::getToponimo).collect(Collectors.toSet());
-    }
-
-    @Override
-    public String shortToString() {
-        return "Esperienza "+nome+", ID:"+id+", inizio: "+dataInizio+", fine: "+dataFine+", Tag: "+tags.stream().map(t->t.getName()).collect(Collectors.toSet())+" Toponimi: "+toponimi.stream().map(t->t.getToponimo()).collect(Collectors.toSet());
+    public Set<Area> getAree() {
+        if (aree.isEmpty())
+            aree = percorso.getAree();
+        return aree;
     }
 
     @Override
     public String toString() {
-        return "SimpleEsperienza{" +
-                "nome='" + nome + '\'' +
-                ", ciceroneCreatore=" + ciceroneCreatore +
-                ", dataInizio=" + dataInizio +
-                ", dataFine=" + dataFine +
-                ", maxPartecipanti=" + maxPartecipanti +
-                ", minPartecipanti=" + minPartecipanti +
-                ", percorso=" + percorso +
-                ", costoIndividuale=" + costoIndividuale +
-                ", maxGiorniRiserva=" + maxGiorniRiserva +
-                ", tags=" + tags +
-                ", toponimi=" + toponimi +
-                ", postiDisponibili=" + postiDisponibili +
+        return "Info dell'esperienza {" +
+                "nome: '" + getName() + '\'' +
+                ", cicerone: '" + getCiceroneCreatore().getUsername() + '\'' +
+                ", inizio: " + getDataInizio() +
+                ", fine: " + getDataFine() +
+                ", num. max partecipanti: " + getMaxPartecipanti() +
+                ", num. min partecipanti: " + getMinPartecipanti() +
+                ", costo per posto: " + getCostoIndividuale() +
+                ", max giorni di riserva: " + getMaxGiorniRiserva() +
+                ", tags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet()) +
+                ", toponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
+                ", postiDisponibili: " + getPostiDisponibili() +
                 '}';
     }
 }

@@ -5,8 +5,8 @@ import it.unicam.cs.ids2122.cicero.model.service.ricerca.GestoreRicerca;
 import it.unicam.cs.ids2122.cicero.model.tag.GestoreTag;
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.tag.TagStatus;
-import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 import it.unicam.cs.ids2122.cicero.model.territorio.GestoreAree;
+import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
 import java.util.ArrayList;
@@ -31,8 +31,8 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         this.view = view;
         menuItems = new ArrayList<>();
         impostaMenu();
-        gestoreAree = new GestoreAree();
-        gestoreTag= new GestoreTag();
+        gestoreAree = GestoreAree.getInstance();
+        gestoreTag = GestoreTag.getInstance();
         gestoreRicerca=new GestoreRicerca();
         // gestoreAutenticazione(view) = new ..
     }
@@ -105,7 +105,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     }
 
     private void showEsperienzeTrovate(Set<Esperienza> esperienze){
-        Set<String> esperienzeShort = esperienze.stream().map(Esperienza::shortToString).collect(Collectors.toSet());
+        Set<String> esperienzeShort = esperienze.stream().map(Esperienza::toString).collect(Collectors.toSet());
         view.message("Esperienze trovate:",esperienzeShort);
         /*
         view.message("Vuoi selezionare una specifica esperienza?");
