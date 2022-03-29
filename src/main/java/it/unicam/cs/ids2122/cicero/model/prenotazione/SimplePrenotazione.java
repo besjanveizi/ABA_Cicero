@@ -34,12 +34,6 @@ public class SimplePrenotazione implements PropPrenotazione,FunPrenotazione {
      */
     private  int posti;
 
-    /**
-     * data inizio dell' esperienza, influenza la
-     * validità della prenotazione
-     * PRENOTATA -> CANCELLATA
-     */
-    private LocalDateTime data_inizio_esperienza;
 
     /**
      * data di scadenza per la validità di questa
@@ -73,19 +67,20 @@ public class SimplePrenotazione implements PropPrenotazione,FunPrenotazione {
      * @param ID_esperienza id dell' esperienza da prenotare
      * @param nome_esperienza nome dell' esperienza
      * @param posti posti da riservare
-     * @param data_inizio_esperienza data inizio dell' esperienza
      * @param maxGiorniRiserva calcolo giorni di validità della prenotazione
      * @param prezzo_singolo prezzo dell' esperienza del singolo posto
      * @param valuta dell' importo
      * @throws IllegalStateException se non è più possibile prenotare
      */
     public SimplePrenotazione(int ID_turista, int ID_esperienza, String nome_esperienza, int posti,
-                              LocalDateTime data_inizio_esperienza, int maxGiorniRiserva,BigDecimal prezzo_singolo, String valuta){
+                               LocalDateTime data_inizio_esperienza ,int maxGiorniRiserva,BigDecimal prezzo_singolo, String valuta){
         this.ID_turista = ID_turista;
         this.ID_esperienza = ID_esperienza;
         this.nomeEsperienza = nome_esperienza;
         this.scadenza = LocalDateTime.now().plus(maxGiorniRiserva, ChronoUnit.DAYS).truncatedTo(ChronoUnit.HOURS);
-        this.data_inizio_esperienza = data_inizio_esperienza;
+        if(scadenza.isAfter(data_inizio_esperienza)){
+            this.scadenza = data_inizio_esperienza;
+        }
         this.posti = posti;
         this.prezzo_totale = prezzo_singolo.multiply(BigDecimal.valueOf(posti));
         this.valuta = valuta;
@@ -99,7 +94,6 @@ public class SimplePrenotazione implements PropPrenotazione,FunPrenotazione {
      * @param ID_turista id dell' utente che ha effettuato la prenotazione
      * @param nomeEsperienza nome dell' esperienza
      * @param posti numero di posti prenotati
-     * @param data_inizio_esperienza data inizio esperienza
      * @param scadenza data ultima di validità
      * @param prezzo_totale costo di un eventuale pagamento
      * @param valuta dell' importo
@@ -107,14 +101,13 @@ public class SimplePrenotazione implements PropPrenotazione,FunPrenotazione {
      *
      */
     public SimplePrenotazione(int ID_prenotazione, int ID_esperienza, int ID_turista, String nomeEsperienza, int posti,
-                              LocalDateTime data_inizio_esperienza, LocalDateTime scadenza,
-                              BigDecimal prezzo_totale, String valuta,StatoPrenotazione statoPrenotazione) {
+                              LocalDateTime scadenza, BigDecimal prezzo_totale, String valuta,
+                              StatoPrenotazione statoPrenotazione) {
         this.ID_prenotazione = ID_prenotazione;
         this.ID_esperienza = ID_esperienza;
         this.ID_turista = ID_turista;
         this.nomeEsperienza = nomeEsperienza;
         this.posti = posti;
-        this.data_inizio_esperienza = data_inizio_esperienza;
         this.scadenza = scadenza;
         this.prezzo_totale = prezzo_totale;
         this.statoPrenotazione = statoPrenotazione;
@@ -127,18 +120,17 @@ public class SimplePrenotazione implements PropPrenotazione,FunPrenotazione {
      * @param ID_esperienza
      * @param nome_esperienza
      * @param posti
-     * @param data_inizio_esperienza
      * @param scadenza
      * @param prezzo_singolo
      * @param valuta dell' importo
      */
     public SimplePrenotazione(int ID_turista, int ID_esperienza, String nome_esperienza, int posti,
-                              LocalDateTime data_inizio_esperienza, LocalDateTime scadenza ,BigDecimal prezzo_singolo, String valuta){
+                            LocalDateTime scadenza ,BigDecimal prezzo_singolo, String valuta){
+
         this.ID_turista = ID_turista;
         this.ID_esperienza = ID_esperienza;
         this.nomeEsperienza = nome_esperienza;
         this.scadenza = scadenza;
-        this.data_inizio_esperienza = data_inizio_esperienza;
         this.posti = posti;
         this.prezzo_totale = prezzo_singolo.multiply(BigDecimal.valueOf(posti));
         this.valuta = valuta;
@@ -170,12 +162,6 @@ public class SimplePrenotazione implements PropPrenotazione,FunPrenotazione {
     public int getPosti() {
         return posti;
     }
-
-    @Override
-    public LocalDateTime getData_inizio_esperienza() {
-        return data_inizio_esperienza;
-    }
-
 
     @Override
     public LocalDateTime getScadenza() {

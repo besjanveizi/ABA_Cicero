@@ -15,6 +15,7 @@ import it.unicam.cs.ids2122.cicero.model.prenotazione.utenti.Utente;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class GestoreInviti extends AbstractGestore{
      */
     public void crea_invito(Esperienza esperienza, String mail_invitato, int posti_riservati){
         Invito invito = new SimpleInvito(utente_corrente.getID(), ((PropEsperienza) esperienza).getId(),
-                mail_invitato, ((PropEsperienza) esperienza).getMaxGiorniRiserva(), posti_riservati);
+                mail_invitato, ((PropEsperienza) esperienza).getDataInizio(), ((PropEsperienza) esperienza).getMaxGiorniRiserva(), posti_riservati);
          String sql_format = MessageFormat.format(sql_insert, getToken(invito));
          dbManager.insert_update_delete_query(sql_format);
          lista_inviti.add(invito);

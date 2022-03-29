@@ -10,14 +10,14 @@ public class SimpleUser implements Utente {
     private String email;
     private UtenteType userType;
     private String hash_pass;
-    private String id_client = null;
+
 
     // recupero dal db // log in
     public SimpleUser(int id, UtenteType userType, String email, String id_client) {
         this.id = id;
         this.userType = userType;
         this.email = email;
-        this.id_client = id_client;
+
     }
 
     // creazione utente // sign in
@@ -25,7 +25,6 @@ public class SimpleUser implements Utente {
         this.userType = userType;
         this.email = email;
         this.hash_pass = hash_pass;
-        this.id_client = SystemConstraints.id_client_generator(getMail()) ;
     }
 
     @Override
@@ -43,10 +42,6 @@ public class SimpleUser implements Utente {
         return this.email;
     }
 
-    @Override
-    public String getID_Client() {
-        return id_client;
-    }
 
 
     @Override

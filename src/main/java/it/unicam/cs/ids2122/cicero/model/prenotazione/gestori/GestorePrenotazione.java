@@ -36,8 +36,8 @@ public class GestorePrenotazione extends AbstractGestore{
      * sostituzione della stringa <code>{@link java.sql.PreparedStatement}</code>
      */
     private String sql_insert = "INSERT INTO public.prenotazioni (id_esperienza, uid_turista, " +
-            "nome_esperienza, posti_prenotati, data_inizio_esperienza, data_scadenza_riserva, costo_totale, valuta " +
-            "stato_prenotazione) VALUES ( {0} , {1} , {2} , {3}, {4} , {5} , {6} , {7} , {8});";
+            "nome_esperienza, posti_prenotati, , data_scadenza_riserva, costo_totale, valuta " +
+            "stato_prenotazione) VALUES ( {0} , {1} , {2} , {3}, {4} , {5} , {6} , {7} );";
 
     /**
      * recupera le esperienze dell' utente corrente, tramite query
@@ -104,8 +104,8 @@ public class GestorePrenotazione extends AbstractGestore{
         PropEsperienza esperienza = (PropEsperienza) new DBEsperienza().crea_singola_esperienza(resultSet);
         Prenotazione prenotazione = new SimplePrenotazione(utente_corrente.getID(),
                 esperienza.getId(), esperienza.getName(),
-                invito.getPosti_riservati(), esperienza.getDataInizio(),
-                invito.getData_scadenza_riserva(), esperienza.getPrezzo(), esperienza.getValuta());
+                invito.getPosti_riservati(), invito.getData_scadenza_riserva(),
+                esperienza.getPrezzo(), esperienza.getValuta());
 
         String format = MessageFormat.format(sql_insert, getToken((PropPrenotazione) prenotazione));
         dbManager.insert_update_delete_query(format);
@@ -125,7 +125,6 @@ public class GestorePrenotazione extends AbstractGestore{
             prenotazione.getID_turista(),
             prenotazione.getNomeEsperienza(),
             prenotazione.getPosti(),
-            "'"+prenotazione.getData_inizio_esperienza().toString().replace('T', ' ') +"'",
             "'"+prenotazione.getScadenza().toString().replace('T', ' ')+"'",
             "'"+prenotazione.getPrezzo_totale()+"'",
             "'"+prenotazione.getValuta()+"'",

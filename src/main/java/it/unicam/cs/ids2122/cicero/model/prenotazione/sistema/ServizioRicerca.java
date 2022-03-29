@@ -5,7 +5,7 @@ import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.PropEsperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.GestoreBacheca;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBManager;
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
-import it.unicam.cs.ids2122.cicero.model.territorio.SimpleToponimo;
+
 import it.unicam.cs.ids2122.cicero.model.territorio.Toponimo;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
@@ -38,7 +38,7 @@ public class ServizioRicerca<E extends Esperienza> implements Service<E> {
             while(true){
                 text = cliView.ask("inserire");
                 if(text.equals("exit") || text.equals("conferma"))break;
-                toponimi.add(new SimpleToponimo(text));
+                //toponimi.add(new SimpleToponimo(text));
             }
             cliView.message(" 'exit' per uscire, 'conferma' per confermare la selezione");
             cliView.message("inserire tag/s ");

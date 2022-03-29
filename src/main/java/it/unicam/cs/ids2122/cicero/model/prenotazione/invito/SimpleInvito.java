@@ -16,15 +16,24 @@ public class SimpleInvito implements FunInvito,  PropInvito {
     private int posti_riservati;
 
 
-
-
-    public SimpleInvito(int id_mittente, int id_esperienza,
-                        String email_destinatario, int maxGiorniRiserva, int posti_riservati) {
+    /**
+     * run time
+     * @param id_mittente
+     * @param id_esperienza
+     * @param email_destinatario
+     * @param maxGiorniRiserva
+     * @param posti_riservati
+     */
+    public SimpleInvito(int id_mittente, int id_esperienza, String email_destinatario, LocalDateTime data_inizio,
+                        int maxGiorniRiserva, int posti_riservati) {
         this.id_mittente = id_mittente;
         this.id_esperienza = id_esperienza;
         this.email_destinatario = email_destinatario;
         this.data_creazione = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
         this.data_scadenza_riserva = data_creazione.plus(maxGiorniRiserva,ChronoUnit.DAYS).truncatedTo(ChronoUnit.HOURS);
+        if(data_scadenza_riserva.isAfter(data_inizio)){
+            data_scadenza_riserva = data_inizio;
+        }
         this.posti_riservati = posti_riservati;
     }
 

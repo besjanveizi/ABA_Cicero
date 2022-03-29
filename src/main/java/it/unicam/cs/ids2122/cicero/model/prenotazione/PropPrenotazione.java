@@ -40,11 +40,6 @@ public interface PropPrenotazione extends Prenotazione{
      */
     int getPosti();
 
-    /**
-     * restituisce la data di inizio dell' esperienza
-     * @return data inizio esperienza prenotata
-     */
-    LocalDateTime getData_inizio_esperienza();
 
     /**
      * data scadenza prenotazione

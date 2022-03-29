@@ -5,6 +5,7 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.prenotazione.Prenotazione;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.PropPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.SystemConstraints;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.pagamento.Fattura;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.pagamento.FunFattura;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.pagamento.PropFattura;
@@ -55,14 +56,14 @@ public class GestorePagamento extends AbstractGestore{
 
 
     private void carica_pagamenti_effettuati() throws SQLException {
-         Object[] token = { "'"+utente_corrente.getID()+"'", "'"+utente_corrente.getID_Client()+"';" };
+         Object[] token = { "'"+utente_corrente.getID()+"'", "'"+SystemConstraints.id_client_generator(utente_corrente.getMail())+"';" };
          String format = MessageFormat.format(sql_select_effettuati, token);
          ResultSet resultSet = dbManager.select_query(format);
          new DBFattura().genera(resultSet, lista_pagamenti_effettuati);
     }
 
     private void carica_pagamenti_ricevuti() throws SQLException {
-        Object[] token = { "'"+utente_corrente.getID()+"'", "'"+utente_corrente.getID_Client()+"';" };
+        Object[] token = { "'"+utente_corrente.getID()+"'", "'"+SystemConstraints.id_client_generator(utente_corrente.getMail())+"';" };
         String format = MessageFormat.format(sql_select_ricevuti, token);
         ResultSet resultSet = dbManager.select_query(format);
         new DBFattura().genera(resultSet, lista_pagamenti_ricevuti);
@@ -79,7 +80,7 @@ public class GestorePagamento extends AbstractGestore{
         PropPrenotazione propPrenotazione = (PropPrenotazione) prenotazione;
         Fattura fattura = new SimpleFattura(propPrenotazione.getID_prenotazione(),
                 propPrenotazione.getPosti(), propPrenotazione.getPrezzo_totale(), propPrenotazione.getValuta());
-        mapping(fattura).accept(utente_corrente.getID_Client()); // --> aggiorna la fattura creata
+        mapping(fattura).accept(SystemConstraints.id_client_generator(utente_corrente.getMail())); // --> aggiorna la fattura creata
         String format = MessageFormat.format(sql_insert, getToken(fattura));
         dbManager.insert_update_delete_query(format);
         lista_pagamenti_effettuati.add(fattura);

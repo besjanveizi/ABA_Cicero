@@ -20,11 +20,6 @@ public interface Utente {
      */
     String getMail();
 
-    /**
-     * recupera il conto
-     * @return conto bancario per transizione
-     */
-    String getID_Client();
 
 
 
