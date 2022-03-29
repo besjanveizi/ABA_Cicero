@@ -1,12 +1,16 @@
 package it.unicam.cs.ids2122.cicero.model.esperienza;
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.Prenotazione;
+
+
+import it.unicam.cs.ids2122.cicero.model.prenotazione_v2.Prenotazione;
 
 import java.util.List;
 
 /**
  * Rappresenta il gestore della disponibilit&agrave per un'<code>Esperienza</code>.
  */
+
+
 public class GestoreDisponibilita {
     private List<Prenotazione> listaPrenotazioniPagate;
     private List<Prenotazione> listaRiserve;
