@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.esperienza.percorso;
 
-import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 import it.unicam.cs.ids2122.cicero.model.territorio.GestoreAree;
+import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
 import java.util.Objects;

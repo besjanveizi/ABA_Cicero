@@ -1,10 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.tag;
 
-import it.unicam.cs.ids2122.cicero.model.tag.SimpleTag;
-
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -13,30 +9,30 @@ import java.util.stream.Collectors;
  * Classe che gestisce la collezione di tag presenti nella piattaforma cicero
  */
 public class GestoreTag {
+
+    private static GestoreTag instance = null;
     private Set<Tag> allTags;
-    private List<SimpleTag> Tags;
-    public GestoreTag(){
-        Tags=new ArrayList<>();
-        allTags = updateTags();
+
+    private GestoreTag(){
+        updateTags();
     }
 
-    private Set<Tag> updateTags() {
+    public static GestoreTag getInstance() {
+        if (instance == null) instance = new GestoreTag();
+        return instance;
+    }
+
+    private void updateTags() {
         //  TODO: update allTags with database select request from table "tags"
-        //   return DBManager.select(DBTable.TAGS) -> crea e ritorna un HashSet di oggetti Tag
-        return new HashSet<>();  // temporary
+        //   allTags = DBManager.select(DBTable.TAGS) -> ritorna un insieme di oggetti Tag
+        allTags = new HashSet<>();  // temporary
     }
 
     /**
-     *
-     * @return la lista di tutti i tag presenti
+     * Ritorna tutti i <code>Tag</code> che rispettano il predicato dato.
+     * @param p predicato sui tag.
+     * @return insieme dei <code>Tag</code> che rispettano il predicato.
      */
-    public List<SimpleTag> getAllTags(){
-        return new ArrayList<>(Tags);
-    }
-
-    //il seguente metodo è a scopo di testing
-    public List<SimpleTag> getList(){return Tags;}
-
     public Set<Tag> getTags(Predicate<Tag> p) {
         return allTags.stream().filter(p).collect(Collectors.toSet());
     }
