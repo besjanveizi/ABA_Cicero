@@ -2,7 +2,7 @@ package it.unicam.cs.ids2122.cicero.model.esperienza;
 
 
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione_v2.Prenotazione;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.Prenotazione;
 
 import java.util.List;
 
