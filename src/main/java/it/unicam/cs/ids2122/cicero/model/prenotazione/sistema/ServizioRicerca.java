@@ -1,7 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.sistema;
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.PropEsperienza;
+import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.GestoreBacheca;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBManager;
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
@@ -56,12 +55,12 @@ public class ServizioRicerca<E extends Esperienza> implements Service<E> {
         Set<Toponimo> temp = new HashSet<>();
         Set<Tag> tempt = new HashSet<>();
         List<Esperienza> result = new ArrayList<>();
-        gestoreBacheca.getAllEsperienze().stream().parallel().forEach(e -> ((PropEsperienza) e).getToponimiAssociati().forEach(set -> {
+        gestoreBacheca.getAllEsperienze().stream().parallel().forEach(e ->  e.getAree().forEach(set -> {
             temp.addAll(toponimi);
             temp.retainAll((Collection<Toponimo>) set);
             if(!temp.isEmpty()){
                 tempt.addAll(tags);
-                tempt.retainAll(((PropEsperienza) e).getTagsAssociati());
+                tempt.retainAll(e.getTags());
                 if (!tempt.isEmpty()){
                     result.add(e);
                 }
@@ -91,7 +90,7 @@ public class ServizioRicerca<E extends Esperienza> implements Service<E> {
         ultima_ricerca = gestoreBacheca.getAllEsperienze()
                 .stream()
                 .collect(Collectors
-                        .filtering(esperienza -> ((PropEsperienza) esperienza).getName().equals(text) , Collectors.toList()));
+                        .filtering(esperienza -> esperienza.getName().equals(text) , Collectors.toList()));
     }
 
 

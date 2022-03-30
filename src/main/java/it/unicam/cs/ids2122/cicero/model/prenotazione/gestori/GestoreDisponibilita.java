@@ -1,16 +1,16 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
 
 
+import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.PropPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.FunEsperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.PropEsperienza;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.SystemConstraints;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBManager;
 
 import javax.naming.OperationNotSupportedException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.logging.Level;
 
 
 public class GestoreDisponibilita extends AbstractGestore {
@@ -24,14 +24,21 @@ public class GestoreDisponibilita extends AbstractGestore {
         super(dbManager);
     }
 
-
+    /**
+     * In caso di annullamento di una prenotazione, restituisce all' esperienza i posti disponibili
+     * @param prenotazione la prenotazione da annullare
+     * @throws SQLException
+     */
     public void modificaDisponibilita(PropPrenotazione prenotazione) throws SQLException {
         ResultSet resultSet = dbManager.select_query(sql_select+prenotazione.getID_esperienza()+";");
         resultSet.next();
         int posti_disponibili = resultSet.getInt("posti_disponibili") + prenotazione.getPosti();
         Object[] token = {posti_disponibili, prenotazione.getID_esperienza()};
         String format = MessageFormat.format(sql_update, token);
-        dbManager.insert_update_delete_query(format);
+        if(dbManager.insert_update_delete_query(format) == -1){
+                resultSet.close();
+                  throw new SQLException();
+        }
         resultSet.close();
     }
 
@@ -41,15 +48,23 @@ public class GestoreDisponibilita extends AbstractGestore {
      * @param num_posti
      */
     public void modificaDisponibilita(Esperienza esperienza, int num_posti){
-        ((FunEsperienza) esperienza).modificaPostiDisponibili('-', num_posti);
+         esperienza.modificaPostiDisponibili('-', num_posti);
         Object[] token = {
-            ((PropEsperienza) esperienza).getPostiDisponibili(),
-            ((PropEsperienza) esperienza).getId()
+            esperienza.getPostiDisponibili(),
+            esperienza.getId()
         };
         String formato = MessageFormat.format(sql_update, token);
-        dbManager.insert_update_delete_query(formato);
+        if(dbManager.insert_update_delete_query(formato)==-1){
+            esperienza.modificaPostiDisponibili('+', num_posti);
+        }
     }
 
+    /**
+     * recupera i posti disponibili di un esperienza
+     * @param id_esperienza
+     * @return
+     * @throws SQLException
+     */
     public int getPostiDisponibiliToDB(int id_esperienza) throws SQLException {
        String sql = sql_select+id_esperienza+";";
        ResultSet resultSet = dbManager.select_query(sql);

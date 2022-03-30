@@ -1,8 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.utenti;
 
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.SystemConstraints;
-
 public class SimpleUser implements Utente {
 
     private int id;
@@ -13,10 +11,11 @@ public class SimpleUser implements Utente {
 
 
     // recupero dal db // log in
-    public SimpleUser(int id, UtenteType userType, String email, String id_client) {
+    public SimpleUser(int id, UtenteType userType, String email,String username) {
         this.id = id;
         this.userType = userType;
         this.email = email;
+        this.username = username;
 
     }
 
@@ -25,7 +24,9 @@ public class SimpleUser implements Utente {
         this.userType = userType;
         this.email = email;
         this.hash_pass = hash_pass;
+        this.username = username;
     }
+
 
     @Override
     public int getID() {
@@ -43,16 +44,13 @@ public class SimpleUser implements Utente {
     }
 
 
-
     @Override
     public String toString() {
         return "SimpleUser{" +
                 "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
                 ", userType=" + userType +
-                ", mail='" + email + '\'' +
-                ", hash_pass='" + hash_pass + '\'' +
                 '}';
     }
-
-
 }

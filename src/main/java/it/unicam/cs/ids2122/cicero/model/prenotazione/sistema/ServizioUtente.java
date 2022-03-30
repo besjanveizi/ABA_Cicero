@@ -5,11 +5,14 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.sistema;
 
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.GestoreUtente;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBManager;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.utenti.Utente;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ServizioUtente<Utente> implements Service<Utente> {
+public class ServizioUtente<U extends Utente> implements Service<Utente> {
 
     private IView<String> cliView;
     private DBManager dbManager;
@@ -35,8 +38,13 @@ public class ServizioUtente<Utente> implements Service<Utente> {
                 String pass = cliView.ask("inserire pass");
                 String pass2 = cliView.ask("inserire nuovamente");
                 if (pass.equals(pass2)) {
-                    gestoreUtente.sign_in(username, mail, pass);
-                    return ;
+                    try{
+                        gestoreUtente.sign_in(username, mail, pass);
+                    }catch (SQLException e){
+                        cliView.message("errore creazione");
+                    }
+                    cliView.message("utente creato con successo");
+                    break ;
                 } else {
                     cliView.ask("password non valida");
                     break retry;

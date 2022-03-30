@@ -3,6 +3,8 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.sistema;
 
 
 import it.unicam.cs.ids2122.cicero.model.prenotazione.SystemConstraints;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.GestoreBacheca;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.GestoreUtente;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBManager;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.PostgresDB;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.utenti.Utente;
@@ -13,6 +15,8 @@ import it.unicam.cs.ids2122.cicero.view.IView;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Logger;
 
 
 public class ControllerSistema {
@@ -22,7 +26,7 @@ public class ControllerSistema {
     private IView<String> iView;
     private Map<String, Service> mapServizi;
     private Utente utente;
-
+    private Logger logger;
 
     public ControllerSistema() throws SQLException {
         iView = new CLIView();
@@ -36,6 +40,8 @@ public class ControllerSistema {
      * main loop
      */
     public void menu() throws SQLException {
+        ServizioUtente servizioUtente = new ServizioUtente(iView, dbManager);
+        mapServizi.put("utente", servizioUtente);
         while(true){
             iView.message("menu di sistema");
             iView.message("free = f");
@@ -48,9 +54,9 @@ public class ControllerSistema {
                 case "f":
                 case "free" : init_servizi_liberi(); menuServizi(); break;
                 case "r":
-                case "registrati" : new ServizioUtente<>(iView,dbManager).registrazione(); break;
+                case "registrati" : servizioUtente.registrazione(); break;
                 case "a":
-                case "accedi": utente = (Utente) new ServizioUtente<>(iView,dbManager).accedi();
+                case "accedi": utente = servizioUtente.accedi();
                 default: if(utente!=null){
                     if(utente.getType().equals(UtenteType.CICERONE)){
                         init_servizi_turista();
@@ -93,8 +99,6 @@ public class ControllerSistema {
 
 
     private void init_servizi_turista(){
-        ServizioUtente servizioUtente = new ServizioUtente(iView, dbManager);
-        mapServizi.put("utente", servizioUtente);
         try {
             ServizioPrenotazione servizioPrenotazione = new ServizioPrenotazione(iView,utente,dbManager,mapServizi);
             mapServizi.put("prenotazione",servizioPrenotazione);

@@ -44,7 +44,6 @@ public class GestorePagamento extends AbstractGestore{
     }
 
 
-
     private Consumer<String> mapping(Fattura fattura){
         switch (((PropFattura) fattura).getStatoPagamento()){
             case TURISTA_ADMIN: return s -> ((FunFattura) fattura).turista_admin(s);
@@ -76,14 +75,15 @@ public class GestorePagamento extends AbstractGestore{
      * @param prenotazione
      * @throws SQLException
      */
-    public void crea_fattura(Prenotazione prenotazione) throws SQLException {
+    public void crea_fattura(Prenotazione prenotazione)  {
         PropPrenotazione propPrenotazione = (PropPrenotazione) prenotazione;
         Fattura fattura = new SimpleFattura(propPrenotazione.getID_prenotazione(),
                 propPrenotazione.getPosti(), propPrenotazione.getPrezzo_totale(), propPrenotazione.getValuta());
         mapping(fattura).accept(SystemConstraints.id_client_generator(utente_corrente.getMail())); // --> aggiorna la fattura creata
         String format = MessageFormat.format(sql_insert, getToken(fattura));
-        dbManager.insert_update_delete_query(format);
-        lista_pagamenti_effettuati.add(fattura);
+        if(dbManager.insert_update_delete_query(format)!= -1){
+            lista_pagamenti_effettuati.add(fattura);
+        }
     }
 
     /**
