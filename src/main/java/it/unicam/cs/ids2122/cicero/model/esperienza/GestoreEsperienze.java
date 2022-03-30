@@ -7,6 +7,8 @@ import it.unicam.cs.ids2122.cicero.util.Money;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Gestore di tutte le esperienze create dal <code>Cicerone</code> associato.
@@ -43,15 +45,15 @@ public class GestoreEsperienze {
      * @return l'esperienza con l'id dato oppure null se non trovata.
      */
     public Esperienza getEsperienza(int id){
-        return esperienze.stream().filter((e) -> e.getId()==id).findFirst().orElse(null);
+        return esperienze.stream().filter((e) -> e.hashCode()==id).findFirst().orElse(null);
     }
 
     /**
      * Restituisce tutte le esperienze create dal <code>Cicerone</code> associato.
      * @return collezione di tutte le esperienze create dal <code>Cicerone</code> associato.
      */
-    public Set<Esperienza> getAllEsperienze() {
-        return esperienze;
+    public Set<Esperienza> getAllEsperienze(Predicate<Esperienza> p) {
+        return esperienze.stream().filter(p).collect(Collectors.toSet());
     }
 
     /**
@@ -66,8 +68,8 @@ public class GestoreEsperienze {
      * @param maxRiserva numero massimo dei giorni di riserva di posti dell'<code>Esperienza</code>.
      * @param tags tags associati all'<code>Esperienza</code>.
      */
-    public void add(String nome, LocalDateTime dI, LocalDateTime dF, int minP, int maxP, Percorso p, Money costoIndividuale, int maxRiserva, Set<Tag> tags) {
-        Esperienza e = new SimpleEsperienza(nome, cicerone, dI, dF, minP, maxP, p, costoIndividuale, maxRiserva, tags);
+    public void add(String nome, String descrizione, LocalDateTime dI, LocalDateTime dF, int minP, int maxP, Percorso p, Money costoIndividuale, int maxRiserva, Set<Tag> tags) {
+        Esperienza e = new SimpleEsperienza(nome, cicerone, descrizione, dI, dF, minP, maxP, p, costoIndividuale, maxRiserva, tags);
         esperienze.add(e);
 
         //  TODO: insert e in table "esperienze"
