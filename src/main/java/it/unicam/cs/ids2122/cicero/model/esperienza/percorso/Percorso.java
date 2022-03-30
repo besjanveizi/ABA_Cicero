@@ -35,4 +35,14 @@ public class Percorso {
         }
         return aree;
     }
+
+    @Override
+    public String toString() {
+        for (Spostamento s : spostamenti) {
+
+        }
+        return "Percorso {" +
+                "spostamenti=" + spostamenti +
+                '}';
+    }
 }

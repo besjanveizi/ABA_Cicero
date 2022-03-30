@@ -60,9 +60,9 @@ public class CLIView implements IView<String> {
         boolean inside = true;
         while (inside) {
             try {
-                result = Integer.parseInt(Objects.requireNonNull(fetch()));
+                result = Integer.parseInt(fetch());
                 inside = false;
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | NullPointerException e) {
                 message("Devi inserire un numero intero");
             }
         }

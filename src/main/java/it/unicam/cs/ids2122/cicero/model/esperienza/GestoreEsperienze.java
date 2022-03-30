@@ -43,7 +43,7 @@ public class GestoreEsperienze {
      * @return l'esperienza con l'id dato oppure null se non trovata.
      */
     public Esperienza getEsperienza(int id){
-        return esperienze.stream().filter((e) -> e.getId()==id).findFirst().orElse(null);
+        return esperienze.stream().filter((e) -> e.hashCode()==id).findFirst().orElse(null);
     }
 
     /**
