@@ -1,24 +1,24 @@
 package it.unicam.cs.ids2122.cicero.model.esperienza;
 
+import com.google.common.base.Objects;
 import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Rappresenta una semplice <code>Esperienza</code> nella piattaforma Cicero.
+ * Rappresenta una semplice implementazione di un'{@code Esperienza} nella piattaforma Cicero.
  */
 public class SimpleEsperienza implements Esperienza {
 
-    private final int id;
     private String nome;
-    private Cicerone ciceroneCreatore;
+    private final Cicerone ciceroneCreatore;
+    private String descrizione;
     private LocalDateTime dataInizio;
     private LocalDateTime dataFine;
     private int maxPartecipanti;
@@ -30,89 +30,59 @@ public class SimpleEsperienza implements Esperienza {
     private Set<Area> aree;
     private int postiDisponibili;
     private EsperienzaStatus status;
-
-    //-- aggiunte
-    private String descrizione = ""; // può essere null
-    private int uid_cicerone;
-    private LocalDateTime dataPubblicazione;
-    private LocalDateTime dataTermine;
+    private final LocalDateTime dataPubblicazione;
+    private final LocalDateTime dataTermine;
 
     /**
-     * Crea un'<code>Esperienza</code> semplice impostando i suoi parametri.
-     * @param nome nome dell'<code>Esperienza</code>.
-     * @param ciceroneCreatore <code>Cicerone</code> che ha creato l'<code>Esperienza</code>.
-     * @param dataInizio data d'inizio dell'<code>Esperienza</code>.
-     * @param dataFine data di conclusione dell'<code>Esperienza</code>.
-     * @param maxPartecipanti numero massimo dei partecipanti all'<code>Esperienza</code>.
-     * @param minPartecipanti numero minimo dei partecipanti all'<code>Esperienza</code>.
-     * @param maxGiorniRiserva numero massimo di giorni cui un posto all'<code>Esperienza</code> può rimanere riservato.
-     * @param tags insieme dei tags associati all'<code>Esperienza</code>.
+     * Crea una {@code SimpleEsperienza} impostando i suoi parametri.
+     * @param nome nome dell'{@code Esperienza}.
+     * @param ciceroneCreatore {@link Cicerone} che ha creato l'{@code Esperienza}.
+     * @param dataInizio data d'inizio dell'{@code Esperienza}.
+     * @param dataFine data di conclusione dell'{@code Esperienza}.
+     * @param maxPartecipanti numero massimo dei partecipanti all'{@code Esperienza}.
+     * @param minPartecipanti numero minimo dei partecipanti all'{@code Esperienza}.
+     * @param percorso {@link Percorso} dell'{@code Esperienza}.
+     * @param costoIndividuale {@link Money} di un posto all'{@code Esperienza}.
+     * @param maxGiorniRiserva numero massimo di giorni cui un posto all'{@code Esperienza} può rimanere riservato.
+     * @param tags insieme dei tags associati all'{@code Esperienza}.
      */
-    public SimpleEsperienza(String nome, Cicerone ciceroneCreatore, LocalDateTime dataInizio, LocalDateTime dataFine,
-                            int minPartecipanti, int maxPartecipanti, Percorso p, Money costoIndividuale, int maxGiorniRiserva, Set<Tag> tags) {
-        this.id = this.hashCode();
+    public SimpleEsperienza(String nome, Cicerone ciceroneCreatore, String descrizione, LocalDateTime dataInizio, LocalDateTime dataFine,
+                            int minPartecipanti, int maxPartecipanti, Percorso percorso, Money costoIndividuale, int maxGiorniRiserva, Set<Tag> tags) {
         this.nome = nome;
         this.ciceroneCreatore = ciceroneCreatore;
+        this.descrizione = descrizione;
+        this.dataPubblicazione = LocalDateTime.now();
         this.dataInizio = dataInizio;
         this.dataFine = dataFine;
+        this.dataTermine = impostaTermine();
+        this.minPartecipanti = minPartecipanti;
         this.maxPartecipanti = maxPartecipanti;
         this.postiDisponibili = maxPartecipanti;
-        this.minPartecipanti = minPartecipanti;
-        this.percorso = p;
+        this.percorso = percorso;
         this.costoIndividuale = costoIndividuale;
         this.maxGiorniRiserva = maxGiorniRiserva;
         this.tags=tags;
         this.status = EsperienzaStatus.IDLE;
     }
 
-    /**
-     * Costruttore per il DB. Mancano tag aree e percorso
-     * @param id_esperienza
-     * @param uid_cicerone
-     * @param nome
-     * @param descrizione
-     * @param data_pubblicazione
-     * @param data_inizio
-     * @param data_conclusione
-     * @param data_termine
-     * @param stato
-     * @param max_partecipanti
-     * @param min_partecipanti
-     * @param costo_individuale
-     * @param valuta
-     * @param posti_disponibili
-     */
-    public SimpleEsperienza(int id_esperienza, int uid_cicerone, String nome, String descrizione, LocalDateTime data_pubblicazione,
-                            LocalDateTime data_inizio,  LocalDateTime data_conclusione, LocalDateTime data_termine,
-                            EsperienzaStatus stato, int max_partecipanti, int min_partecipanti , BigDecimal costo_individuale,
-                            String valuta, int posti_disponibili){
-        this.id = id_esperienza;
-        this.uid_cicerone = uid_cicerone;
-        this.nome = nome;
-        this.descrizione = descrizione;
-        this.dataPubblicazione = data_pubblicazione;
-        this.dataInizio = data_inizio;
-        this.dataFine = data_conclusione;
-        this.dataTermine = data_termine;
-        this.status = stato;
-        this.minPartecipanti = min_partecipanti;
-        this.maxPartecipanti = max_partecipanti;
-        this.costoIndividuale = new Money(costo_individuale,valuta);
-        this.postiDisponibili = posti_disponibili;
+    @Override
+    public String getName() {
+        return this.nome;
     }
 
+    @Override
     public Cicerone getCiceroneCreatore() {
         return ciceroneCreatore;
     }
 
-
-    public Percorso getPercorso() {
-        return percorso;
+    @Override
+    public String getDescrizione() {
+        return descrizione;
     }
 
     @Override
-    public Set<Tag> getTags() {
-        return tags;
+    public LocalDateTime getDataPubblicazione() {
+        return dataPubblicazione;
     }
 
     @Override
@@ -125,13 +95,13 @@ public class SimpleEsperienza implements Esperienza {
         return dataFine;
     }
 
-    @Override
-    public LocalDateTime getDataPubblicazione() {
-        return dataPubblicazione;
+    private LocalDateTime impostaTermine() {
+        // chiedi l'expertise al Cicerone e diminuisci/aumenta la data del termine dell'esperienza
+        return getDataFine().plusDays(2);  // al momento è impostato a 2 giorni dopo la conclusione
     }
 
     @Override
-    public LocalDateTime getDataTerminazione() {
+    public LocalDateTime getDataTermine() {
         return dataTermine;
     }
 
@@ -146,28 +116,30 @@ public class SimpleEsperienza implements Esperienza {
     }
 
     @Override
+    public Percorso getPercorso() {
+        return percorso;
+    }
+
+    @Override
     public Money getCostoIndividuale() {
         return costoIndividuale;
     }
 
     @Override
-    public int getMaxGiorniRiserva() {
+    public int getMaxRiserva() {
         return maxGiorniRiserva;
     }
 
     @Override
-    public String getDescrizione() {
-        return descrizione;
+    public Set<Tag> getTags() {
+        return tags;
     }
 
     @Override
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public String getName() {
-        return this.nome;
+    public Set<Area> getAree() {
+        if (aree.isEmpty())
+            aree = percorso.getAree();
+        return aree;
     }
 
     @Override
@@ -186,43 +158,57 @@ public class SimpleEsperienza implements Esperienza {
     }
 
     @Override
-    public Set<Area> getAree() {
-        if (aree.isEmpty())
-            aree = percorso.getAree();
-        return aree;
+    public void cambiaStatus(EsperienzaStatus newStatus) {
+        this.status = newStatus;
     }
 
     @Override
-    public int getAutoreID() {
-        return ciceroneCreatore.getID();
-    }
-
-    @Override
-    public void cambioStato(EsperienzaStatus nuovoStato) {
-        this.status = nuovoStato;
-    }
-
-    @Override
-    public void modificaPostiDisponibili(char simbolo, int nuova_disponibilita) {
+    public void cambiaPostiDisponibili(char simbolo, int numeroPosti) {
         switch (simbolo) {
             case '-':
-                postiDisponibili -= nuova_disponibilita;
+                postiDisponibili -= numeroPosti;
             case '+':
-                postiDisponibili += nuova_disponibilita;
+                postiDisponibili += numeroPosti;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimpleEsperienza that = (SimpleEsperienza) o;
+        return getMaxPartecipanti() == that.getMaxPartecipanti() &&
+                getMinPartecipanti() == that.getMinPartecipanti() &&
+                getMaxRiserva() == that.getMaxRiserva() &&
+                Objects.equal(getName(), that.getName()) &&
+                Objects.equal(getCiceroneCreatore(), that.getCiceroneCreatore()) &&
+                Objects.equal(getDataInizio(), that.getDataInizio()) &&
+                Objects.equal(getDataFine(), that.getDataFine()) &&
+                Objects.equal(getCostoIndividuale(), that.getCostoIndividuale());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getName(),
+                getCiceroneCreatore(),
+                getDataInizio(), getDataFine(),
+                getMaxPartecipanti(), getMinPartecipanti(),
+                getCostoIndividuale(),
+                getMaxRiserva());
     }
 
     @Override
     public String toString() {
         return "Info dell'esperienza {" +
                 "nome: '" + getName() + '\'' +
+                ", descrizione: " + getDescrizione() +
                 ", cicerone: '" + getCiceroneCreatore().getUsername() + '\'' +
                 ", inizio: " + getDataInizio() +
-                ", fine: " + getDataFine() +
+                ", conclusione: " + getDataFine() +
                 ", num. max partecipanti: " + getMaxPartecipanti() +
                 ", num. min partecipanti: " + getMinPartecipanti() +
                 ", costo per posto: " + getCostoIndividuale() +
-                ", max giorni di riserva: " + getMaxGiorniRiserva() +
+                ", max giorni di riserva: " + getMaxRiserva() +
                 ", tags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet()) +
                 ", toponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
                 ", postiDisponibili: " + getPostiDisponibili() +
