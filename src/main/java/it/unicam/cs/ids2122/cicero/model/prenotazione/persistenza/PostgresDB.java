@@ -56,7 +56,7 @@ public class PostgresDB implements DBManager {
 
 
         @Override
-        public int insert_update_delete_query(String sql) {
+        public int insert_update_delete_query(String sql)  {
                 try{
                     Statement statement = connection.createStatement();
                         return statement.executeUpdate(sql,Statement.RETURN_GENERATED_KEYS);

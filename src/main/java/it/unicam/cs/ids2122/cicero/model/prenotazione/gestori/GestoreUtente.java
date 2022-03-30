@@ -13,49 +13,54 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-public class GestoreUtente extends AbstractGestore {
+public  final class GestoreUtente extends AbstractGestore {
 
-    private String insertQuery = "INSERT INTO public.utenti_registrati (username, email, password, user_type)	" +
+    private final String insertQuery = "INSERT INTO public.utentiregistrati (username, email, password, user_type)	" +
             "VALUES ( {0}, {1}, {2}, {3} ) ;";
 
 
-    private String sql_select =  "SELECT * FROM public.utenti_registrati WHERE email= {0} AND password= {1} ;";
+    private final String sql_select =  "SELECT * FROM public.utentiregistrati WHERE email= {0} AND password= {1} ;";
 
 
-
-    public GestoreUtente(DBManager dbManager) {
+    public GestoreUtente(final DBManager dbManager) {
         super(dbManager);
     }
 
-    public void sign_in(String username, String email, String password){
-        final String pattern = "[^@ \\t\\r\\n]+@[^@ \\t\\r\\n]+\\.[^@ \\t\\r\\n]+";
-        if(Pattern.compile(pattern).matcher(email).matches()) {
-            Logger.getAnonymousLogger().log(Level.WARNING, "email non valida");
+    public  void sign_in(final String username,final String email, final String password) throws SQLException {
+        Pattern pattern = Pattern.compile("\"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\\\.[A-Z]{2,6}$\", Pattern.CASE_INSENSITIVE");
+        if(pattern.matcher(email).matches()) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "email non valida -> "+email);
         }else {
-            Object[] token = {
+           final Object[] token = {
                     "'" + username + "'",
                     "'" + email + "'",
                     "'" + Math.abs(password.hashCode()) + "'",
                     UtenteType.TURISTA.getI()
             };
-            String format = MessageFormat.format(insertQuery, token);
+            final String format = MessageFormat.format(insertQuery, token);
             if (dbManager.insert_update_delete_query(format) == -1) {
                 Logger.getAnonymousLogger().log(Level.WARNING, "username o email non valide");
+                throw new SQLException();
             }
         }
     }
 
     public Utente log_in(String mail, String pass) throws  SQLException {
-        Object[] token = {"'"+mail+"'", "'"+pass.hashCode()+"'" };
-        String format = MessageFormat.format(sql_select, token);
+
+        final Object[] token = {"'"+mail+"'", "'"+pass.hashCode()+"'" };
+        final String format = MessageFormat.format(sql_select, token);
         ResultSet resultSet = dbManager.select_query(format);
+
         if(resultSet!=null && resultSet.next()) {
+
             Utente utente = new SimpleUser(resultSet.getInt("uid"),
                     tipoUtente(resultSet.getInt("user_type")),
-                    resultSet.getString("email"), resultSet.getString("id_client"));
+                    resultSet.getString("email"), resultSet.getString("username"));
             return utente;
+        }else {
+
+            throw new SQLException();
         }
-        return null;
     }
 
     public void log_out(){
