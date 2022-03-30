@@ -73,7 +73,7 @@ public class UtenteTest {
         try {
             Utente utente =gestoreUtente.log_in(email, pass);
             assertNotNull(utente);
-            assertEquals(1, utente.getType().getI());
+            assertEquals(1, utente.getType().getCode());
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }

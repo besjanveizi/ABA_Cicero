@@ -27,6 +27,13 @@ public  final class GestoreUtente extends AbstractGestore {
         super(dbManager);
     }
 
+    /**
+     * verifica le informazioni e se corrette inserisce nel DB
+     * @param username
+     * @param email
+     * @param password
+     * @throws SQLException nel caso ci sia un problema nel DB o la mail o l' username sono già presenti
+     */
     public  void sign_in(final String username,final String email, final String password) throws SQLException {
         Pattern pattern = Pattern.compile("\"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\\\.[A-Z]{2,6}$\", Pattern.CASE_INSENSITIVE");
         if(pattern.matcher(email).matches()) {
@@ -36,7 +43,7 @@ public  final class GestoreUtente extends AbstractGestore {
                     "'" + username + "'",
                     "'" + email + "'",
                     "'" + Math.abs(password.hashCode()) + "'",
-                    UtenteType.TURISTA.getI()
+                    UtenteType.TURISTA.getCode()
             };
             final String format = MessageFormat.format(insertQuery, token);
             int id = dbManager.insert_update_delete_query(format);
@@ -49,6 +56,13 @@ public  final class GestoreUtente extends AbstractGestore {
         }
     }
 
+    /**
+     *
+     * @param mail
+     * @param pass
+     * @return
+     * @throws SQLException
+     */
     public Utente log_in(String mail, String pass) throws  SQLException {
         final String hash_pass = String.valueOf(Math.abs(pass.hashCode()));
         final Object[] token = {"'"+mail+"'" , "'"+hash_pass+"';" };
