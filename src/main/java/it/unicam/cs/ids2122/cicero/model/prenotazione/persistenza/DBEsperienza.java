@@ -1,9 +1,8 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza;
 
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.PropEsperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.StatoEsperienza;
+import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.esperienza.EsperienzaStatus;
 
 import java.sql.Array;
 import java.sql.ResultSet;
@@ -26,12 +25,22 @@ public class DBEsperienza {
 
     }
 
-    private Object[] token_init(PropEsperienza propEsperienza) {
+    private Object[] token_init(Esperienza propEsperienza) {
         return null;
     }
 
-    private StatoEsperienza trasformazione(String s){
-        switch (s) {
+
+
+    /**
+     *     IDLE,
+     *     VALIDA,
+     *     IN_CORSO,
+     *     CANCELLATA,
+     *     CONCLUSA,
+     *     TERMINATA
+     */
+    private EsperienzaStatus trasformazione(int status){
+       /* switch (s) {
             case ("PUBBLICATA"):
                 return StatoEsperienza.PUBBLICATA;
             case ("VALIDA"):
@@ -46,7 +55,8 @@ public class DBEsperienza {
                 return StatoEsperienza.CANCELLATA;
             default:
                 return null;
-        }
+        }*/
+        return  null;
     }
 
     private  String arrayToValues(Set values){

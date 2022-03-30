@@ -3,12 +3,14 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
 
 
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.Esperienza;
+
+import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBManager;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class GestoreBacheca extends AbstractGestore {
 

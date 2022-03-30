@@ -2,9 +2,8 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
 
 
 
+import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.*;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.PropEsperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.invito.Invito;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.invito.PropInvito;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBEsperienza;
@@ -73,20 +72,20 @@ public class GestorePrenotazione extends AbstractGestore{
     /**
      * crea una <code>{@link SimplePrenotazione}</code>
      * NON VIENE AGGIORNATA LA DISPONIBILITA DELLA RELATIVA ESPERIENZA
-     * @param esperienza da prenotare
+     * @param propEsperienza da prenotare
      * @param posti_prenotati i posti da riservare
      */
-    public void crea_prenotazione(Esperienza esperienza, int posti_prenotati){
-        PropEsperienza propEsperienza = (PropEsperienza) esperienza;
+    public void crea_prenotazione(Esperienza propEsperienza, int posti_prenotati){
         Prenotazione prenotazione = new SimplePrenotazione(utente_corrente.getID(),
-                ((PropEsperienza) esperienza).getId(),
-                ((PropEsperienza) esperienza).getName(),
-                posti_prenotati, ((PropEsperienza) esperienza).getDataInizio(),
-                ((PropEsperienza) esperienza).getMaxGiorniRiserva(),
-                ((PropEsperienza) esperienza).getPrezzo(), ((PropEsperienza) esperienza).getValuta());
+                propEsperienza.getId(),
+                propEsperienza.getName(),
+                posti_prenotati, propEsperienza.getDataInizio(),
+                propEsperienza.getMaxGiorniRiserva(),
+                propEsperienza.getCostoIndividuale().getValore(), propEsperienza.getCostoIndividuale().getValuta().getCurrencyCode());
         String sql_format = MessageFormat.format(sql_insert, getToken((PropPrenotazione) prenotazione));
-        dbManager.insert_update_delete_query(sql_format);
-        prenotazioni.add(prenotazione);
+        if (dbManager.insert_update_delete_query(sql_format)!= -1){
+            prenotazioni.add(prenotazione);
+        }
     }
 
     /**
@@ -101,15 +100,18 @@ public class GestorePrenotazione extends AbstractGestore{
                 dbManager.select_query("select * from public.esperienze where id_esperienza=" +
                         ((PropInvito) invito_ricevuto).getId_esperienza());
 
-        PropEsperienza esperienza = (PropEsperienza) new DBEsperienza().crea_singola_esperienza(resultSet);
+        Esperienza esperienza = new DBEsperienza().crea_singola_esperienza(resultSet);
         Prenotazione prenotazione = new SimplePrenotazione(utente_corrente.getID(),
                 esperienza.getId(), esperienza.getName(),
                 invito.getPosti_riservati(), invito.getData_scadenza_riserva(),
-                esperienza.getPrezzo(), esperienza.getValuta());
+                esperienza.getCostoIndividuale().getValore(),
+                esperienza.getCostoIndividuale().getValuta().getCurrencyCode());
 
         String format = MessageFormat.format(sql_insert, getToken((PropPrenotazione) prenotazione));
-        dbManager.insert_update_delete_query(format);
-        prenotazioni.add(prenotazione);
+        if(dbManager.insert_update_delete_query(format)!= -1){
+            prenotazioni.add(prenotazione);
+        };
+
     }
 
     /**
@@ -141,6 +143,7 @@ public class GestorePrenotazione extends AbstractGestore{
      * @param nuovo_stato il nuo <code>{@link StatoPrenotazione}</code>
      */
     public void modifica_stato(Prenotazione propPrenotazione, StatoPrenotazione nuovo_stato){
+        StatoPrenotazione salva = ((PropPrenotazione) propPrenotazione).getStatoPrenotazione();
         Object[] token = {
                 nuovo_stato.getN(),
                 ((PropPrenotazione)propPrenotazione).getID_turista(),
@@ -149,7 +152,9 @@ public class GestorePrenotazione extends AbstractGestore{
 
         ((FunPrenotazione) propPrenotazione).cambiaStatoPrenotazione(nuovo_stato);
         String sql_up = MessageFormat.format(sql_update, token);
-        dbManager.insert_update_delete_query(sql_up);
+        if(dbManager.insert_update_delete_query(sql_up)==-1){
+            ((FunPrenotazione) propPrenotazione).cambiaStatoPrenotazione(salva);
+        }
     }
 
     /**

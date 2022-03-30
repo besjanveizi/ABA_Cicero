@@ -3,8 +3,8 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.sistema;
 
 
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.PropEsperienza;
+
+import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.GestoreDisponibilita;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.GestoreInviti;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.invito.Invito;
@@ -44,7 +44,7 @@ public class ServizioInvito<I extends Invito> implements Service<I>{
             int posti = cliView.fetchInt();
             cliView.message("verifica");
             GestoreDisponibilita gestoreDisponibilita = new GestoreDisponibilita(dbManager);
-            int postiDisponibili = gestoreDisponibilita.getPostiDisponibiliToDB(((PropEsperienza) esperienza).getId());
+            int postiDisponibili = gestoreDisponibilita.getPostiDisponibiliToDB(esperienza.getId());
             if (posti <= postiDisponibili && posti > 0) {
 
                 GestoreInviti inviti = new GestoreInviti(utenteCorrente, dbManager);

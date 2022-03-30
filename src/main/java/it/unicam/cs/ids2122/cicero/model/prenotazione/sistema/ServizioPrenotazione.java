@@ -3,11 +3,10 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.sistema;
 
 
 
+import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.Prenotazione;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.PropPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.StatoPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.PropEsperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.GestoreDisponibilita;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.GestorePrenotazione;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.invito.Invito;
@@ -64,8 +63,8 @@ public class ServizioPrenotazione<P extends Prenotazione> implements Service<P> 
         }
 
         cliView.message("posti attualmente disponibili: ");
-        int posti = ((PropEsperienza) esp_selezionata).getPostiDisponibili();
-        String  posti_disponibili = String.valueOf(((PropEsperienza) esp_selezionata).getPostiDisponibili());
+        int posti = esp_selezionata.getPostiDisponibili();
+        String  posti_disponibili = String.valueOf((esp_selezionata.getPostiDisponibili()));
         cliView.message(posti_disponibili);
 
         if(posti<0){
@@ -82,7 +81,7 @@ public class ServizioPrenotazione<P extends Prenotazione> implements Service<P> 
             else cliView.message("riprova");
         }
 
-        cliView.message("costo totale: "+ ((PropEsperienza) esp_selezionata).getPrezzo().multiply(BigDecimal.valueOf(posti_scelti)));
+        cliView.message("costo totale: "+ esp_selezionata.getCostoIndividuale().op_multi(String.valueOf(posti_scelti)));
         cliView.message("confermare prenotazione [y/n]");
         boolean flag = cliView.fetchBool();
         if(flag){
@@ -110,7 +109,7 @@ public class ServizioPrenotazione<P extends Prenotazione> implements Service<P> 
             cliView.message("confermare y/n");
             boolean flag = cliView.fetchBool();
                 if (flag) {
-                    gestorePrenotazione.modifica_stato(ref, StatoPrenotazione.CANCELLATA);
+                    gestorePrenotazione.modifica_stato(ref,StatoPrenotazione.CANCELLATA);
                     gestoreDisponibilita.modificaDisponibilita((PropPrenotazione) ref);
                     cliView.message("ok!");
                 } else {

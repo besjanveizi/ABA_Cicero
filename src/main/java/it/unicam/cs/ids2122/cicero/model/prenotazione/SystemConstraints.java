@@ -2,8 +2,11 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Logger;
 
 public interface SystemConstraints {
+
+
 
     /**
      * termine ultimo, in giorni, per la richiesta di rimborso dalla

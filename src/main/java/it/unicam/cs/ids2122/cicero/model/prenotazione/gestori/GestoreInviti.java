@@ -3,8 +3,7 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
 
 
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.esperienza.PropEsperienza;
+import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.invito.Invito;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.invito.PropInvito;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.invito.SimpleInvito;
@@ -58,8 +57,8 @@ public class GestoreInviti extends AbstractGestore{
      * @param mail_invitato mail del destinatario
      */
     public void crea_invito(Esperienza esperienza, String mail_invitato, int posti_riservati){
-        Invito invito = new SimpleInvito(utente_corrente.getID(), ((PropEsperienza) esperienza).getId(),
-                mail_invitato, ((PropEsperienza) esperienza).getDataInizio(), ((PropEsperienza) esperienza).getMaxGiorniRiserva(), posti_riservati);
+        Invito invito = new SimpleInvito(utente_corrente.getID(), esperienza.getId(),
+                mail_invitato, esperienza.getDataInizio(), esperienza.getMaxGiorniRiserva(), posti_riservati);
          String sql_format = MessageFormat.format(sql_insert, getToken(invito));
          dbManager.insert_update_delete_query(sql_format);
          lista_inviti.add(invito);
@@ -79,8 +78,8 @@ public class GestoreInviti extends AbstractGestore{
                propInvito.getId_mittente(),
                propInvito.getId_esperienza(),
                "'"+propInvito.getEmail_destinatario()+"'",
-               propInvito.getData_creazione().toString().replace('T', ' '),
-               propInvito.getData_scadenza_riserva().toString().replace('T', ' '),
+               "'"+propInvito.getData_creazione().toString().replace('T', ' ')+"'",
+               "'"+propInvito.getData_scadenza_riserva().toString().replace('T', ' ')+"'",
                propInvito.getPosti_riservati()
         };
        return token;

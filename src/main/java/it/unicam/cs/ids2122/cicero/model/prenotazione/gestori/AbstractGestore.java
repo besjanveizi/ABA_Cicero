@@ -3,10 +3,12 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
 
 
 
+
 import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBManager;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.utenti.Utente;
 
 import javax.naming.OperationNotSupportedException;
+
 
 public abstract class AbstractGestore {
 

@@ -40,7 +40,6 @@ public class PostgresDB implements DBManager {
         public void testConn() throws SQLException {
                 connection = DriverManager.getConnection(uri + host + port + nomeDB, username, pass);
                 logger.log(Level.INFO,"accept!");
-
         }
 
 

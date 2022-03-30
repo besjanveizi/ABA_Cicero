@@ -6,6 +6,7 @@ import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +30,12 @@ public class SimpleEsperienza implements Esperienza {
     private Set<Area> aree;
     private int postiDisponibili;
     private EsperienzaStatus status;
+
+    //-- aggiunte
+    private String descrizione = ""; // può essere null
+    private int uid_cicerone;
+    private LocalDateTime dataPubblicazione;
+    private LocalDateTime dataTermine;
 
     /**
      * Crea un'<code>Esperienza</code> semplice impostando i suoi parametri.
@@ -58,44 +65,99 @@ public class SimpleEsperienza implements Esperienza {
         this.status = EsperienzaStatus.IDLE;
     }
 
-    public String getNome() {
-        return nome;
+    /**
+     * Costruttore per il DB. Mancano tag aree e percorso
+     * @param id_esperienza
+     * @param uid_cicerone
+     * @param nome
+     * @param descrizione
+     * @param data_pubblicazione
+     * @param data_inizio
+     * @param data_conclusione
+     * @param data_termine
+     * @param stato
+     * @param max_partecipanti
+     * @param min_partecipanti
+     * @param costo_individuale
+     * @param valuta
+     * @param posti_disponibili
+     */
+    public SimpleEsperienza(int id_esperienza, int uid_cicerone, String nome, String descrizione, LocalDateTime data_pubblicazione,
+                            LocalDateTime data_inizio,  LocalDateTime data_conclusione, LocalDateTime data_termine,
+                            EsperienzaStatus stato, int max_partecipanti, int min_partecipanti , BigDecimal costo_individuale,
+                            String valuta, int posti_disponibili){
+        this.id = id_esperienza;
+        this.uid_cicerone = uid_cicerone;
+        this.nome = nome;
+        this.descrizione = descrizione;
+        this.dataPubblicazione = data_pubblicazione;
+        this.dataInizio = data_inizio;
+        this.dataFine = data_conclusione;
+        this.dataTermine = data_termine;
+        this.status = stato;
+        this.minPartecipanti = min_partecipanti;
+        this.maxPartecipanti = max_partecipanti;
+        this.costoIndividuale = new Money(costo_individuale,valuta);
+        this.postiDisponibili = posti_disponibili;
     }
 
     public Cicerone getCiceroneCreatore() {
         return ciceroneCreatore;
     }
 
-    public LocalDateTime getDataInizio() {
-        return dataInizio;
-    }
-
-    public LocalDateTime getDataFine() {
-        return dataFine;
-    }
-
-    public int getMaxPartecipanti() {
-        return maxPartecipanti;
-    }
-
-    public int getMinPartecipanti() {
-        return minPartecipanti;
-    }
 
     public Percorso getPercorso() {
         return percorso;
     }
 
+    @Override
     public Set<Tag> getTags() {
         return tags;
     }
 
+    @Override
+    public LocalDateTime getDataInizio() {
+        return dataInizio;
+    }
+
+    @Override
+    public LocalDateTime getDataFine() {
+        return dataFine;
+    }
+
+    @Override
+    public LocalDateTime getDataPubblicazione() {
+        return dataPubblicazione;
+    }
+
+    @Override
+    public LocalDateTime getDataTerminazione() {
+        return dataTermine;
+    }
+
+    @Override
+    public int getMaxPartecipanti() {
+        return maxPartecipanti;
+    }
+
+    @Override
+    public int getMinPartecipanti() {
+        return minPartecipanti;
+    }
+
+    @Override
     public Money getCostoIndividuale() {
         return costoIndividuale;
     }
 
+    @Override
     public int getMaxGiorniRiserva() {
         return maxGiorniRiserva;
+    }
+
+    @Override
+    public String getDescrizione() {
+        return descrizione;
     }
 
     @Override
@@ -128,6 +190,26 @@ public class SimpleEsperienza implements Esperienza {
         if (aree.isEmpty())
             aree = percorso.getAree();
         return aree;
+    }
+
+    @Override
+    public int getAutoreID() {
+        return ciceroneCreatore.getID();
+    }
+
+    @Override
+    public void cambioStato(EsperienzaStatus nuovoStato) {
+        this.status = nuovoStato;
+    }
+
+    @Override
+    public void modificaPostiDisponibili(char simbolo, int nuova_disponibilita) {
+        switch (simbolo) {
+            case '-':
+                postiDisponibili -= nuova_disponibilita;
+            case '+':
+                postiDisponibili += nuova_disponibilita;
+        }
     }
 
     @Override
