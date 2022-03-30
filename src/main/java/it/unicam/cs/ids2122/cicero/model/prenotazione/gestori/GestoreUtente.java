@@ -60,7 +60,6 @@ public  final class GestoreUtente extends AbstractGestore {
                     tipoUtente(resultSet.getInt("user_type")),
                     resultSet.getString("email"),
                     resultSet.getString("username"));
-            resultSet.close();
             super.utente_corrente = utente;
             return utente;
         }else {
@@ -74,10 +73,11 @@ public  final class GestoreUtente extends AbstractGestore {
 
 
     public void upgrade_to_cicero(){
-       final String sql_update = "UPDATE public.utenti SET tipo_utente= {0} WHERE uid= {2}";
-       final Object[] token = { 1,super.utente_corrente.getID()+"'"};
+       final String sql_update = "UPDATE public.utenti_registrati SET user_type= {0} WHERE uid= {1} ;";
+       final Object[] token = { 1 ,super.utente_corrente.getID()};
        final String sql_format = MessageFormat.format(sql_update, token);
        dbManager.insert_update_delete_query(sql_format);
+       utente_corrente = null;
     }
 
     public void cambia_mail(String vecchia_mail,String nuova_mail,String pass){
