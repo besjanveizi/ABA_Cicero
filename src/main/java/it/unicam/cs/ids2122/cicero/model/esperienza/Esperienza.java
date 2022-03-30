@@ -21,22 +21,40 @@ public interface Esperienza {
     String getName();
 
     /**
+     * Recupera la descrizione dell'{@code Esperienza}.
+     * @return stringa della descrizione.
+     */
+    String getDescrizione();
+
+    /**
      * Recupera il {@code Cicerone} che ha creato l'{@code Esperienza}.
      * @return {@link  Cicerone} creatore.
      */
     Cicerone getCiceroneCreatore();
 
     /**
+     * Recupera la data di pubblicazione dell'{@code Esperienza}.
+     * @return {@link LocalDateTime} della pubblicazione.
+     */
+    LocalDateTime getDataPubblicazione();
+
+    /**
      * Recupera la data in cui inizia l'{@code Esperienza}.
-     * @return {@link LocalDateTime} della data d'inizio.
+     * @return {@link LocalDateTime} dell'inizio.
      */
     LocalDateTime getDataInizio();
 
     /**
      * Recupera la data in cui si conclude l'{@code Esperienza}.
-     * @return {@link LocalDateTime} della data di conclusione.
+     * @return {@link LocalDateTime} della conclusione.
      */
     LocalDateTime getDataFine();
+
+    /**
+     * Recupera la data in cui l'{@code Esperienza} termina.
+     * @return {@link LocalDateTime} del termine.
+     */
+    LocalDateTime getDataTermine();
 
     /**
      * Recupera il numero massimo dei partecipanti all'{@code Esperienza}.
@@ -100,4 +118,21 @@ public interface Esperienza {
      * @return numero dei posti disponibili alla prenotazione.
      */
     int getPostiDisponibili();
+
+    /**
+     * Modifica lo stato corrente dell'{@code Esperienza} nello stato dato.
+     * @param newStatus nuovo stato.
+     */
+    void cambiaStatus(EsperienzaStatus newStatus);
+
+    /**
+     * Modifica la disponibilit&agrave dell'{@code Esperienza}.
+     * @param simbolo
+     * <ul>
+     *     <li>'-' se si vuole diminuire il numero dei posti disponibili</li>
+     *     <li>'+' per aumentarli</li>
+     * </ul>
+     * @param numeroPosti numero dei posti da sottrarre o aggiungere.
+     */
+    void cambiaPostiDisponibili(char simbolo, int numeroPosti);
 }

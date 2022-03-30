@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
 public class SimpleEsperienza implements Esperienza {
 
     private String nome;
-    private Cicerone ciceroneCreatore;
+    private final Cicerone ciceroneCreatore;
+    private String descrizione;
     private LocalDateTime dataInizio;
     private LocalDateTime dataFine;
     private int maxPartecipanti;
@@ -29,6 +30,8 @@ public class SimpleEsperienza implements Esperienza {
     private Set<Area> aree;
     private int postiDisponibili;
     private EsperienzaStatus status;
+    private final LocalDateTime dataPubblicazione;
+    private final LocalDateTime dataTermine;
 
     /**
      * Crea una {@code SimpleEsperienza} impostando i suoi parametri.
@@ -43,12 +46,15 @@ public class SimpleEsperienza implements Esperienza {
      * @param maxGiorniRiserva numero massimo di giorni cui un posto all'{@code Esperienza} può rimanere riservato.
      * @param tags insieme dei tags associati all'{@code Esperienza}.
      */
-    public SimpleEsperienza(String nome, Cicerone ciceroneCreatore, LocalDateTime dataInizio, LocalDateTime dataFine,
+    public SimpleEsperienza(String nome, Cicerone ciceroneCreatore, String descrizione, LocalDateTime dataInizio, LocalDateTime dataFine,
                             int minPartecipanti, int maxPartecipanti, Percorso percorso, Money costoIndividuale, int maxGiorniRiserva, Set<Tag> tags) {
         this.nome = nome;
         this.ciceroneCreatore = ciceroneCreatore;
+        this.descrizione = descrizione;
+        this.dataPubblicazione = LocalDateTime.now();
         this.dataInizio = dataInizio;
         this.dataFine = dataFine;
+        this.dataTermine = impostaTermine();
         this.minPartecipanti = minPartecipanti;
         this.maxPartecipanti = maxPartecipanti;
         this.postiDisponibili = maxPartecipanti;
@@ -70,6 +76,16 @@ public class SimpleEsperienza implements Esperienza {
     }
 
     @Override
+    public String getDescrizione() {
+        return descrizione;
+    }
+
+    @Override
+    public LocalDateTime getDataPubblicazione() {
+        return dataPubblicazione;
+    }
+
+    @Override
     public LocalDateTime getDataInizio() {
         return dataInizio;
     }
@@ -77,6 +93,16 @@ public class SimpleEsperienza implements Esperienza {
     @Override
     public LocalDateTime getDataFine() {
         return dataFine;
+    }
+
+    private LocalDateTime impostaTermine() {
+        // chiedi l'expertise al Cicerone e diminuisci/aumenta la data del termine dell'esperienza
+        return getDataFine().plusDays(2);  // al momento è impostato a 2 giorni dopo la conclusione
+    }
+
+    @Override
+    public LocalDateTime getDataTermine() {
+        return dataTermine;
     }
 
     @Override
@@ -132,6 +158,21 @@ public class SimpleEsperienza implements Esperienza {
     }
 
     @Override
+    public void cambiaStatus(EsperienzaStatus newStatus) {
+        this.status = newStatus;
+    }
+
+    @Override
+    public void cambiaPostiDisponibili(char simbolo, int numeroPosti) {
+        switch (simbolo) {
+            case '-':
+                postiDisponibili -= numeroPosti;
+            case '+':
+                postiDisponibili += numeroPosti;
+        }
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -160,6 +201,7 @@ public class SimpleEsperienza implements Esperienza {
     public String toString() {
         return "Info dell'esperienza {" +
                 "nome: '" + getName() + '\'' +
+                ", descrizione: " + getDescrizione() +
                 ", cicerone: '" + getCiceroneCreatore().getUsername() + '\'' +
                 ", inizio: " + getDataInizio() +
                 ", conclusione: " + getDataFine() +

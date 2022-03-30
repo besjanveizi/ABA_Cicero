@@ -65,6 +65,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     void creaEsperienza() {
         LocalDateTime now = LocalDateTime.now();
         String nomeE = view.ask("Inserisci il nome dell'esperienza:");
+        String descrizioneE = view.ask("Inserisci una descrizione per l'esperienza:");
 
         LocalDateTime dI, dF;
         while (true) {
@@ -120,7 +121,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
         boolean accetta = view.fetchBool();
 
         if (accetta) {
-            gestoreEsperienze.add(nomeE, dI, dF, minP, maxP, percorso, costoIndividuale, maxRiserva, chosenTags);
+            gestoreEsperienze.add(nomeE, descrizioneE, dI, dF, minP, maxP, percorso, costoIndividuale, maxRiserva, chosenTags);
             view.message("La creazione dell'esperienza è avvenuta con successo");
         } else {
             //  TODO: reset
