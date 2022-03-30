@@ -59,7 +59,10 @@ public class PostgresDB implements DBManager {
         public int insert_update_delete_query(String sql)  {
                 try{
                     Statement statement = connection.createStatement();
-                        return statement.executeUpdate(sql,Statement.RETURN_GENERATED_KEYS);
+                        statement.executeUpdate(sql,Statement.RETURN_GENERATED_KEYS);
+                        ResultSet resultSet = statement.getGeneratedKeys();
+                        resultSet.next();
+                        return resultSet.getInt(1);
                 } catch (SQLException throwable) {
                         process_exception(throwable);
                         return -1;
@@ -74,7 +77,6 @@ public class PostgresDB implements DBManager {
         private void process_exception(SQLException sqlException){
                 logger.log(Level.SEVERE, sqlException.getMessage());
                 logger.log(Level.SEVERE, sqlException.getSQLState());
-                logger.log(Level.SEVERE, String.valueOf(sqlException.getErrorCode()));
         }
 
 

@@ -45,7 +45,7 @@ public class UtenteTest {
 
     @Test
     public void inserimento(){
-        try {
+       try {
             gestoreUtente.sign_in(username, email,pass);
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
@@ -54,15 +54,17 @@ public class UtenteTest {
         assertThrows(SQLException.class, ()-> gestoreUtente.sign_in(username, email,pass));
     }
 
+
     @Test
     public void recupero(){
+        String email = "lV8H3YaJqZ@test.it";
         try {
-            Utente utente = gestoreUtente.log_in(email, pass);
-          assertNotNull(utente);
+          assertNotNull( gestoreUtente.log_in(email, pass));
+          gestoreUtente.show();
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }
-        assertThrows(SQLException.class, ()-> gestoreUtente.log_in(email,pass));
+      assertThrows(SQLException.class, ()-> gestoreUtente.log_in("",pass));
     }
 
 

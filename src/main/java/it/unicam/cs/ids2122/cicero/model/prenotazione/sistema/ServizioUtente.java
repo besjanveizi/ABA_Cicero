@@ -5,13 +5,14 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.sistema;
 
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.GestoreUtente;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBManager;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.utenti.Utente;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ServizioUtente<Utente> implements Service<Utente> {
+public class ServizioUtente<U extends Utente> implements Service<Utente> {
 
     private IView<String> cliView;
     private DBManager dbManager;

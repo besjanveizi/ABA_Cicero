@@ -15,11 +15,12 @@ import java.util.regex.Pattern;
 
 public  final class GestoreUtente extends AbstractGestore {
 
-    private final String insertQuery = "INSERT INTO public.utentiregistrati (username, email, password, user_type)	" +
+    private final String insertQuery = "INSERT INTO public.utenti_registrati (username, email, password, user_type)	" +
             "VALUES ( {0}, {1}, {2}, {3} ) ;";
 
 
-    private final String sql_select =  "SELECT * FROM public.utentiregistrati WHERE email= {0} AND password= {1} ;";
+    private final String sql_select =  "SELECT * FROM public.utenti_registrati" +
+            " WHERE email= {0} AND password= {1} ";
 
 
     public GestoreUtente(final DBManager dbManager) {
@@ -38,28 +39,32 @@ public  final class GestoreUtente extends AbstractGestore {
                     UtenteType.TURISTA.getI()
             };
             final String format = MessageFormat.format(insertQuery, token);
-            if (dbManager.insert_update_delete_query(format) == -1) {
+            int id = dbManager.insert_update_delete_query(format);
+            if (id == -1) {
                 Logger.getAnonymousLogger().log(Level.WARNING, "username o email non valide");
                 throw new SQLException();
+            }else{
+                Logger.getAnonymousLogger().log(Level.INFO, "id generato: "+id);
             }
         }
     }
 
     public Utente log_in(String mail, String pass) throws  SQLException {
-
-        final Object[] token = {"'"+mail+"'", "'"+pass.hashCode()+"'" };
+        final String hash_pass = String.valueOf(Math.abs(pass.hashCode()));
+        final Object[] token = {"'"+mail+"'" , "'"+hash_pass+"';" };
         final String format = MessageFormat.format(sql_select, token);
         ResultSet resultSet = dbManager.select_query(format);
-
         if(resultSet!=null && resultSet.next()) {
-
-            Utente utente = new SimpleUser(resultSet.getInt("uid"),
+            Utente utente = new SimpleUser(
+                    resultSet.getInt("uid"),
                     tipoUtente(resultSet.getInt("user_type")),
-                    resultSet.getString("email"), resultSet.getString("username"));
+                    resultSet.getString("email"),
+                    resultSet.getString("username"));
+            resultSet.close();
+            super.utente_corrente = utente;
             return utente;
         }else {
-
-            throw new SQLException();
+           throw new SQLException();
         }
     }
 
@@ -69,9 +74,9 @@ public  final class GestoreUtente extends AbstractGestore {
 
 
     public void upgrade_to_cicero(){
-       String sql_update = "UPDATE public.utenti SET tipo_utente= {0} WHERE uid= {2}";
-       Object[] token = { 1,super.utente_corrente.getID()+"'"};
-       String sql_format = MessageFormat.format(sql_update, token);
+       final String sql_update = "UPDATE public.utenti SET tipo_utente= {0} WHERE uid= {2}";
+       final Object[] token = { 1,super.utente_corrente.getID()+"'"};
+       final String sql_format = MessageFormat.format(sql_update, token);
        dbManager.insert_update_delete_query(sql_format);
     }
 
