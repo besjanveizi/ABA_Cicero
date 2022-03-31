@@ -80,7 +80,7 @@ public class GestorePrenotazione extends AbstractGestore{
                 propEsperienza.getId(),
                 propEsperienza.getName(),
                 posti_prenotati, propEsperienza.getDataInizio(),
-                propEsperienza.getMaxGiorniRiserva(),
+                propEsperienza.getMaxRiserva(),
                 propEsperienza.getCostoIndividuale().getValore(), propEsperienza.getCostoIndividuale().getValuta().getCurrencyCode());
         String sql_format = MessageFormat.format(sql_insert, getToken((PropPrenotazione) prenotazione));
         if (dbManager.insert_update_delete_query(sql_format)!= -1){

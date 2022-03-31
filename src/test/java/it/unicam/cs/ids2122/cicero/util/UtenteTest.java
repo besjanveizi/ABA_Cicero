@@ -32,7 +32,7 @@ public class UtenteTest {
     @BeforeAll
     public static void init()  {
         try {
-            postgresDB = new PostgresDB("cicero", "postgres", "asdasd12345");
+            postgresDB = new PostgresDB("cicero", "postgres", "postgres");
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }

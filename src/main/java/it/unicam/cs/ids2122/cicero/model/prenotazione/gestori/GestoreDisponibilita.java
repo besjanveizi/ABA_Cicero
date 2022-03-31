@@ -48,14 +48,14 @@ public class GestoreDisponibilita extends AbstractGestore {
      * @param num_posti
      */
     public void modificaDisponibilita(Esperienza esperienza, int num_posti){
-         esperienza.modificaPostiDisponibili('-', num_posti);
+         esperienza.cambiaPostiDisponibili('-', num_posti);
         Object[] token = {
             esperienza.getPostiDisponibili(),
             esperienza.getId()
         };
         String formato = MessageFormat.format(sql_update, token);
         if(dbManager.insert_update_delete_query(formato)==-1){
-            esperienza.modificaPostiDisponibili('+', num_posti);
+            esperienza.cambiaPostiDisponibili('+', num_posti);
         }
     }
 

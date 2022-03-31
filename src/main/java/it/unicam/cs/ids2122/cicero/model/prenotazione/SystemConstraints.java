@@ -21,8 +21,8 @@ public interface SystemConstraints {
     String ID_CLIENT = id_client_generator("test@test.it");
 
 
-    String DBUSER = "cicero";
-    String DBPASS = "asdasd12345";
+    String DBUSER = "postgres";
+    String DBPASS = "postgres";
 
 
     static String id_client_generator(String mail){

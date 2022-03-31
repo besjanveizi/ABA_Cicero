@@ -173,6 +173,11 @@ public class SimpleEsperienza implements Esperienza {
     }
 
     @Override
+    public int getId() {
+        return 0;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

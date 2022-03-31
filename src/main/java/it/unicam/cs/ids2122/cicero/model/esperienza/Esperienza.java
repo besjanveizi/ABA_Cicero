@@ -135,4 +135,6 @@ public interface Esperienza {
      * @param numeroPosti numero dei posti da sottrarre o aggiungere.
      */
     void cambiaPostiDisponibili(char simbolo, int numeroPosti);
+
+    int getId();
 }

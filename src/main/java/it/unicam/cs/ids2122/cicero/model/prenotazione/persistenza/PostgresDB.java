@@ -10,7 +10,7 @@ public class PostgresDB implements DBManager {
         private final static String port = "5432";
         private final static String host = "localhost:";
         private final static String uri = "jdbc:postgresql://";
-        private String nomeDB = "/ciceroserver";
+        private String nomeDB = "/cicero";
         private final String username;
         private final String pass;
         private final Logger logger;

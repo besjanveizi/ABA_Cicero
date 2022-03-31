@@ -58,7 +58,7 @@ public class GestoreInviti extends AbstractGestore{
      */
     public void crea_invito(Esperienza esperienza, String mail_invitato, int posti_riservati){
         Invito invito = new SimpleInvito(utente_corrente.getID(), esperienza.getId(),
-                mail_invitato, esperienza.getDataInizio(), esperienza.getMaxGiorniRiserva(), posti_riservati);
+                mail_invitato, esperienza.getDataInizio(), esperienza.getMaxRiserva(), posti_riservati);
          String sql_format = MessageFormat.format(sql_insert, getToken(invito));
          dbManager.insert_update_delete_query(sql_format);
          lista_inviti.add(invito);
