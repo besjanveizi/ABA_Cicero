@@ -7,15 +7,17 @@ public class SimpleTag implements Tag {
 
     private final String name;
     private TagStatus status;
+    private final String descrizione;
 
     /**
      * Crea un semplice <code>Tag</code>.
      * @param name nome del <code>Tag</code>.
      * @param status stato del <code>Tag</code>.
      */
-    public SimpleTag(String name, TagStatus status){
+    public SimpleTag(String name, TagStatus status, String descrizione){
         this.name = name;
         this.status = status;
+        this.descrizione=descrizione;
     }
 
     @Override
@@ -27,4 +29,7 @@ public class SimpleTag implements Tag {
     public TagStatus getState() {
         return status;
     }
+
+    @Override
+    public String getDescrizione() { return descrizione; }
 }

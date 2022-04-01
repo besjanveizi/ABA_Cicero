@@ -36,4 +36,16 @@ public class GestoreTag {
     public Set<Tag> getTags(Predicate<Tag> p) {
         return allTags.stream().filter(p).collect(Collectors.toSet());
     }
+
+    /**
+     * Aggiunge un nuovo <code>Tag</code> alla collezione di Tag della piattaforma Cicero.
+     * @param t nuovo <code>Tag</code> da aggiungere.
+     */
+    public void addTag(Tag t){
+        /*
+            TODO: insert tag into database and update database
+            "INSERT INTO TAGS (NOME, STATO, DESCRIZIONE) VALUES("+t.getName()+","+t.getState()+","+t.getDescrizione()+");"
+        */
+        updateTags();
+    }
 }
