@@ -24,18 +24,13 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
 
     protected IView<String> view;
     protected List<String> menuItems;
-    private GestoreAree gestoreAree;
-    private GestoreTag gestoreTag;
     private GestoreRicerca gestoreRicerca;
     private Set<Esperienza> lastRicerca;
     public Ctrl_UtenteGenerico(IView<String> view) {
         this.view = view;
         menuItems = new ArrayList<>();
         impostaMenu();
-        gestoreAree = GestoreAree.getInstance();
-        gestoreTag = GestoreTag.getInstance();
         gestoreRicerca=new GestoreRicerca();
-        // gestoreAutenticazione(view) = new ..
     }
 
     @Override
@@ -79,7 +74,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     }
 
     private Set<Area> impostaAree(){
-        Set<Area> allAree = gestoreAree.getAree();
+        Set<Area> allAree = GestoreAree.getInstance().getAree();
         Set<String> viewSet = allAree.stream().map(Area::getToponimo).collect(Collectors.toSet());
         view.message("Seleziona i toponimi con cui filtrare la ricerca",viewSet);
         Set<String> viewSubSet=view.fetchSubSet(viewSet);
@@ -93,7 +88,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     }
 
     private Set<Tag> impostaTag(){
-        Set<Tag> tagsApprovati = gestoreTag.getTags(e -> e.getState().equals(TagStatus.APPROVATO));
+        Set<Tag> tagsApprovati = GestoreTag.getInstance().getTags(e -> e.getState().equals(TagStatus.APPROVATO));
         Set<String> viewSet = tagsApprovati.stream().map(Tag::getName).collect(Collectors.toSet());
         view.message("Scegli i tag con cui filtrare la ricerca", viewSet);
         Set<String> viewSubSet = view.fetchSubSet(viewSet);

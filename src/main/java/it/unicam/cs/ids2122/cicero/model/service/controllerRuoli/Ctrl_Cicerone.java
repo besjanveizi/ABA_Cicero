@@ -6,12 +6,10 @@ import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.tag.GestoreTag;
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.tag.TagStatus;
-import it.unicam.cs.ids2122.cicero.model.territorio.GestoreAree;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
-import javax.swing.text.Element;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -23,18 +21,14 @@ import java.util.stream.Collectors;
  */
 public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
-    private GestoreAree gestoreAree;
     private GestorePercorso gestorePercorso;
-    private GestoreTag gestoreTag;
-    private GestoreEsperienze gestoreEsperienze;
+    private Cicerone cicerone;
 
     public Ctrl_Cicerone(IView<String> view, Cicerone cicerone) {
         super(view, cicerone);
+        this.cicerone = cicerone;
         impostaMenu();
-        gestoreAree = GestoreAree.getInstance();
-        gestorePercorso = new GestorePercorso(view, gestoreAree);
-        gestoreTag = GestoreTag.getInstance();
-        gestoreEsperienze = GestoreEsperienze.getInstance(cicerone);
+        gestorePercorso = new GestorePercorso(view);
     }
 
     @Override
@@ -54,7 +48,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     }
 
     private void proponiTag() {
-        Set<Tag> allTags = gestoreTag.getTags(p -> true);
+        Set<Tag> allTags = GestoreTag.getInstance().getTags(p -> true);
         String newTagName = "";
         boolean annulla = false;
         while (!annulla) {
@@ -82,7 +76,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
             }
             view.message("Confermare la proposta del tag? [Y,n]");
             if (view.fetchBool()) {
-                gestoreTag.add(newTagName, descrizioneTag);
+                GestoreTag.getInstance().add(newTagName, descrizioneTag);
                 view.message("Il tag è stato proposto");
             }
             else view.message("Proposta del tag annullata");
@@ -152,7 +146,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
         boolean accetta = view.fetchBool();
 
         if (accetta) {
-            gestoreEsperienze.add(nomeE, descrizioneE, dI, dF, minP, maxP, percorso, costoIndividuale, maxRiserva, chosenTags);
+            GestoreEsperienze.getInstance(cicerone).add(nomeE, descrizioneE, dI, dF, minP, maxP, percorso, costoIndividuale, maxRiserva, chosenTags);
             view.message("La creazione dell'esperienza è avvenuta con successo");
         } else {
             percorso.reset();
@@ -161,7 +155,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     }
 
     private Set<Tag> impostaTags() {
-        Set<Tag> tagsApprovati = gestoreTag.getTags(e -> e.getState().equals(TagStatus.APPROVATO));
+        Set<Tag> tagsApprovati = GestoreTag.getInstance().getTags(e -> e.getState().equals(TagStatus.APPROVATO));
         Set<String> viewSet = tagsApprovati.stream().map(Tag::getName).collect(Collectors.toSet());
         view.message("Scegli i tag da associare all'esperienza", viewSet);
         Set<String> viewSubSet = view.fetchSubSet(viewSet);

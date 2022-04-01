@@ -10,14 +10,12 @@ import java.util.stream.Collectors;
 
 public class GestorePercorso {
     private Set<Area> aree;
-    private GestoreAree gestoreAree;
     private IView<String> view;
     private Percorso percorso;
 
-    public GestorePercorso(IView<String> view, GestoreAree gestoreAree) {
+    public GestorePercorso(IView<String> view) {
         this.view = view;
-        this.gestoreAree = gestoreAree;
-        this.aree = gestoreAree.getAree();
+        this.aree = GestoreAree.getInstance().getAree();
         this.percorso = new Percorso();
     }
 
