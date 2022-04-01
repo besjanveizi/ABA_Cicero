@@ -77,7 +77,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         }
         view.message("Vuoi confermare la proposta del tag "+nome+" con descrizione "+descrizione+"?");
         if(view.fetchBool()){
-            gestoreTag.addTag(new SimpleTag(nome,TagStatus.APPROVATO,descrizione));
+            gestoreTag.addTag(new SimpleTag(nome,descrizione,TagStatus.APPROVATO));
             view.message("il tag "+nome+" è stato aggiunto alla collezione di tag della piattaforma.");
         }else{
             annullaDefinizione();
