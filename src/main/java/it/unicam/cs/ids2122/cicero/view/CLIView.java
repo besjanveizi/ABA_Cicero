@@ -85,7 +85,7 @@ public class CLIView implements IView<String> {
     }
 
     @Override
-    public String fetchSingleChoice(Set<String> items) {
+    public String fetchSingleChoice(Collection<String> items) {
         String input;
         while (true) {
             input = fetch();
@@ -116,10 +116,9 @@ public class CLIView implements IView<String> {
     @Override
     public boolean fetchBool() {
         String input;
-        boolean parsedInput;
         while (true) {
             input = fetch();
-            if (!input.isBlank()) return true;
+            if (input.isBlank()) return true;
             else if (Arrays.asList("y","Y","Yes","YES","yes").contains(input)) return true;
             else if (Arrays.asList("n","N","No","NO","no").contains(input)) return false;
             else message("Errore di inserimento: le scelte possibili sono [y, Y, Yes, yes] oppure [n, N, No, NO, no]");

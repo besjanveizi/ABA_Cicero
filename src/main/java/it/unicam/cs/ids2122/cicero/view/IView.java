@@ -38,7 +38,7 @@ public interface IView<T> {
      * @param items insieme degli elementi da cui scegliere un solo elemento.
      * @return l'elemento scelto dall'insieme dato in input.
      */
-    T fetchSingleChoice(Set<T> items);
+    T fetchSingleChoice(Collection<T> items);
 
     /**
      * Permette di scegliere un intero che va da 1 al limite dato.
