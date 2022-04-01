@@ -10,17 +10,6 @@ public class SimpleTag implements Tag {
     private TagStatus status;
 
     /**
-     * Crea un semplice <code>Tag</code> con il {@link TagStatus} {@code PROPOSTO}.
-     * @param name nome del <code>Tag</code>.
-     * @param descrizione descrizione del <code>Tag</code>.
-     */
-    public SimpleTag(String name, String descrizione){
-        this.name = name;
-        this.descrizione = descrizione;
-        this.status = TagStatus.PROPOSTO;
-    }
-
-    /**
      * Crea un semplice {@code Tag} impostando il suo stato.
      * @param name nome del {@code Tag}.
      * @param descrizione descrizione del {@code Tag}.
@@ -43,6 +32,8 @@ public class SimpleTag implements Tag {
     }
 
     @Override
+    public String getDescrizione() { return descrizione; }
+
     public String toString() {
         return "SimpleTag{" +
                 "name='" + name + '\'' +

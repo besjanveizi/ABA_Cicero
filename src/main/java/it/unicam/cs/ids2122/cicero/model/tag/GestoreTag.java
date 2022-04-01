@@ -38,7 +38,16 @@ public class GestoreTag {
     }
 
     public void add(String tagName, String tagDescription) {
-        Tag tag = new SimpleTag(tagName, tagDescription);
+        add(tagName, tagDescription, TagStatus.PROPOSTO);
+        /*
+            TODO: insert tag into database and update database
+            "INSERT INTO TAGS (NOME, STATO, DESCRIZIONE) VALUES("+t.getName()+","+t.getState()+","+t.getDescrizione()+");"
+        */
+        updateTags();
+    }
+
+    public void add(String tagName, String tagDescription, TagStatus tagStatus) {
+        Tag tag = new SimpleTag(tagName, tagDescription, tagStatus);
         allTags.add(tag);
     }
 }

@@ -14,4 +14,10 @@ public interface Tag {
      * @return ritorna lo stato del <code>Tag</code>.
      */
     TagStatus getState();
+
+    /**
+     *
+     * @return la descrizione del <code>Tag</code>.
+     */
+    String getDescrizione();
 }
