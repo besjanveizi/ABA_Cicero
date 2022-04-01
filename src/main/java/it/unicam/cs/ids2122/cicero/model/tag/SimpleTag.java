@@ -6,19 +6,8 @@ package it.unicam.cs.ids2122.cicero.model.tag;
 public class SimpleTag implements Tag {
 
     private final String name;
-    private TagStatus status;
     private final String descrizione;
-
-    /**
-     * Crea un semplice <code>Tag</code> con il {@link TagStatus} {@code PROPOSTO}.
-     * @param name nome del <code>Tag</code>.
-     * @param descrizione descrizione del <code>Tag</code>.
-     */
-    public SimpleTag(String name, String descrizione){
-        this.name = name;
-        this.descrizione = descrizione;
-        this.status = TagStatus.PROPOSTO;
-    }
+    private TagStatus status;
 
     /**
      * Crea un semplice {@code Tag} impostando il suo stato.
@@ -44,4 +33,12 @@ public class SimpleTag implements Tag {
 
     @Override
     public String getDescrizione() { return descrizione; }
+
+    public String toString() {
+        return "SimpleTag{" +
+                "name='" + name + '\'' +
+                ", descrizione='" + descrizione + '\'' +
+                ", status=" + status +
+                '}';
+    }
 }

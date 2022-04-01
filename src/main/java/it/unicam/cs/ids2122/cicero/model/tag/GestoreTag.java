@@ -37,15 +37,17 @@ public class GestoreTag {
         return allTags.stream().filter(p).collect(Collectors.toSet());
     }
 
-    /**
-     * Aggiunge un nuovo <code>Tag</code> alla collezione di Tag della piattaforma Cicero.
-     * @param t nuovo <code>Tag</code> da aggiungere.
-     */
-    public void addTag(Tag t){
+    public void add(String tagName, String tagDescription) {
+        add(tagName, tagDescription, TagStatus.PROPOSTO);
         /*
             TODO: insert tag into database and update database
             "INSERT INTO TAGS (NOME, STATO, DESCRIZIONE) VALUES("+t.getName()+","+t.getState()+","+t.getDescrizione()+");"
         */
         updateTags();
+    }
+
+    public void add(String tagName, String tagDescription, TagStatus tagStatus) {
+        Tag tag = new SimpleTag(tagName, tagDescription, tagStatus);
+        allTags.add(tag);
     }
 }

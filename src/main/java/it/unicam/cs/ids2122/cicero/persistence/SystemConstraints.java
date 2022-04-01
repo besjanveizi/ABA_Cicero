@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.system;
+package it.unicam.cs.ids2122.cicero.persistence;
 
 public interface SystemConstraints {
 

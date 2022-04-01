@@ -1,7 +1,6 @@
 package it.unicam.cs.ids2122.cicero.persistence;
 
 import it.unicam.cs.ids2122.cicero.model.Piattaforma;
-import it.unicam.cs.ids2122.cicero.model.system.SystemConstraints;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
 

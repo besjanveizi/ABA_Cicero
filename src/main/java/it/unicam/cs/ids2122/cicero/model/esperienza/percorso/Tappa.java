@@ -40,4 +40,7 @@ public class Tappa {
                         listAttivita.stream().map(Attivita::toString).collect(Collectors.toSet()));
     }
 
+    public List<Attivita> getListAttivita() {
+        return listAttivita;
+    }
 }

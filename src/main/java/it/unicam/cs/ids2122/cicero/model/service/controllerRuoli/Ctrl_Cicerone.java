@@ -11,8 +11,10 @@ import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
+import javax.swing.text.Element;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,16 +40,54 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     @Override
     protected boolean switchMenu(int scelta) {
         boolean loop = true;
-        if (scelta == 4) {
-            creaEsperienza();
-        } else {
-            loop = super.switchMenu(scelta);
+        switch (scelta) {
+            case 4:
+                creaEsperienza();
+                break;
+            case 5:
+                proponiTag();
+                break;
+            default:
+                loop = super.switchMenu(scelta);
         }
         return loop;
     }
 
-    private void impostaMenu() {
-        menuItems.add("4) Crea Esperienza");
+    private void proponiTag() {
+        Set<Tag> allTags = gestoreTag.getTags(p -> true);
+        String newTagName = "";
+        boolean annulla = false;
+        while (!annulla) {
+            newTagName = view.ask("Inserisci il nome del tag da proporre");
+            if (newTagName.equals(""))
+                view.message("Il nome del tag non può essere vuoto");
+            else {
+                String finalNewTagName = newTagName;
+                if(allTags.stream()
+                        .anyMatch(t -> Objects.equals(t.getName(), finalNewTagName))) {
+                    view.message("Il tag " + newTagName + " è già stato proposto o approvato");
+                    int choice = view.fetchChoice("1) inserire un nuovo tag;\n2)torna al menu principale", 2);
+                    if (choice == 2) annulla = true;
+                }
+                else break;
+            }
+        }
+        String descrizioneTag;
+        if (!annulla) {
+            while (true) {
+                descrizioneTag = view.ask("Inserisci la descrizione del tag " + newTagName);
+                if (descrizioneTag.equals(""))
+                    view.message("La descrizione non può essere vuota");
+                else break;
+            }
+            view.message("Confermare la proposta del tag? [Y,n]");
+            if (view.fetchBool()) {
+                gestoreTag.add(newTagName, descrizioneTag);
+                view.message("Il tag è stato proposto");
+            }
+            else view.message("Proposta del tag annullata");
+        }
+        else view.message("Proposta del tag annullata");
     }
 
     /**
@@ -115,7 +155,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
             gestoreEsperienze.add(nomeE, descrizioneE, dI, dF, minP, maxP, percorso, costoIndividuale, maxRiserva, chosenTags);
             view.message("La creazione dell'esperienza è avvenuta con successo");
         } else {
-            //  TODO: reset
+            percorso.reset();
             view.message("La creazione dell'esperienza è stata cancellata");
         }
     }
@@ -130,5 +170,10 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
             for (String tagName : viewSubSet)
                 tagsApprovati.stream().filter(t -> t.getName().equals(tagName)).findFirst().ifPresent(chosenTags::add);
         return chosenTags;
+    }
+
+    private void impostaMenu() {
+        menuItems.add("4) Crea Esperienza");
+        menuItems.add("5) Proponi nuovo Tag");
     }
 }
