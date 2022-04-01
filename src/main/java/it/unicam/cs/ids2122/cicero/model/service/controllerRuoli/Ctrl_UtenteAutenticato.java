@@ -1,7 +1,10 @@
 package it.unicam.cs.ids2122.cicero.model.service.controllerRuoli;
 
+import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
 import it.unicam.cs.ids2122.cicero.view.IView;
+
+import java.sql.SQLException;
 
 /**
  * Rappresenta un gestore radice per un utente autenticato
@@ -17,28 +20,36 @@ public class Ctrl_UtenteAutenticato extends Ctrl_UtenteGenerico implements Ctrl_
     }
 
     @Override
-    public void mainMenu() {
-        int scelta;
-        do {
-            view.message("Menu", menuItems);
-            scelta = view.fetchChoice("Inserisci l'indice dell'operazione", menuItems.size());
-        } while (switchMenu(scelta));
-    }
-
-    @Override
     protected boolean switchMenu(int scelta) {
-        boolean loop = true;
-        if (scelta == 1) {
-            logOut();
-        } else {
-            loop = super.switchMenu(scelta);
+        boolean loop;
+        switch (scelta) {
+            case 1:
+                logOut();
+                loop = false;
+                break;
+            case 2:
+                exit();
+                loop = false;
+                break;
+            default:
+                loop = super.switchMenu(scelta);
         }
         return loop;
     }
 
-    protected void logOut() {
-        // logout, delega gestoreAutenticazione
-        System.out.println("hai scelto di fare logout");
+    private void logOut() {
+        view.message("Arrivederci " + utente.getUsername() + "!!");
+        try {
+            Piattaforma.getInstance().resetCtrl_utente();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void exit() {
+        logOut();
+        System.exit(0);
     }
 
     private void impostaMenu() {

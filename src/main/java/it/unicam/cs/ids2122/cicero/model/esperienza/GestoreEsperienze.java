@@ -1,6 +1,8 @@
 package it.unicam.cs.ids2122.cicero.model.esperienza;
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Percorso;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBManager;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.PostgresDB;
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
@@ -18,6 +20,7 @@ public class GestoreEsperienze {
     private Set<Esperienza> esperienze;
     private Cicerone cicerone;
     private static GestoreEsperienze instance = null;
+    DBManager dbManager;
 
     /**
      * Crea un gestore delle esperienze per il dato <code>Cicerone</code>.

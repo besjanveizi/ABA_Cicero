@@ -36,15 +36,6 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     }
 
     @Override
-    public void mainMenu() {
-        int scelta;
-        do {
-            view.message("Menu", menuItems);
-            scelta = view.fetchChoice("Inserisci l'indice dell'operazione", menuItems.size());
-        } while (switchMenu(scelta));
-    }
-
-    @Override
     protected boolean switchMenu(int scelta) {
         boolean loop = true;
         if (scelta == 4) {
@@ -62,7 +53,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     /**
      * Permette di elaborare la creazione di una nuova <code>Esperienza</code>.
      */
-    void creaEsperienza() {
+    private void creaEsperienza() {
         LocalDateTime now = LocalDateTime.now();
         String nomeE = view.ask("Inserisci il nome dell'esperienza:");
         String descrizioneE = view.ask("Inserisci una descrizione per l'esperienza:");
@@ -127,7 +118,6 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
             //  TODO: reset
             view.message("La creazione dell'esperienza è stata cancellata");
         }
-
     }
 
     private Set<Tag> impostaTags() {

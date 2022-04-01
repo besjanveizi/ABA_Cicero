@@ -7,8 +7,10 @@ import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.model.territorio.GestoreAree;
 import it.unicam.cs.ids2122.cicero.model.territorio.Area;
+import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +28,6 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     private GestoreTag gestoreTag;
     private GestoreRicerca gestoreRicerca;
     private Set<Esperienza> lastRicerca;
-
     public Ctrl_UtenteGenerico(IView<String> view) {
         this.view = view;
         menuItems = new ArrayList<>();
@@ -51,6 +52,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         switch (scelta) {
             case 1:
                 logIn();
+                loop = false;
                 break;
             case 2:
                 exit();
@@ -64,17 +66,15 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     }
 
     protected void exit() {
-        //termina l'applicazione
-        System.out.println("hai scelto di terminare l'app");
+        view.message("Arrivederci!");
+        System.exit(0);
     }
 
     protected void cercaEsperienze() {
-        // cerca esperienze, delega a gestoreRicerca
-        System.out.println("hai scelto di cercare esperienza");
         String filtroNome= view.ask("Inserire una stringa per filtrare il nome delle esperienze: ");
         Set<Area> filtroAree = impostaAree();
         Set<Tag> filtroTags = impostaTag();
-        lastRicerca =gestoreRicerca.ricerca(filtroNome,filtroTags,filtroAree);
+        lastRicerca = gestoreRicerca.ricerca(filtroNome,filtroTags,filtroAree);
         showEsperienzeTrovate(lastRicerca);
     }
 
@@ -119,8 +119,13 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     }
 
     protected void logIn() {
-        // login, delega gestoreAutenticazione
-        System.out.println("hai scelto di fare login");
+        String username = view.ask("username:");
+        String password = view.ask("password:");
+        try {
+            DBManager.getInstance().login(username, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void impostaMenu() {
