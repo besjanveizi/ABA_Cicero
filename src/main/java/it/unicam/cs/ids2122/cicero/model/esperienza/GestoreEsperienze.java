@@ -1,8 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.esperienza;
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Percorso;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBManager;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.PostgresDB;
+import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.persistenza.DBManager;
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;

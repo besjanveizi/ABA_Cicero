@@ -90,4 +90,48 @@ public class DBManager {
             default: return null;
         }
     }
+
+    /**
+     * si connette al database per inserire la query di tipo select
+     * @param sql query preparata
+     * @return il <code>{@link ResultSet}</code>
+     */
+    public ResultSet select_query(String sql) {
+        try{
+            Statement statement = connection.createStatement();
+            return statement.executeQuery(sql);
+        } catch (SQLException sqlException) {
+            process_exception(sqlException);
+            return null;
+        }
+    }
+
+
+    /**
+     * si connette al database per inserire la query di tipo update, delete, insert
+     * @param sql query preparata
+     * @return una chiave generata se questa viene generata
+     */
+    public int insert_update_delete_query(String sql)  {
+        try{
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(sql,Statement.RETURN_GENERATED_KEYS);
+            ResultSet resultSet = statement.getGeneratedKeys();
+            resultSet.next();
+            return resultSet.getInt(1);
+        } catch (SQLException throwable) {
+            process_exception(throwable);
+            return -1;
+        }
+    }
+
+    /**
+     * log delle informazioni sul fallimento della query
+     *
+     * @param sqlException info su <code>SQLException</code>
+     */
+    private void process_exception(SQLException sqlException){
+        logger.log(Level.SEVERE, sqlException.getMessage());
+        logger.log(Level.SEVERE, sqlException.getSQLState());
+    }
 }

@@ -27,4 +27,6 @@ public interface IUtente {
      * @return stringa dell identificativo del conto dell'utente autenticato.
      */
     String getID_Client();
+
+    int getID();
 }
