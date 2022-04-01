@@ -45,4 +45,8 @@ public class Percorso {
                 "spostamenti=" + spostamenti +
                 '}';
     }
+
+    public void reset() {
+        spostamenti.forEach(Spostamento::reset);
+    }
 }

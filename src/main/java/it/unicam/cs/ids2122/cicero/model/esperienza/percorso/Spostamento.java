@@ -19,4 +19,8 @@ public class Spostamento {
         return destinazione;
     }
 
+    public void reset() {
+        partenza.getListAttivita().clear();
+        destinazione.getListAttivita().clear();
+    }
 }

@@ -36,4 +36,9 @@ public class GestoreTag {
     public Set<Tag> getTags(Predicate<Tag> p) {
         return allTags.stream().filter(p).collect(Collectors.toSet());
     }
+
+    public void add(String tagName, String tagDescription) {
+        Tag tag = new SimpleTag(tagName, tagDescription);
+        allTags.add(tag);
+    }
 }

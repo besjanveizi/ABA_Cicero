@@ -16,22 +16,23 @@ import java.util.stream.Collectors;
  */
 public class SimpleEsperienza implements Esperienza {
 
-    private String nome;
+    private int id;
+    private final String nome;
     private final Cicerone ciceroneCreatore;
-    private String descrizione;
-    private LocalDateTime dataInizio;
-    private LocalDateTime dataFine;
-    private int maxPartecipanti;
-    private int minPartecipanti;
-    private Percorso percorso;
-    private Money costoIndividuale;
-    private int maxGiorniRiserva;
-    private Set<Tag> tags;
+    private final String descrizione;
+    private final LocalDateTime dataInizio;
+    private final LocalDateTime dataFine;
+    private final int maxPartecipanti;
+    private final int minPartecipanti;
+    private final Percorso percorso;
+    private final Money costoIndividuale;
+    private final int maxGiorniRiserva;
+    private final Set<Tag> tags;
     private Set<Area> aree;
     private int postiDisponibili;
     private EsperienzaStatus status;
-    private final LocalDateTime dataPubblicazione;
-    private final LocalDateTime dataTermine;
+    private LocalDateTime dataPubblicazione;
+    private LocalDateTime dataTermine;
 
     /**
      * Crea una {@code SimpleEsperienza} impostando i suoi parametri.
@@ -63,6 +64,44 @@ public class SimpleEsperienza implements Esperienza {
         this.maxGiorniRiserva = maxGiorniRiserva;
         this.tags=tags;
         this.status = EsperienzaStatus.IDLE;
+    }
+
+    /**
+     * Genera una {@code SimpleEsperienza}.
+     * @param id id dell'{@code Esperienza}.
+     * @param nome nome dell'{@code Esperienza}.
+     * @param ciceroneCreatore cicerone creatore dell'{@code Esperienza}.
+     * @param descrizione descrizione dell'{@code Esperienza}.
+     * @param dataInizio data d'inizio dell'{@code Esperienza}.
+     * @param dataFine data di conclusione dell'{@code Esperienza}.
+     * @param maxPartecipanti numero minimo dei partecipanti all'{@code Esperienza}.
+     * @param minPartecipanti numero massimo dei partecipanti all'{@code Esperienza}.
+     * @param percorso {@link Percorso} dell'{@code Esperienza}.
+     * @param costoIndividuale {@link Money} di un posto all'{@code Esperienza}.
+     * @param maxGiorniRiserva numero massimo dei giorni di riserva per l'{@code Esperienza}.
+     * @param tags insieme dei tags associati all'{@code Esperienza}.
+     * @param postiDisponibili numero dei posti diponibili all'{@code Esperienza}.
+     * @param status {@link EsperienzaStatus} dell'{@code Esperienza}.
+     * @param dataPubblicazione data di pubblicazione dell'{@code Esperienza}.
+     * @param dataTermine data di termine dell'{@code Esperienza}.
+     */
+    public SimpleEsperienza(int id, String nome, Cicerone ciceroneCreatore, String descrizione,
+                            LocalDateTime dataInizio, LocalDateTime dataFine,
+                            int maxPartecipanti, int minPartecipanti, Percorso percorso, Money costoIndividuale,
+                            int maxGiorniRiserva, Set<Tag> tags, int postiDisponibili, EsperienzaStatus status,
+                            LocalDateTime dataPubblicazione, LocalDateTime dataTermine) {
+        this(nome, ciceroneCreatore, descrizione, dataInizio, dataFine, minPartecipanti, maxPartecipanti, percorso,
+                costoIndividuale, maxGiorniRiserva, tags);
+        this.id = id;
+        this.postiDisponibili = postiDisponibili;
+        this.status = status;
+        this.dataPubblicazione = dataPubblicazione;
+        this.dataTermine = dataTermine;
+    }
+
+    @Override
+    public int getId() {
+        return id;
     }
 
     @Override
@@ -170,11 +209,6 @@ public class SimpleEsperienza implements Esperienza {
             case '+':
                 postiDisponibili += numeroPosti;
         }
-    }
-
-    @Override
-    public int getId() {
-        return 0;
     }
 
     @Override

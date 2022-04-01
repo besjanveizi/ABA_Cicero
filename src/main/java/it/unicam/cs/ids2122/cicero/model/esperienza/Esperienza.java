@@ -15,6 +15,12 @@ import java.util.Set;
 public interface Esperienza {
 
     /**
+     * Recupera l'id dell'{@code Esperienza}.
+     * @return intero corrispondente all'identificativo.
+     */
+    int getId();
+
+    /**
      * Recupera il nome dell'{@code Esperienza}.
      * @return stringa del nome.
      */
@@ -135,6 +141,4 @@ public interface Esperienza {
      * @param numeroPosti numero dei posti da sottrarre o aggiungere.
      */
     void cambiaPostiDisponibili(char simbolo, int numeroPosti);
-
-    int getId();
 }
