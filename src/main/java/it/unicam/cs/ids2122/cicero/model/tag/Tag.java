@@ -20,4 +20,5 @@ public interface Tag {
      * @return la descrizione del <code>Tag</code>.
      */
     String getDescrizione();
+
 }
