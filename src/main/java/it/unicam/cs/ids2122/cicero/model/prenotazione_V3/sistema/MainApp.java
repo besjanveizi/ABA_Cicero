@@ -6,6 +6,11 @@ import java.sql.SQLException;
 public class MainApp {
 
     public static void main(String[] args) throws IOException {
+
+        ProcessoDiSistema p = new ProcessoDiSistema();
+        p.schedule();
+
+
         /*PostgresDB postgresDB = new PostgresDB("cicero","postgres","asdasd12345" );
         String pass = "asdasd12345";
         String hash_pass = String.valueOf(Math.abs(pass.hashCode()));

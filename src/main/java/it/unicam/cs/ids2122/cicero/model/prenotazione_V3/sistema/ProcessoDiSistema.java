@@ -7,27 +7,35 @@ import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ProcessoDiSistema{
+public class ProcessoDiSistema implements Runnable{
 
 
-    private volatile SynchronousQueue<Prenotazione> controllati;
+    private ScheduledExecutorService service;
 
-    public void ProcessoDiSistema(){
+    private volatile List<Prenotazione> controllati;
+
+
+    public ProcessoDiSistema(){
         List<Prenotazione> temp = new ArrayList<>();
         try {
             new DBPrenotazione().genera(DBManager.getInstance().select_query("select * from public.prenotazioni;"), temp);
         } catch (SQLException e) {
             e.printStackTrace();
          }
-          this.controllati = (SynchronousQueue<Prenotazione>) Collections.synchronizedList(temp);
+          controllati =Collections.synchronizedList(temp);
+          service = Executors.newScheduledThreadPool(1);
     }
 
     void sys_check(){
+        Logger.getAnonymousLogger().log(Level.INFO,"START");
         LocalDateTime now = LocalDateTime.now();
         this.controllati
                 .stream()
@@ -35,5 +43,14 @@ public class ProcessoDiSistema{
                 .forEach(prenotazione -> prenotazione.cambiaStatoPrenotazione(StatoPrenotazione.CANCELLATA));
     }
 
+
+    @Override
+    public void run() {
+        sys_check();
+    }
+
+    public  void schedule(){
+        service.scheduleAtFixedRate(this, 0, 10,TimeUnit.MINUTES );
+    }
 
 }
