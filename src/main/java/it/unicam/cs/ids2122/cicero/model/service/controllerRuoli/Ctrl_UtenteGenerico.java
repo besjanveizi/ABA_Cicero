@@ -7,7 +7,8 @@ import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.model.territorio.GestoreAree;
 import it.unicam.cs.ids2122.cicero.model.territorio.Area;
-import it.unicam.cs.ids2122.cicero.persistence.DBManager;
+import it.unicam.cs.ids2122.cicero.persistence.PGManager;
+import it.unicam.cs.ids2122.cicero.persistence.services.ServiceUtenti;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
 import java.sql.SQLException;
@@ -116,11 +117,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     protected void logIn() {
         String username = view.ask("username:");
         String password = view.ask("password:");
-        try {
-            DBManager.getInstance().login(username, password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        ServiceUtenti.getInstance().login(username, password);
     }
 
     private void impostaMenu() {

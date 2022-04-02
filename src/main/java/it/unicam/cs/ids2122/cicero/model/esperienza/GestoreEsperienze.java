@@ -1,5 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.esperienza;
 
+import it.unicam.cs.ids2122.cicero.persistence.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import java.util.*;
 import java.util.function.Predicate;
@@ -10,9 +11,10 @@ import java.util.stream.Collectors;
  */
 public class GestoreEsperienze {
 
-    private Set<Esperienza> esperienze;
+    private Set<IEsperienza> esperienze;
     private Cicerone cicerone;
     private static GestoreEsperienze instance = null;
+    private static ServiceEsperienza serviceEsperienza;
 
     /**
      * Crea un gestore delle esperienze per il dato <code>Cicerone</code>.
@@ -29,9 +31,9 @@ public class GestoreEsperienze {
     }
 
     private void updateEsperienze() {
+        Set<IEsperienza> temp = serviceEsperienza.download(cicerone.getID());
         // TODO:
         //  -> rimpiazza il set esperienze corrente con uno aggiornato dal database
-        //      Set<Esperienza> temp = ServiceEsperienza.download(cicerone.getId());
         //      esperienze.clear();
         //      esperienze.addAll(temp);
     }
@@ -41,15 +43,15 @@ public class GestoreEsperienze {
      * @param id identificativo dell'esperienza che si cerca.
      * @return l'esperienza con l'id dato oppure null se non trovata.
      */
-    public Esperienza getEsperienza(int id){
-        return esperienze.stream().filter((e) -> e.getId()==id).findFirst().orElse(null);
+    public IEsperienza getEsperienza(int id){
+        return esperienze.stream().filter((e) -> e.getId()==id).findFirst().orElseThrow(NullPointerException::new);
     }
 
     /**
      * Restituisce tutte le esperienze create dal <code>Cicerone</code> associato.
      * @return collezione di tutte le esperienze create dal <code>Cicerone</code> associato.
      */
-    public Set<Esperienza> getAllEsperienze(Predicate<Esperienza> p) {
+    public Set<IEsperienza> getAllEsperienze(Predicate<IEsperienza> p) {
         return esperienze.stream().filter(p).collect(Collectors.toSet());
     }
 

@@ -39,11 +39,7 @@ public class Ctrl_UtenteAutenticato extends Ctrl_UtenteGenerico implements Ctrl_
 
     private void logOut() {
         view.message("Arrivederci " + utente.getUsername() + "!!");
-        try {
-            Piattaforma.getInstance().resetCtrl_utente();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        Piattaforma.getInstance().resetCtrl_utente();
     }
 
     @Override

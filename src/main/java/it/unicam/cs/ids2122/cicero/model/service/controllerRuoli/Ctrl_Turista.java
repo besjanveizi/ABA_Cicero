@@ -1,7 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.service.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.sistema.*;
-import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import it.unicam.cs.ids2122.cicero.view.IView;
 

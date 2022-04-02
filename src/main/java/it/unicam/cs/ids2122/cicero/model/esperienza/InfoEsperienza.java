@@ -74,7 +74,7 @@ public class InfoEsperienza {
     }
 
     /**
-     * Genera il raccoglitore delle informazioni di un'{@code Esperienze}.
+     * Genera il raccoglitore delle informazioni di un'{@code Esperienza}.
      * @param userSettings informazioni dell'{@code Esperienza} impostate dal {@code Cicerone}.
      *                     vedi - {@link InfoEsperienza#InfoEsperienza(String, Cicerone, String, LocalDateTime, LocalDateTime, int, int, Percorso, Money, int, Set)}
      * @param postiDisponibili numero dei posti disponibili all'{@code Esperienza}.
