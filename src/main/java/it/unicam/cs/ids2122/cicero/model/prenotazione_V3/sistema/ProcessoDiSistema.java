@@ -39,7 +39,7 @@ public class ProcessoDiSistema implements Runnable{
         LocalDateTime now = LocalDateTime.now();
         this.controllati
                 .stream()
-                .filter(prenotazione -> prenotazione.check_is_before(now))
+                .filter(prenotazione -> prenotazione.getScadenza().isAfter(now))
                 .forEach(prenotazione -> prenotazione.cambiaStatoPrenotazione(StatoPrenotazione.CANCELLATA));
     }
 
