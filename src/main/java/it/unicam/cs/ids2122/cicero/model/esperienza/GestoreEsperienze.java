@@ -1,11 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.esperienza;
 
-import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Percorso;
-import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
-import it.unicam.cs.ids2122.cicero.util.Money;
-
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -25,7 +20,7 @@ public class GestoreEsperienze {
      */
     private GestoreEsperienze(Cicerone cicerone) {
         this.cicerone = cicerone;
-        esperienze = updateEsperienze();
+        updateEsperienze();
     }
 
     public static GestoreEsperienze getInstance(Cicerone cicerone) {
@@ -33,10 +28,12 @@ public class GestoreEsperienze {
         return instance;
     }
 
-    private Set<Esperienza> updateEsperienze() {
-        // TODO: update esperienze with database select request from table "esperienze" where id_cicerone = cicerone.getId()
-        //  return DBManager.select(DBTable.ESPERIENZE, cicerone) -> crea e ritorna un HashSet di oggetti Esperienza
-        return new HashSet<>();  // temporary
+    private void updateEsperienze() {
+        // TODO:
+        //  -> rimpiazza il set esperienze corrente con uno aggiornato dal database
+        //      Set<Esperienza> temp = ServiceEsperienza.download(cicerone.getId());
+        //      esperienze.clear();
+        //      esperienze.addAll(temp);
     }
 
     /**
@@ -45,7 +42,7 @@ public class GestoreEsperienze {
      * @return l'esperienza con l'id dato oppure null se non trovata.
      */
     public Esperienza getEsperienza(int id){
-        return esperienze.stream().filter((e) -> e.hashCode()==id).findFirst().orElse(null);
+        return esperienze.stream().filter((e) -> e.getId()==id).findFirst().orElse(null);
     }
 
     /**
@@ -58,21 +55,27 @@ public class GestoreEsperienze {
 
     /**
      * Aggiunge un'<code>Esperienza</code> tra quelle create dal <code>Cicerone</code>.
-     * @param nome nome dell'<code>Esperienza</code>.
-     * @param dI data d'inizio dell'<code>Esperienza</code>.
-     * @param dF data di fine dell'<code>Esperienza</code>.
-     * @param minP numero minimo dei partecipanti all'<code>Esperienza</code>.
-     * @param maxP numero massimo dei partecipanti all'<code>Esperienza</code>.
-     * @param p <code>Percorso</code> dell'<code>Esperienza</code>.
-     * @param costoIndividuale costo di un posto dell<code>Esperienza</code>.
-     * @param maxRiserva numero massimo dei giorni di riserva di posti dell'<code>Esperienza</code>.
-     * @param tags tags associati all'<code>Esperienza</code>.
+     * @param infoEsperienza informazioni dell'<code>Esperienza</code>.
      */
-    public void add(String nome, String descrizione, LocalDateTime dI, LocalDateTime dF, int minP, int maxP, Percorso p, Money costoIndividuale, int maxRiserva, Set<Tag> tags) {
-        Esperienza e = new SimpleEsperienza(nome, cicerone, descrizione, dI, dF, minP, maxP, p, costoIndividuale, maxRiserva, tags);
-        esperienze.add(e);
+    public void add(InfoEsperienza infoEsperienza) {
+        // TODO:
+        //  -> crea una nuova entry nel db e ritorna l'id generato
+        //      int id = ServiceEsperienza.upload(infoEsperienza);
+        //  -> crea l'oggetto Esperienza passando l'id generato e infoEsperienza
+        //      Esperienza e = new SimpleEsperienza(id, infoEsperienza);
+        //  -> aggiungi la nuova istanza Esperienza al set del gestore
+        //      esperienze.add(e);
+    }
 
-        //  TODO: insert e in table "esperienze"
-        //   DBManager.insert(DBTable.ESPERIENZE, e) -> inserisce la nuova esperienza e nel database
+    /**
+     * Modifica lo stato dell'{@code Esperienza} corrispondente all'identificativo dato, nel nuovo stato dato.
+     * @param id identificativo dell'{@code Esperienza}.
+     * @param newStatus nuovo stato dell'{@code Esperienza}.
+     */
+    public void updateStatus(int id, EsperienzaStatus newStatus) {
+        // TODO:
+        //  -> cambia lo stato al database
+        //      ServiceEsperienza.changeState(id, newStatus);
+        //      getEsperienza(id).info().setStatus(newStatus);
     }
 }

@@ -1,6 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.service.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.GestoreEsperienze;
+import it.unicam.cs.ids2122.cicero.model.esperienza.InfoEsperienza;
 import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.GestorePercorso;
 import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.tag.GestoreTag;
@@ -146,7 +147,9 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
         boolean accetta = view.fetchBool();
 
         if (accetta) {
-            GestoreEsperienze.getInstance(cicerone).add(nomeE, descrizioneE, dI, dF, minP, maxP, percorso, costoIndividuale, maxRiserva, chosenTags);
+            GestoreEsperienze.getInstance(cicerone)
+                    .add(new InfoEsperienza(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso,
+                            costoIndividuale, maxRiserva, chosenTags));
             view.message("La creazione dell'esperienza è avvenuta con successo");
         } else {
             percorso.reset();
