@@ -59,8 +59,8 @@ public class GestoreTag {
      * @param tagStatus stato
      */
     public void add(String tagName, String tagDescription, TagStatus tagStatus) {
-        Tag tag = new SimpleTag(tagName, tagDescription, tagStatus);
-        allTags.add(tag);
+        //Tag tag = new SimpleTag(tagName, tagDescription, tagStatus);
+        //allTags.add(tag);
     }
 
     /**

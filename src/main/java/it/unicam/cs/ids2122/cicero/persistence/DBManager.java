@@ -33,17 +33,13 @@ public class DBManager {
 
     private void connect() throws SQLException {
         try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            logger.severe("No PostgreSQL JDBC Driver found\n");
-            e.printStackTrace();
-        }
-        try {
-            connection = DriverManager
+            Connection connection = DriverManager
                             .getConnection(uri + "://" + host + ":" + port + "/" + dbName, dbUser, dbPass);
             logger.info("Successfully connected to '" + dbName + "'. Ready to go!\n");
+            connection.close();
         } catch (SQLException e) {
             logger.severe("Connection failed\n");
+            connection.close();
             throw e;
         }
     }
@@ -62,17 +58,18 @@ public class DBManager {
         logger.addHandler(ch);
     }
 
-    public void login(String username, String password) {
+    public void login(String username, String password) throws SQLException {
         String sql = "SELECT * FROM utenti_registrati WHERE username = '" + username + "' AND password = '" + password + "'";
-        Statement statement;
-        ResultSet resultSet;
-        UtenteAutenticato utenteAutenticato;
-        try {
+        try (Connection connection = DriverManager
+                .getConnection(uri + "://" + host + ":" + port + "/" + dbName, dbUser, dbPass)) {
+            Statement statement;
+            ResultSet resultSet;
+            UtenteAutenticato utenteAutenticato;
             statement = connection.createStatement();
             resultSet = statement.executeQuery(sql);
-            if(resultSet!=null && resultSet.next()) {
-                utenteAutenticato = new UtenteAutenticato(resultSet.getString("username"),
-                        resultSet.getString("email"),
+            if (resultSet != null && resultSet.next()) {
+                utenteAutenticato = new UtenteAutenticato(resultSet.getInt("uid"), resultSet.getString("username"),
+                        resultSet.getString("email"), "password",
                         tipoUtente(resultSet.getInt("user_type")));
                 Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
             }

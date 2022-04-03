@@ -21,9 +21,21 @@ public enum TagStatus {
     RIFIUTATO(2);
 
     private final int code;
-    TagStatus(int code){ this.code = code;}
+
+    TagStatus(int code) {
+        this.code = code;
+    }
 
     public int getCode() {
         return code;
+    }
+
+    public static TagStatus fetchStatus(int tCode) {
+        switch (tCode) {
+            case 0: return TagStatus.PROPOSTO;
+            case 1: return TagStatus.APPROVATO;
+            case 2: return TagStatus.RIFIUTATO;
+            default: return null;
+        }
     }
 }

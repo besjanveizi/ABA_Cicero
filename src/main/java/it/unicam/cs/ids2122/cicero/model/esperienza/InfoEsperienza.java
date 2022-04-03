@@ -73,15 +73,15 @@ public class InfoEsperienza {
         this.dataTermine = impostaTermine();
     }
 
-    /**
-     * Genera il raccoglitore delle informazioni di un'{@code Esperienze}.
+/*
+     * Genera il raccoglitore delle informazioni di un'{@code Esperienza}.
      * @param userSettings informazioni dell'{@code Esperienza} impostate dal {@code Cicerone}.
      *                     vedi - {@link InfoEsperienza#InfoEsperienza(String, Cicerone, String, LocalDateTime, LocalDateTime, int, int, Percorso, Money, int, Set)}
      * @param postiDisponibili numero dei posti disponibili all'{@code Esperienza}.
      * @param status {@link EsperienzaStatus} dell'{@code Esperienza}.
      * @param dataPubblicazione data di pubblicazione dell'{@code Esperienza}.
      * @param dataTermine data di termine dell'{@code Esperienza}.
-     */
+     *//*
     public InfoEsperienza(InfoEsperienza userSettings,
                           int postiDisponibili, EsperienzaStatus status,
                           LocalDateTime dataPubblicazione, LocalDateTime dataTermine) {
@@ -101,7 +101,7 @@ public class InfoEsperienza {
         this.status = status;
         this.dataPubblicazione = dataPubblicazione;
         this.dataTermine = dataTermine;
-    }
+    }*/
 
     /**
      * Recupera il nome dell'{@code Esperienza}.
