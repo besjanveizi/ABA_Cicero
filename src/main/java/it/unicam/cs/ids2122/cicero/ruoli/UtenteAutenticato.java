@@ -8,20 +8,25 @@ import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.SystemConstraints;
  */
 public class UtenteAutenticato implements IUtente{
 
+    private final int uid;
     private final String username;
     private final String email;
+    private final String password;
     private final UtenteType uType;
     private String id_client;
 
     /**
      * Crea un utente autenticato.
+     * @param uid
      * @param username username dell'utente autenticato.
      * @param email email dell'utente autenticato.
      * @param uType tipo di utente autenticato.
      */
-    public UtenteAutenticato(String username, String email, UtenteType uType) {
+    public UtenteAutenticato(int uid, String username, String email, String password, UtenteType uType) {
+        this.uid = uid;
         this.username = username;
         this.email = email;
+        this.password = password;
         this.uType = uType;
         this.id_client = null;
     }
@@ -49,8 +54,13 @@ public class UtenteAutenticato implements IUtente{
     }
 
     @Override
-    public int getID() {
-        return 0;
+    public int getUID() {
+        return uid;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 
     @Override

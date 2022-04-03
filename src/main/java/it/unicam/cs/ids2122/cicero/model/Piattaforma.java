@@ -6,7 +6,7 @@ import it.unicam.cs.ids2122.cicero.ruoli.*;
 import it.unicam.cs.ids2122.cicero.view.CLIView;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
-import java.sql.SQLException;
+import java.util.logging.*;
 
 public class Piattaforma {
 
@@ -15,7 +15,8 @@ public class Piattaforma {
     private IView<String> cli_view;
 
     private Piattaforma()  {
-        PGManager.getInstance();
+        setupLogger();
+        PGManager.getInstance().testConnection();
     }
 
     public static Piattaforma getInstance() {
@@ -25,17 +26,19 @@ public class Piattaforma {
     }
 
     public void setCtrl_utente(IUtente utente) {
+        int uid = utente.getUID();
         String username = utente.getUsername();
         String email = utente.getEmail();
+        String password = utente.getPassword();
         switch (utente.getType()) {
             case ADMIN:
-                ctrl_utente = new Ctrl_Amministratore(cli_view, new Amministratore(username, email));
+                ctrl_utente = new Ctrl_Amministratore(cli_view, new Amministratore(uid, username, email, password));
                 break;
             case CICERONE:
-                ctrl_utente = new Ctrl_Cicerone(cli_view, new Cicerone(username, email));
+                ctrl_utente = new Ctrl_Cicerone(cli_view, new Cicerone(uid, username, email, password));
                 break;
             case TURISTA:
-                ctrl_utente = new Ctrl_Turista(cli_view, new Turista(username, email));
+                ctrl_utente = new Ctrl_Turista(cli_view, new Turista(uid, username, email, password));
                 break;
         }
     }
@@ -50,5 +53,19 @@ public class Piattaforma {
 
     public void resetCtrl_utente() {
         ctrl_utente = new Ctrl_UtenteGenerico(cli_view);
+    }
+
+    private void setupLogger() {
+        Logger logger = Logger.getLogger(Piattaforma.class.getName());
+        logger.setUseParentHandlers(false);
+        ConsoleHandler ch = new ConsoleHandler();
+        ch.setLevel(Level.INFO);
+        ch.setFormatter(new SimpleFormatter() {
+            @Override
+            public String format(LogRecord record) {
+                return record.getMessage() + "\n";
+            }
+        });
+        logger.addHandler(ch);
     }
 }

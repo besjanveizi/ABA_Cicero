@@ -1,5 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.service.controllerRuoli;
 
+import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.service.ricerca.GestoreRicerca;
 import it.unicam.cs.ids2122.cicero.model.tag.GestoreTag;
@@ -7,15 +8,15 @@ import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.model.territorio.GestoreAree;
 import it.unicam.cs.ids2122.cicero.model.territorio.Area;
-import it.unicam.cs.ids2122.cicero.persistence.PGManager;
-import it.unicam.cs.ids2122.cicero.persistence.services.ServiceUtenti;
+import it.unicam.cs.ids2122.cicero.persistence.services.AuthenticationErrorException;
+import it.unicam.cs.ids2122.cicero.persistence.services.ServiceUtente;
+import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 import it.unicam.cs.ids2122.cicero.view.IView;
-
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +28,9 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     protected List<String> menuItems;
     private GestoreRicerca gestoreRicerca;
     private Set<Esperienza> lastRicerca;
+    private ServiceUtente serviceUtente = ServiceUtente.getInstance();
+    private Logger logger = Logger.getLogger(Piattaforma.class.getName());
+
     public Ctrl_UtenteGenerico(IView<String> view) {
         this.view = view;
         menuItems = new ArrayList<>();
@@ -38,7 +42,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     public void mainMenu() {
         int scelta;
         do {
-            view.message("Menu", menuItems);
+            view.message("\n--MENU PRINCIPALE--", menuItems);
             scelta = view.fetchChoice("Inserisci l'indice dell'operazione", menuItems.size());
         } while (switchMenu(scelta));
     }
@@ -47,7 +51,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         boolean loop = true;
         switch (scelta) {
             case 1:
-                logIn();
+                authenticate();
                 loop = false;
                 break;
             case 2:
@@ -57,8 +61,64 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
             case 3:
                 cercaEsperienze();
                 break;
+            default:
+                logger.info("Input non valido");
         }
         return loop;
+    }
+
+    private void authenticate() {
+        do {
+            view.message("\n--AUTENTICAZIONE--\nScegli una delle due operazioni:");
+            int choice = view.fetchChoice("1) LogIn\n2) SignIn\n3) Torna al menù principale", 3);
+            if (choice == 2) signIn();
+            else if (choice == 3) return;
+            else {
+                view.message("\n--LOGIN--");
+                String username = view.ask("Inserisci lo username:");
+                String password = view.ask("Inserisci la password:");
+                try { serviceUtente.login(username, password); break; } catch (AuthenticationErrorException ignored) {}
+            }
+        } while (true);
+    }
+
+    private void signIn() {
+        String email;
+        boolean backtrack = false;
+        view.message("\n--REGISTRAZIONE--");
+        do {
+            email = view.ask("Inserisci l'email: ");
+            if (!serviceUtente.isAlreadySignedIn(email))
+                break;
+            else {
+                logger.info("L'email è già registrata ad un profilo nel sistema.");
+                view.message("Vuoi tornare all'autenticazione? [Y,n]");
+                backtrack = view.fetchBool();
+            }
+        } while (!backtrack);
+        if (backtrack) return;
+        String username;
+        do {
+            username = view.ask("Scegli lo username: ");
+            if (!serviceUtente.isAlreadyTaken(username))
+                break;
+            else {
+                logger.info("Lo username scelto è già registrato ad un profilo nel sistema con un'altra email.");
+                view.message("Vuoi tornare all'autenticazione? [Y,n]");
+                backtrack = view.fetchBool();
+            }
+        } while (!backtrack);
+        if (backtrack) return;
+        String password;
+        while (true) {
+            password = view.ask("Inserisci la password: ");
+            if (view.ask("Reinserisci la password: ").equals(password)) break;
+            else logger.info("Le due password inserite non coincidono: bisogna reinserirle");
+        }
+        UtenteType utype = UtenteType.fetchUtype(
+                view.fetchChoice("Scegli il tipo di utente:\n1) Cicerone;\n2) Turista;", 2));
+
+        serviceUtente.signIn(username, email, password, utype);
     }
 
     protected void exit() {
@@ -114,14 +174,8 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
          */
     }
 
-    protected void logIn() {
-        String username = view.ask("username:");
-        String password = view.ask("password:");
-        ServiceUtenti.getInstance().login(username, password);
-    }
-
     private void impostaMenu() {
-        menuItems.add("1) Log In");
+        menuItems.add("1) Effettua l'autenticazione");
         menuItems.add("2) Termina");
         menuItems.add("3) Cerca Esperienze");
     }

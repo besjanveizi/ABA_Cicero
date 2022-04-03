@@ -68,8 +68,8 @@ public class DBManager {
             statement = connection.createStatement();
             resultSet = statement.executeQuery(sql);
             if (resultSet != null && resultSet.next()) {
-                utenteAutenticato = new UtenteAutenticato(resultSet.getString("username"),
-                        resultSet.getString("email"),
+                utenteAutenticato = new UtenteAutenticato(resultSet.getInt("uid"), resultSet.getString("username"),
+                        resultSet.getString("email"), "password",
                         tipoUtente(resultSet.getInt("user_type")));
                 Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
             }

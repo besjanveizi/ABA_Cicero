@@ -4,7 +4,6 @@ import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.invito.Invito;
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.invito.SimpleInvito;
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.persistenza.DBInvito;
-import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.utenti.Utente;
 import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 
@@ -62,7 +61,7 @@ public class SinGestoreInvito {
      */
     public void crea_invito(Esperienza esperienza, String mail_invitato, int posti_riservati){
         Invito invito = new SimpleInvito(
-                utente_corrente.getID(),
+                utente_corrente.getUID(),
                 esperienza.getId(),
                 mail_invitato,
                 esperienza.getDataInizio(),

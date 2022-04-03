@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 /**
  * Abstract service class per le operazioni di persistenza.
@@ -16,14 +16,23 @@ import java.util.logging.Logger;
 public abstract class AbstractService<T> {
 
     PGManager dbMng = PGManager.getInstance();
+    Logger logger = setupLogger();
 
-    /**
-     * Esegue la query {@code SQL} data per recuperare le informazioni.
-     * @param sql stringa della query {@code SQL}.
-     * @return {@code Set} delle informazioni analizzate nel tipo {@code T}.
-     */
-    public Set<T> execute(String sql) {
-        return parseDataResult(getDataResult(sql));
+
+    public final int getGeneratedKey(String sql) {
+        int key = 0;
+        Connection conn = null;
+        try {
+            conn = dbMng.connect();
+            key = dbMng.insert(conn, sql);
+        } catch (SQLException e) {
+            logger.severe("Connection failed");
+            e.printStackTrace();
+        } finally {
+            try { if (conn != null) conn.close(); }
+            catch (SQLException e) { e.printStackTrace(); }
+        }
+        return key;
     }
 
     /**
@@ -38,7 +47,7 @@ public abstract class AbstractService<T> {
             conn = dbMng.connect();
             dataResult = dbMng.select(conn, sql);
         } catch (SQLException e) {
-            Logger.getLogger(PGManager.class.getName()).severe("Connection failed\n");
+            logger.severe("Connection failed");
             e.printStackTrace();
         } finally {
             try {
@@ -51,10 +60,25 @@ public abstract class AbstractService<T> {
     }
 
     /**
-     * Esegue l'analisi delle informazioni recuperate.
+     * Esegue l'analisi delle informazioni recuperate e le raggruppa in modo coeso in un insieme.
      * @param dataResult {@code TreeMap} che contiene le informazioni recuperate.
-     * @return {@code Set} delle informazioni del tipo dell'entit&agrave cui si riferisce il servizio.
+     * @return {@code Set} coeso delle informazioni del tipo dell'entit&agrave cui si riferisce il servizio.
      */
     public abstract Set<T> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult);
+
+    private Logger setupLogger() {
+        logger = Logger.getLogger(AbstractService.class.getName());
+        logger.setUseParentHandlers(false);
+        ConsoleHandler ch = new ConsoleHandler();
+        ch.setLevel(Level.WARNING);
+        ch.setFormatter(new SimpleFormatter() {
+            @Override
+            public String format(LogRecord record) {
+                return record.getMessage() + "\n";
+            }
+        });
+        logger.addHandler(ch);
+        return logger;
+    }
 
 }

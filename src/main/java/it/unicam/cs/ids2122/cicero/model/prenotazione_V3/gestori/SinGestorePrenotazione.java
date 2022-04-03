@@ -74,7 +74,7 @@ public class SinGestorePrenotazione {
      * @throws SQLException possibile eccezione dal db o dal resultset
      */
     public void carica() throws SQLException {
-        ResultSet resultSet = dbManager.select_query(sql_select+utente_corrente.getID()+";");
+        ResultSet resultSet = dbManager.select_query(sql_select+utente_corrente.getUID()+";");
         if(resultSet!=null) {
             if (!prenotazioni.isEmpty()) {
                 prenotazioni = new ArrayList<>();
@@ -91,7 +91,7 @@ public class SinGestorePrenotazione {
      * @param posti_prenotati i posti da riservare
      */
     public void crea_prenotazione(Esperienza propEsperienza, int posti_prenotati){
-        Prenotazione prenotazione = new SimplePrenotazione(utente_corrente.getID(),
+        Prenotazione prenotazione = new SimplePrenotazione(utente_corrente.getUID(),
                 propEsperienza.getId(),
                 posti_prenotati, propEsperienza.getDataInizio(),
                 propEsperienza.getMaxRiserva(),
@@ -116,7 +116,7 @@ public class SinGestorePrenotazione {
                         invito_ricevuto.getId_esperienza());
 
         Esperienza esperienza = new DBEsperienza().crea_singola_esperienza(resultSet);
-        Prenotazione prenotazione = new SimplePrenotazione(utente_corrente.getID(),
+        Prenotazione prenotazione = new SimplePrenotazione(utente_corrente.getUID(),
                 esperienza.getId(), invito_ricevuto.getPosti_riservati(),
                 invito_ricevuto.getData_scadenza_riserva(),
                 esperienza.getCostoIndividuale().getValore(),

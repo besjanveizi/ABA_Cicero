@@ -4,8 +4,6 @@ import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
-import java.sql.SQLException;
-
 /**
  * Rappresenta un gestore radice per un utente autenticato
  */

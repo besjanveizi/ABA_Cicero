@@ -31,7 +31,7 @@ public class GestoreEsperienze {
     }
 
     private void updateEsperienze() {
-        Set<IEsperienza> temp = serviceEsperienza.download(cicerone.getID());
+        Set<IEsperienza> temp = serviceEsperienza.download(cicerone.getUID());
         // TODO:
         //  -> rimpiazza il set esperienze corrente con uno aggiornato dal database
         //      esperienze.clear();
@@ -60,6 +60,7 @@ public class GestoreEsperienze {
      * @param infoEsperienza informazioni dell'<code>Esperienza</code>.
      */
     public void add(InfoEsperienza infoEsperienza) {
+        serviceEsperienza.upload(infoEsperienza);
         // TODO:
         //  -> crea una nuova entry nel db e ritorna l'id generato
         //      int id = ServiceEsperienza.upload(infoEsperienza);

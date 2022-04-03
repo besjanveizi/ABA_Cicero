@@ -29,8 +29,8 @@ public enum UtenteType {
         return code;
     }
 
-    public static UtenteType tipoUtente(int tipo){
-        switch (tipo){
+    public static UtenteType fetchUtype(int uCode){
+        switch (uCode){
             case 1 : return UtenteType.CICERONE;
             case 2: return UtenteType.TURISTA;
             case 0: return UtenteType.ADMIN;

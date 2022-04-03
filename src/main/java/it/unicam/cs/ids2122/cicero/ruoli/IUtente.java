@@ -28,5 +28,7 @@ public interface IUtente {
      */
     String getID_Client();
 
-    int getID();
+    int getUID();
+
+    String getPassword();
 }
