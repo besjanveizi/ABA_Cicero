@@ -28,4 +28,5 @@ public interface Tag {
      * @return la stringa della descrizione.
      */
     String getDescrizione();
+
 }

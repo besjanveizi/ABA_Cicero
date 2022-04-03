@@ -1,21 +1,20 @@
 package it.unicam.cs.ids2122.cicero.model.service.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.tag.GestoreTag;
-import it.unicam.cs.ids2122.cicero.model.tag.SimpleTag;
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
+
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
-    GestoreTag gestoreTag;
 
     public Ctrl_Amministratore(IView<String> view, Amministratore amministratore) {
         super(view, amministratore);
-        gestoreTag= GestoreTag.getInstance();
         impostaMenu();
     }
 
@@ -39,10 +38,34 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     }
 
     private void gestisciTagProposti() {
+        GestoreTag gestoreTag= GestoreTag.getInstance();
+        Set<Tag> allTags = gestoreTag.getTags(e -> e.getState().equals(TagStatus.PROPOSTO));
+        Set<String> viewSet=allTags.stream().map(Tag::getName).collect(Collectors.toSet());
+        if(allTags.isEmpty()){
+            view.message("Attualmente non ci sono Tag proposti nella piattaforma.");
+            return;
+        }
+        while(true){
+            view.message("Selezionare il tag che si vuole gestire:");
+            String nomeTag=view.fetchSingleChoice(viewSet);
+            Optional<Tag> selectedTag=allTags.stream().filter(t->t.getName().equals(nomeTag)).findFirst();
+            selectedTag.ifPresent(this::approvaTag);
+            if(view.fetchChoice("Scegliere una delle seguenti alternative:\n1-Gestisci un altro tag\n2-Esci",2)==2)break;
+        }
+    }
 
+    private void approvaTag(Tag t){
+        view.message("Tag "+t.getName()+" selezionato, descrizione: "+t.getDescrizione()+"."+"\nVuoi approvare il tag?");
+        GestoreTag gestoreTag= GestoreTag.getInstance();
+        if(view.fetchBool()){
+            gestoreTag.changeStatus(t,TagStatus.APPROVATO);
+        }else{
+            gestoreTag.changeStatus(t,TagStatus.RIFIUTATO);
+        }
     }
 
     private void definisciTag() {
+        GestoreTag gestoreTag= GestoreTag.getInstance();
         Set<Tag> allTags = gestoreTag.getTags(e -> e.getState().equals(TagStatus.APPROVATO)||e.getState().equals(TagStatus.PROPOSTO));
         boolean done=false,annulla=false;
         String nome="";
@@ -62,13 +85,13 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             }
         }
         if(annulla){
-            annullaDefinizione();
+            annullaDefinizioneTag();
             return;
         }
         done=false;
         String descrizione="";
         while (!done){
-            descrizione=view.ask("Inserire la descrizione del tag"+nome+":");
+            descrizione=view.ask("Inserire la descrizione del tag "+nome+":");
             if(descrizione.isEmpty()){
                 view.message("La descrizione inserita non è valida.");
             }else{
@@ -80,10 +103,10 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             gestoreTag.add(nome,descrizione,TagStatus.APPROVATO);
             view.message("il tag "+nome+" è stato aggiunto alla collezione di tag della piattaforma.");
         }else{
-            annullaDefinizione();
+            annullaDefinizioneTag();
         }
     }
-    private void annullaDefinizione(){
+    private void annullaDefinizioneTag(){
         view.message("La definizione del tag è stata annullata.");
     }
 
