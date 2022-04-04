@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.ruoli;
 
 import com.google.common.base.Objects;
-import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.SystemConstraints;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.SystemConstraints;
 
 /**
  * Rappresenta generalmente un utente autenticato nel sistema.

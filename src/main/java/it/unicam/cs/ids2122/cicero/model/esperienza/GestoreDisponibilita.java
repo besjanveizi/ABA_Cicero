@@ -2,7 +2,6 @@ package it.unicam.cs.ids2122.cicero.model.esperienza;
 
 
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.Prenotazione;
 
 import java.util.List;
 
@@ -39,6 +38,11 @@ public class GestoreDisponibilita {
      */
     public void riservaPrenotazione(Prenotazione nuovaPrenotazione) {
         listaRiserve.add(nuovaPrenotazione);
+    }
+
+
+    interface Prenotazione{
+
     }
 
 }

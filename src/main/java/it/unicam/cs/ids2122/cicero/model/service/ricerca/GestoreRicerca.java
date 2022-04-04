@@ -47,4 +47,5 @@ public class GestoreRicerca {
     private Set<Esperienza> filterByToponimi(Set<Esperienza> esperienze, Set<Area> filtroAree){
         return esperienze.stream().filter(e -> e.getAree().stream().anyMatch(filtroAree::contains)).collect(Collectors.toSet());
     }
+
 }

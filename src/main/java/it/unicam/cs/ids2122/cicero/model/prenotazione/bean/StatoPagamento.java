@@ -1,7 +1,5 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.rimborso.Rimborso;
-
 /**
  *  enumerazione delle possibili direzioni di pagamento.
  *  Servono per simulare l' intera catena del pagamento

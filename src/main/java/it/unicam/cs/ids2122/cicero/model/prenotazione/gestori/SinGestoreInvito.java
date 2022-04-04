@@ -39,7 +39,7 @@ public final class SinGestoreInvito {
       beanInvito.setPosti_riservati(posti_riservati);
       beanInvito.setEmail_destinatario(mail_invitato);
       beanInvito.setId_esperienza(esperienza.getId());
-      beanInvito.setImporto(esperienza.info().getCostoIndividuale().getValore());
+      beanInvito.setImporto(esperienza.info().getCostoIndividuale().op_multi(String.valueOf(posti_riservati)));
       beanInvito.setValuta(esperienza.info().getCostoIndividuale().getValuta().toString());
       ServiceInvito.getInstance().insert(beanInvito);
     }

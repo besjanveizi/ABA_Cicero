@@ -62,7 +62,19 @@ public class SinGestorePagamento {
     }
 
 
+    public Set<BeanFattura> getRicevuti() {
+        return ricevuti;
+    }
 
+    public void setRicevuti(Set<BeanFattura> ricevuti) {
+        this.ricevuti = ricevuti;
+    }
 
+    public Set<BeanFattura> getEffettuati() {
+        return effettuati;
+    }
 
+    public void setEffettuati(Set<BeanFattura> effettuati) {
+        this.effettuati = effettuati;
+    }
 }

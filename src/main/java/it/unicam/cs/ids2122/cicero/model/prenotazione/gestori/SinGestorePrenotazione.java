@@ -1,16 +1,8 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.Prenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.SimplePrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.StatoPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanInvito;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.ServiceDisponibilita;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.ServicePrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.invito.Invito;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBEsperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.persistenza.DBPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.*;
+
 import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 
@@ -25,7 +17,6 @@ public class SinGestorePrenotazione {
 
     private IUtente utente_corrente;
 
-    private DBManager dbManager = DBManager.getInstance();
 
     /**
      * lista delle prenotazioni effettuale riferite all' utente corrente
@@ -34,12 +25,12 @@ public class SinGestorePrenotazione {
 
 
 
-    private SinGestorePrenotazione(IUtente iUtente) throws SQLException {
-        this.utente_corrente = iUtente;
+    private SinGestorePrenotazione(IUtente iUtente) {
+        utente_corrente = iUtente;
         carica();
     }
 
-    public static SinGestorePrenotazione getInstance(IUtente iUtente ) throws SQLException {
+    public static SinGestorePrenotazione getInstance(IUtente iUtente )  {
         if(sinGestorePrenotazione==null){
             sinGestorePrenotazione = new  SinGestorePrenotazione(iUtente);
         }return sinGestorePrenotazione;
@@ -69,7 +60,6 @@ public class SinGestorePrenotazione {
         beanPrenotazione.setStatoPrenotazione(StatoPrenotazione.RISERVATA);
         ServicePrenotazione.getInstance().insert(beanPrenotazione);
         prenotazioni.add(beanPrenotazione);
-        ServiceDisponibilita.getInstance().update(posti_prenotati, propEsperienza.getId());
     }
 
     /**
@@ -102,10 +92,7 @@ public class SinGestorePrenotazione {
     }
 
 
-
-
-
-
-
-
+    public Set<BeanPrenotazione> getPrenotazioni() {
+        return prenotazioni;
+    }
 }

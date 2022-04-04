@@ -1,13 +1,10 @@
-package it.unicam.cs.ids2122.cicero.model.prenotazione_V3.rimborso;
+package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.pagamento.Fattura;
-
-import java.time.LocalDateTime;
+import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
 
 public interface Rimborso {
 
-    LocalDateTime getDataCreazione();
 
 
     /**
@@ -16,7 +13,7 @@ public interface Rimborso {
      * @param esperienza l' esperienza che definisce il termine temporale.
      * @return true se possibile false altrimenti
      */
-    boolean automatico(Fattura fattura, Esperienza esperienza);
+    boolean automatico(BeanFattura fattura, IEsperienza esperienza);
 
     /**
      * Genera una richiesta di rimborso se la data creazione della
@@ -25,5 +22,5 @@ public interface Rimborso {
      * @param esperienza l' esperienza pagata
      * @return Una richiesta di rimborso da compilare
      */
-    RichiestaRimborso richiede_rimborso(Fattura fattura,Esperienza esperienza);
+    Rimborso richiede_rimborso(BeanFattura fattura, Esperienza esperienza);
 }
