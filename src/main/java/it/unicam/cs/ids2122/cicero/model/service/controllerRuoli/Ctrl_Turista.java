@@ -117,28 +117,32 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                 if (posti < 0) {
                     view.message("posti non disponibili ");
                     view.message("scegli nuova esperienza");
-                    break;
-                }
 
-                int posti_scelti = 0;
-                while (true) {
-                    view.message("inserire posti da riservare");
-                    posti_scelti = view.fetchInt();
-                    if (posti_scelti > 0 && posti_scelti <= posti) break;
-                    else view.message("riprova");
-                }
+                }else {
 
-                view.message("costo totale: " + esperienza.getCostoIndividuale().op_multi(String.valueOf(posti_scelti)));
-                view.message("confermare prenotazione [y/n]");
-                boolean flag = view.fetchBool();
-                if (flag) {
-                    view.message("confermata, creazione prenotazione...");
-                    // SinGestorePrenotazione.getInstance().crea_prenotazione(esperienza, posti);
-                    //  SinGestoreDisponibilita.getInstance().modificaDisponibilita(esp_selezionata, posti);
-                } else view.message("prenotazione annullata");
-                view.message("uscita");
-                break;
+                    int posti_scelti = 0;
+                    while (true) {
+                        view.message("inserire posti da riservare");
+                        posti_scelti = view.fetchInt();
+                        if (posti_scelti > 0 && posti_scelti <= posti) break;
+                        else view.message("riprova");
+                    }
+
+                    view.message("costo totale: " + esperienza.getCostoIndividuale().op_multi(String.valueOf(posti_scelti)));
+                    view.message("confermare prenotazione [y/n]");
+                    boolean flag = view.fetchBool();
+                    if (flag) {
+                        view.message("confermata, creazione prenotazione...");
+                        // SinGestorePrenotazione.getInstance().crea_prenotazione(esperienza, posti);
+                        //  SinGestoreDisponibilita.getInstance().modificaDisponibilita(esp_selezionata, posti);
+                    } else {
+                        view.message("prenotazione annullata");
+                        view.message("uscita");
+                        break;
+                    }
+                }
             }
+            //fine loop
         }
     }
 
