@@ -1,11 +1,12 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-public final class BeanInvito {
+public final class BeanInvito implements Serializable {
 
     private int id_invito;
     private int id_mittente;

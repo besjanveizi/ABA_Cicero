@@ -1,6 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model;
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
 
 import java.util.Set;
 
@@ -14,4 +15,12 @@ public interface IBacheca {
      * @return insieme di tutte le esperienze pubblicate nella piattaforma.
      */
     Set<Esperienza> getAllEsperienze();
+
+    /**
+     * Restituisce tutte le esperienze pubbliche nella piattaforma.
+     * @return insieme di tutte le esperienze pubblicate nella piattaforma.
+     */
+    Set<IEsperienza> getAllIEsperienze();
+
+
 }

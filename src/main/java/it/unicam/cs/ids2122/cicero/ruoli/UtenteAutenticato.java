@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.ruoli;
 
 import com.google.common.base.Objects;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.SystemConstraints;
+import it.unicam.cs.ids2122.cicero.persistence.SystemConstraints;
 
 /**
  * Rappresenta generalmente un utente autenticato nel sistema.
@@ -49,7 +49,7 @@ public class UtenteAutenticato implements IUtente{
     @Override
     public String getID_Client() {
         if (id_client == null)
-            id_client = SystemConstraints.id_client_generator(getEmail());
+            id_client = SystemConstraints.id_client_generator(email);
         return id_client;
     }
 

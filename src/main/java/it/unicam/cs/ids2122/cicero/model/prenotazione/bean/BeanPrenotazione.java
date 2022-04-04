@@ -1,12 +1,13 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
 
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-public final class BeanPrenotazione  {
+public final class BeanPrenotazione implements Serializable {
 
     /**
      *  identificativo generato dal DB

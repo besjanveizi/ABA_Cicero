@@ -2,7 +2,8 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanInvito;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.ServiceInvito;
+import it.unicam.cs.ids2122.cicero.persistence.services.ServiceDisponibilita;
+import it.unicam.cs.ids2122.cicero.persistence.services.ServiceInvito;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ public final class SinGestoreInvito {
         ricevuti = ServiceInvito.getInstance().select(utente_corrente.getEmail());
     }
 
-    public static SinGestoreInvito getInstance(IUtente iUtente)  {
+    public  static SinGestoreInvito getInstance(IUtente iUtente)  {
         if(sinGestorePagamento == null){
            sinGestorePagamento = new  SinGestoreInvito(iUtente);
         }return sinGestorePagamento;
@@ -42,6 +43,10 @@ public final class SinGestoreInvito {
       beanInvito.setImporto(esperienza.info().getCostoIndividuale().op_multi(String.valueOf(posti_riservati)));
       beanInvito.setValuta(esperienza.info().getCostoIndividuale().getValuta().toString());
       ServiceInvito.getInstance().insert(beanInvito);
+
+      esperienza.info().cambiaPostiDisponibili(-posti_riservati);
+      ServiceDisponibilita.getInstance().update(esperienza.info().getPostiDisponibili(),esperienza.getId());
+
     }
 
 

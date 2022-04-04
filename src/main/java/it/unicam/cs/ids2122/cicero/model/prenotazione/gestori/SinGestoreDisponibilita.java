@@ -2,7 +2,7 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.ServiceDisponibilita;
+import it.unicam.cs.ids2122.cicero.persistence.services.ServiceDisponibilita;
 import java.sql.SQLException;
 
 public final class SinGestoreDisponibilita {

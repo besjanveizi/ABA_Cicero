@@ -1,22 +1,16 @@
 package it.unicam.cs.ids2122.cicero.model.service.controllerRuoli;
 
+import com.google.common.collect.Sets;
 import it.unicam.cs.ids2122.cicero.model.Bacheca;
 import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanInvito;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.StatoPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.*;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.SinGestoreDisponibilita;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.SinGestoreInvito;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.SinGestorePagamento;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.gestori.SinGestorePrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.sistema.*;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import it.unicam.cs.ids2122.cicero.view.IView;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
@@ -24,7 +18,6 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
 
     public Ctrl_Turista(IView<String> view, Turista turista) {
         super(view, turista);
-        //carico i servizi
         impostaMenu();
     }
 
@@ -44,10 +37,52 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             case 7:
                 gestisciInvitiRicevuti();
                 break;
+            case 8:
+                cancellaPrenotazione();
+                break;
+            case 9:
+                richiediRimborso();
+                break;
             default:
                 loop = super.switchMenu(scelta);
         }
         return loop;
+    }
+
+    private void richiediRimborso() {
+        view.message("richiesta di rimborso");
+
+        BeanFattura beanFattura = seleziona_pagamento_effettuato();
+        if(beanFattura != null){
+            // chiedi se vuole verificare le opzioni
+
+            // prima opzione se è automatico -> poi chiede se lo vuole richiedere-> se si nuova fattura
+            // quindi serve, prima recuperare la prenotazione, e posso usare il gestore
+            BeanPrenotazione beanPrenotazione = Sets.filter(SinGestorePrenotazione.getInstance(utente).getPrenotazioni(),
+                    input -> input.getID_prenotazione()==beanFattura.getId_prenotazione()).stream().collect(Collectors.toList()).get(0);
+            //dalla prenotazione all' esperienza relativa
+            //dall' esperienza alla data di inizio
+            BeanRimborso beanRimborso = new BeanRimborso();
+          //  beanRimborso.automatico(beanFattura, );
+
+            //se accetta devi creare una nova fattura, da fattura
+
+            // seconda opzione compila modulo per la richiesta -> fase di compilazione un semplice testo
+        }
+
+    }
+
+    private BeanFattura seleziona_pagamento_effettuato() {
+        while(true){
+                try {
+                    view.message("===== INVITI RICEVUTI=====");
+                    SinGestorePagamento.getInstance(utente).getEffettuati().forEach( beanF-> view.message(beanF.toString()));
+                    view.message("=====SELEZIONA INVITO=====");
+                    return SinGestorePagamento.getInstance(utente).getEffettuati().stream().collect(Collectors.toList()).get(view.fetchInt());
+                }catch (IndexOutOfBoundsException e){
+                    e.printStackTrace();
+                }
+        }
     }
 
     private void gestisciInvitiRicevuti() {
@@ -68,12 +103,10 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
     private void invitaEsperienza() {
        view.message("invita");
 
-       Esperienza esperienza = seleziona_esperienza();
+       IEsperienza esperienza = seleziona_esperienza();
 
        if(esperienza!=null){
-
-           int posti = 0;
-         //int posti_disponibili = SinGestoreDisponibilita.getInstance().getPostiDisponibiliToDB(esperienza);
+           int posti = SinGestoreDisponibilita.getInstance().getPostiDisponibiliToDB(esperienza);
 
            view.message("posti disponibili:  " + posti);
            view.message("Continuare y/n ?");
@@ -83,8 +116,8 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                view.message("inserire il numero di posti");
                int posti_inseriti = view.fetchInt();
                if(posti_inseriti>0 && posti_inseriti<= posti){
-                //   SinGestoreInvito.getInstance(utente).crea_invito(esperienza, mail_invitato, posti);
-                //   SinGestoreDisponibilita.getInstance().modificaDisponibilita(esperienza, posti_inseriti);
+                   SinGestoreInvito.getInstance(utente).crea_invito(esperienza, mail_invitato, posti);
+                   SinGestoreDisponibilita.getInstance().modificaDisponibilita(esperienza, posti_inseriti);
                    view.message("invio spedito");
                }
            }
@@ -105,13 +138,11 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         }
     }
 
+
     private void prenotaEsperienza() {
-
-        while(true) {
-
-            Esperienza esperienza = seleziona_esperienza();
+         IEsperienza esperienza = seleziona_esperienza();
             if (esperienza != null) {
-                int posti = esperienza.getPostiDisponibili();
+                int posti = esperienza.info().getPostiDisponibili();
                 view.message("posti attualmente disponibili: " + posti);
 
                 if (posti < 0) {
@@ -128,31 +159,28 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                         else view.message("riprova");
                     }
 
-                    view.message("costo totale: " + esperienza.getCostoIndividuale().op_multi(String.valueOf(posti_scelti)));
+                    view.message("costo totale: " + esperienza.info().getCostoIndividuale().op_multi(String.valueOf(posti_scelti)));
                     view.message("confermare prenotazione [y/n]");
                     boolean flag = view.fetchBool();
                     if (flag) {
                         view.message("confermata, creazione prenotazione...");
-                        // SinGestorePrenotazione.getInstance().crea_prenotazione(esperienza, posti);
-                        //  SinGestoreDisponibilita.getInstance().modificaDisponibilita(esp_selezionata, posti);
+                         SinGestorePrenotazione.getInstance(utente).crea_prenotazione(esperienza, posti);
+                         SinGestoreDisponibilita.getInstance().modificaDisponibilita(esperienza, posti);
                     } else {
                         view.message("prenotazione annullata");
                         view.message("uscita");
-                        break;
                     }
                 }
-            }
-            //fine loop
         }
     }
 
-    private Esperienza seleziona_esperienza() {
+    private IEsperienza seleziona_esperienza() {
         while(true){
             try {
                view.message("=====ESPERIENZE DISPONIBILI=====");
                Bacheca.getInstance().getAllEsperienze().stream().forEach(esperienza -> view.message(esperienza.getDescrizione()));
                view.message("=====SELEZIONA INDICE=====");
-               return Bacheca.getInstance().getAllEsperienze().stream().collect(Collectors.toList()).get(view.fetchInt());
+               return Bacheca.getInstance().getAllIEsperienze().stream().collect(Collectors.toList()).get(view.fetchInt());
             }catch (IndexOutOfBoundsException e){
                 e.printStackTrace();
             }
@@ -160,10 +188,9 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
     }
 
 
-
     private void pagaPrenotazione() {
         view.message("pagamento prenotazione");
-        // ci sono prenotazioni presenti?
+
         if(SinGestorePrenotazione.getInstance(utente).getPrenotazioni().size()>0) {
 
             BeanPrenotazione beanPrenotazione = seleziona_prenotazione();
@@ -173,10 +200,11 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                         SinGestorePagamento.getInstance(utente).crea_fattura(beanPrenotazione);
                     }
                 }
-                view.message("errore nella selezione");
+                view.message("errore nella selezione, solo esperienze riservate");
             } else
                 view.message("nessuna prenotazione attiva");
     }
+
 
     private BeanPrenotazione seleziona_prenotazione() {
         while(true){
@@ -191,12 +219,36 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         }
     }
 
+    private void cancellaPrenotazione() {
+        view.message("annulla prenotazione");
+
+        BeanPrenotazione ref = seleziona_prenotazione();
+
+        if(ref.getStatoPrenotazione().equals(StatoPrenotazione.RISERVATA)){
+            view.message("confermare y/n");
+            boolean flag = view.fetchBool();
+
+            if (flag) {
+                SinGestorePrenotazione.getInstance(utente).modifica_stato(ref,StatoPrenotazione.CANCELLATA);
+                SinGestoreDisponibilita.getInstance().modificaDisponibilita(ref);
+                view.message("ok!");
+            } else {
+                view.message("la prenotazione non è stata cancellata");
+                view.message("uscita");
+            }
+        }
+        view.message("errore nella selezione");
+
+    }
+
 
     private void impostaMenu() {
         menuItems.add("4) Prenota Esperienza");
         menuItems.add("5) Paga Prenotazione");
         menuItems.add("6) Invita ad una Esperienza");
         menuItems.add("7) Gestisci Inviti");
+        menuItems.add("8) Annulla Prenotazione");
+        menuItems.add("9) Richiedi Rimborso");
     }
 
 

@@ -1,9 +1,9 @@
-package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
+package it.unicam.cs.ids2122.cicero.persistence.services;
 
 
+import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanFattura;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.StatoPagamento;
 import it.unicam.cs.ids2122.cicero.persistence.PGManager;
-import it.unicam.cs.ids2122.cicero.persistence.services.AbstractService;
-
 
 
 import java.sql.*;
@@ -103,9 +103,9 @@ public final class ServiceFattura extends AbstractService<BeanFattura> {
 
     private StatoPagamento trasformazione(int stato){
         switch (stato){
-            case 1: return StatoPagamento.ADMIN_ADMIN;
-            case 2: return StatoPagamento.ADMIN_TURISTA;
-            case 3: return StatoPagamento.ADMIN_CICERONE;
+            case 0: return StatoPagamento.ADMIN_ADMIN;
+            case 1: return StatoPagamento.ADMIN_TURISTA;
+            case 2: return StatoPagamento.ADMIN_CICERONE;
             default:return null;
         }
     }

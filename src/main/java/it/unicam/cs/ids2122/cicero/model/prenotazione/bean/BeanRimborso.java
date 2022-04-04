@@ -4,9 +4,10 @@ import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
 
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public final class BeanRimborso implements Rimborso {
+public final class BeanRimborso implements Rimborso, Serializable {
 
     private LocalDateTime data_creazione;
     private Modulo modulo ;
@@ -29,6 +30,7 @@ public final class BeanRimborso implements Rimborso {
         return fattura.getData_pagamento().isBefore(esperienza.info().getDataInizio());
     }
 
+
     @Override
     public BeanRimborso richiede_rimborso(BeanFattura fattura, Esperienza esperienza) {
         if(this.data_creazione.isAfter(esperienza.getDataFine()) && this.data_creazione.isBefore(esperienza.getDataTermine())){
@@ -48,7 +50,7 @@ public final class BeanRimborso implements Rimborso {
         this.modulo = modulo;
     }
 
-    private class Modulo {
+    private class Modulo implements Serializable {
 
         private String modulo;
         private boolean approvata;
@@ -64,8 +66,9 @@ public final class BeanRimborso implements Rimborso {
             this.modulo = modulo;
         }
 
-        public void approva(){
+        public void approva(ActionListener actionListener){
             approvata = true;
+            actionListener.action();
         }
 
         public boolean isApprovata() {

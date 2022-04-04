@@ -1,22 +1,23 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
 
+import com.google.common.collect.Sets;
 import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.*;
 
-import it.unicam.cs.ids2122.cicero.persistence.DBManager;
+import it.unicam.cs.ids2122.cicero.persistence.services.ServiceDisponibilita;
+import it.unicam.cs.ids2122.cicero.persistence.services.ServicePrenotazione;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-public class SinGestorePrenotazione {
+public final class SinGestorePrenotazione {
 
 
     private static SinGestorePrenotazione sinGestorePrenotazione = null;
 
     private IUtente utente_corrente;
-
 
     /**
      * lista delle prenotazioni effettuale riferite all' utente corrente
@@ -60,6 +61,8 @@ public class SinGestorePrenotazione {
         beanPrenotazione.setStatoPrenotazione(StatoPrenotazione.RISERVATA);
         ServicePrenotazione.getInstance().insert(beanPrenotazione);
         prenotazioni.add(beanPrenotazione);
+        propEsperienza.info().cambiaPostiDisponibili(-posti_prenotati);
+        ServiceDisponibilita.getInstance().update(propEsperienza.info().getPostiDisponibili(), propEsperienza.getId() );
     }
 
     /**
@@ -79,6 +82,7 @@ public class SinGestorePrenotazione {
         beanPrenotazione.setID_esperienza(invito_ricevuto.getId_esperienza());
         ServicePrenotazione.getInstance().insert(beanPrenotazione);
         prenotazioni.add(beanPrenotazione);
+        // non c' modifica dell'esperienza
     }
 
 
@@ -89,10 +93,21 @@ public class SinGestorePrenotazione {
      */
     public void modifica_stato(BeanPrenotazione beanPrenotazione, StatoPrenotazione nuovo_stato){
         ServicePrenotazione.getInstance().update(beanPrenotazione.getID_prenotazione(), nuovo_stato);
+        if(nuovo_stato.equals(StatoPrenotazione.CANCELLATA)){
+            int posti = ServiceDisponibilita.getInstance().select(beanPrenotazione.getID_esperienza());
+            posti = posti + beanPrenotazione.getPosti();
+
+        }
     }
 
 
     public Set<BeanPrenotazione> getPrenotazioni() {
         return prenotazioni;
     }
+
+    public Set<BeanPrenotazione> getPrenotazioni(StatoPrenotazione filtro){
+        return Sets.filter( prenotazioni,beanPrenotazione -> beanPrenotazione.getStatoPrenotazione().equals(filtro) );
+    }
+
+
 }

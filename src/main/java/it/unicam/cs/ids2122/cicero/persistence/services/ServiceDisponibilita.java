@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
+package it.unicam.cs.ids2122.cicero.persistence.services;
 
 
 import it.unicam.cs.ids2122.cicero.persistence.PGManager;
@@ -24,6 +24,11 @@ public final class ServiceDisponibilita {
 
     private String sql_select = "SELECT posti_disponibili FROM public.esperienze WHERE id_esperienza= ? ";
 
+    /**
+     *
+     * @param posti da inserire
+     * @param id_esperienza id dell' esperienza da modificare
+     */
     public void update(int posti, int id_esperienza){
         Connection connection = null;
         try{
@@ -43,6 +48,7 @@ public final class ServiceDisponibilita {
             }
         }
     }
+
 
     public int select(int id_esperienza){
         Connection connection = null;

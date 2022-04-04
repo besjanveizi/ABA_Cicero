@@ -1,11 +1,12 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
 
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public final class BeanFattura {
+public final class BeanFattura implements Serializable {
 
     private StatoPagamento statoPagamento;
     private int id_fattura;
@@ -17,9 +18,7 @@ public final class BeanFattura {
     private int posti_pagati;
     private String valuta;
 
-    public BeanFattura(){
-
-    }
+    public BeanFattura(){ }
 
     public StatoPagamento getStatoPagamento() {
         return statoPagamento;
@@ -105,5 +104,21 @@ public final class BeanFattura {
     @Override
     public int hashCode() {
         return Objects.hash(getId_fattura());
+    }
+
+
+    @Override
+    public String toString() {
+        return "BeanFattura{" +
+                "statoPagamento=" + statoPagamento +
+                ", id_fattura=" + id_fattura +
+                ", id_prenotazione=" + id_prenotazione +
+                ", id_client_destinatario='" + id_client_destinatario + '\'' +
+                ", id_client_origine='" + id_client_origine + '\'' +
+                ", importo=" + importo +
+                ", data_pagamento=" + data_pagamento +
+                ", posti_pagati=" + posti_pagati +
+                ", valuta='" + valuta + '\'' +
+                '}';
     }
 }

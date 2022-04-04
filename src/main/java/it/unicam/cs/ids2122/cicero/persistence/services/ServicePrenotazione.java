@@ -1,7 +1,8 @@
-package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
+package it.unicam.cs.ids2122.cicero.persistence.services;
 
+import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.persistence.PGManager;
-import it.unicam.cs.ids2122.cicero.persistence.services.AbstractService;
 
 import java.sql.*;
 import java.time.LocalDateTime;
