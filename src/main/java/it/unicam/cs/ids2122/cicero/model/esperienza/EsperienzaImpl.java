@@ -22,6 +22,7 @@ public class EsperienzaImpl implements IEsperienza {
         return infoEsperienza;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

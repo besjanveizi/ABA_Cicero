@@ -20,6 +20,11 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
 
     private final String sql_select = "SELECT * FROM public.prenotazioni";
 
+    private final String colonne =
+            "id_prenotazione, id_esperienza, uid_turista, " +
+                    "stato_prenotazione, posti_prenotati, data_prenotazione, data_scadenza_riserva, costo_totale, valuta";
+
+    private final String sql_select_base = "select " + colonne + " FROM public.prenotazioni ";
 
     ServicePrenotazione(){}
 
@@ -64,8 +69,8 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
         }
     }
 
-    public Set<BeanPrenotazione> sql_select(String sql){
-         return parseDataResult( super.getDataResult(sql));
+    public Set<BeanPrenotazione> sql_select(int id){
+         return parseDataResult( getDataResult(sql_select_base + " WHERE id_prenotazione=" + id +";" ));
     }
 
     public Set<BeanPrenotazione> select(String sql_select){
@@ -157,16 +162,12 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
     }
 
     @Override
-    public Set<BeanPrenotazione> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult) {
+    public Set<BeanPrenotazione> parseDataResult(TreeMap<String, HashMap<String, String>> arcano) {
         Set<BeanPrenotazione> resultSet = new HashSet<>();
 
-        int idEsperienza, uidCicerone, maxPartecipanti, minPartecipanti, maxRiserva, postiDisponibili, stato;
-        String nome = "", descrizione = "";
-        LocalDateTime dataPubblicazione, dataInizio, dataFine, dataTermine;
-        BigDecimal costoIndividuale;
-        Currency valuta;
 
-        for (Map.Entry<String, HashMap<String, String>> firstEntry : esperienze.entrySet()) {
+
+        for (Map.Entry<String, HashMap<String, String>> firstEntry : arcano.entrySet()) {
             idEsperienza = Integer.parseInt(firstEntry.getKey());
             HashMap<String, String> others = firstEntry.getValue();
             for (Map.Entry<String, String> secondEntry : others.entrySet()) {

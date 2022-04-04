@@ -7,6 +7,7 @@ import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.*;
 import it.unicam.cs.ids2122.cicero.persistence.services.ServiceDisponibilita;
 import it.unicam.cs.ids2122.cicero.persistence.services.ServicePrenotazione;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
+import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -17,7 +18,7 @@ public final class SinGestorePrenotazione {
 
     private static SinGestorePrenotazione sinGestorePrenotazione = null;
 
-    private IUtente utente_corrente;
+    private Turista utente_corrente;
 
     /**
      * lista delle prenotazioni effettuale riferite all' utente corrente
@@ -26,12 +27,12 @@ public final class SinGestorePrenotazione {
 
 
 
-    private SinGestorePrenotazione(IUtente iUtente) {
+    private SinGestorePrenotazione(Turista iUtente) {
         utente_corrente = iUtente;
         carica();
     }
 
-    public static SinGestorePrenotazione getInstance(IUtente iUtente )  {
+    public static SinGestorePrenotazione getInstance(Turista iUtente)  {
         if(sinGestorePrenotazione==null){
             sinGestorePrenotazione = new  SinGestorePrenotazione(iUtente);
         }return sinGestorePrenotazione;

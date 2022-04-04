@@ -89,6 +89,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         view.message("accetta invito ");
 
         BeanInvito beanInvito = seleziona_invito();
+
         if(beanInvito!= null){
             view.message("accetta invito? [y/n] ");
             boolean accetta = view.fetchBool();
