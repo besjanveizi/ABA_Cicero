@@ -1,15 +1,14 @@
 package it.unicam.cs.ids2122.cicero.persistence.services;
 
+import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.persistence.PGManager;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 public final class ServicePrenotazione extends AbstractService<BeanPrenotazione> {
 
@@ -65,6 +64,9 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
         }
     }
 
+    public Set<BeanPrenotazione> sql_select(String sql){
+         return parseDataResult( super.getDataResult(sql));
+    }
 
     public Set<BeanPrenotazione> select(String sql_select){
         Set<BeanPrenotazione> prenotazioni = new HashSet<>();
@@ -156,6 +158,45 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
 
     @Override
     public Set<BeanPrenotazione> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult) {
-        return null;
+        Set<BeanPrenotazione> resultSet = new HashSet<>();
+
+        int idEsperienza, uidCicerone, maxPartecipanti, minPartecipanti, maxRiserva, postiDisponibili, stato;
+        String nome = "", descrizione = "";
+        LocalDateTime dataPubblicazione, dataInizio, dataFine, dataTermine;
+        BigDecimal costoIndividuale;
+        Currency valuta;
+
+        for (Map.Entry<String, HashMap<String, String>> firstEntry : esperienze.entrySet()) {
+            idEsperienza = Integer.parseInt(firstEntry.getKey());
+            HashMap<String, String> others = firstEntry.getValue();
+            for (Map.Entry<String, String> secondEntry : others.entrySet()) {
+                String key = secondEntry.getKey();
+                String val = secondEntry.getValue();
+                switch (key) {
+                    case "nome": nome = val; break;
+                    case "uid_cicerone": uidCicerone = Integer.parseInt(val); break;
+                    case "descrizione": descrizione = val; break;
+                    case "data_pubblicazione": dataPubblicazione =
+                            LocalDateTime.parse(val.replace(" ", "T")); break;
+                    case "data_inizio": dataInizio =
+                            LocalDateTime.parse(val.replace(" ", "T")); break;
+                    case "data_conclusione": dataFine =
+                            LocalDateTime.parse(val.replace(" ", "T")); break;
+                    case "data_termine": dataTermine =
+                            LocalDateTime.parse(val.replace(" ", "T")); break;
+                    case "stato": stato = Integer.parseInt(val); break;
+                    case "max_partecipanti": maxPartecipanti = Integer.parseInt(val); break;
+                    case "min_partecipanti": minPartecipanti = Integer.parseInt(val); break;
+                    case "costo_individuale": costoIndividuale = new BigDecimal(val); break;
+                    case "valuta": valuta = Currency.getInstance(val); break;
+                    case "max_riserva": maxRiserva = Integer.parseInt(val); break;
+                    case "posti_disponibili": postiDisponibili = Integer.parseInt(val); break;
+                    default: break;
+                }
+            }
+            //InfoEsperienza infoE = new InfoEsperienza()
+            //resultSet.add();
+        }
+        return resultSet;
     }
 }

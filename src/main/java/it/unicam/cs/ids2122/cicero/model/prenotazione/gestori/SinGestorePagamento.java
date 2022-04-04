@@ -30,6 +30,7 @@ public final class SinGestorePagamento {
     }
 
     private void carica() {
+
     Set<BeanFattura> tot = ServiceFattura.getInstance().select(utente_corrente.getID_Client());
      ricevuti = tot
              .stream()
