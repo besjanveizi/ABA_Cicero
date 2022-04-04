@@ -1,8 +1,9 @@
-package it.unicam.cs.ids2122.cicero.model.prenotazione_V3;
+package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
+
 
 /**
  *  enumerazione per i diversi stati in cui può trovarsi una
- *  <code>{@link SimplePrenotazione}</code>
+ *  <code>{@link BeanPrenotazione}</code>
  *  RISERVATA -> PAGATA
  *  RISERVATA -> CANCELLATA
  */

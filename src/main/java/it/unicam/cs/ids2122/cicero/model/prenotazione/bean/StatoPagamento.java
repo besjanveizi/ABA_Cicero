@@ -1,38 +1,33 @@
-package it.unicam.cs.ids2122.cicero.model.prenotazione_V3.pagamento;
+package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.rimborso.Rimborso;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.rimborso.Rimborso;
 
 /**
  *  enumerazione delle possibili direzioni di pagamento.
  *  Servono per simulare l' intera catena del pagamento
  *  e stabili la possibilità di rimborso.
- *  In sintesi rappresenta il ciclo di vita di una {@link Fattura}
+ *  In sintesi rappresenta il ciclo di vita di una {@link BeanFattura}
  */
 public enum StatoPagamento {
 
-    /**
-     * stato transitorio della {@code Fattura}.
-     * Assunto solo in fase di creazione
-     */
-    TURISTA_ADMIN(0),
 
     /**
-     * Stato intermedio della fattura.
+     * versamento al conto di sistema
      */
-    ADMIN_ADMIN(1),
+    ADMIN_ADMIN(0),
 
     /**
      * Stato finale, il pagamento
      * è arrivato al turista.
      * viene generato da una {@link Rimborso}
      */
-    ADMIN_TURISTA(2),
+    ADMIN_TURISTA(1),
 
     /**
      * stato finale, il pagamento ha raggiunto
      * il cicerone.
      */
-    ADMIN_CICERONE(3);
+    ADMIN_CICERONE(2);
 
     private int code;
 
