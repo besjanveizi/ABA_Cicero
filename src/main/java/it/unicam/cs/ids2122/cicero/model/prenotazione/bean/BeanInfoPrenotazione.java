@@ -84,4 +84,37 @@ public final class BeanInfoPrenotazione {
     public StatoPrenotazione getStatoPrenotazione() {
         return statoPrenotazione;
     }
+
+
+    public void setID_esperienza(int ID_esperienza) {
+        this.ID_esperienza = ID_esperienza;
+    }
+
+    public void setID_turista(int ID_turista) {
+        this.ID_turista = ID_turista;
+    }
+
+    public void setPosti(int posti) {
+        this.posti = posti;
+    }
+
+    public void setData_prenotazione(LocalDateTime data_prenotazione) {
+        this.data_prenotazione = data_prenotazione;
+    }
+
+    public void setScadenza(LocalDateTime scadenza) {
+        this.scadenza = scadenza;
+    }
+
+    public void setPrezzo_totale(BigDecimal prezzo_totale) {
+        this.prezzo_totale = prezzo_totale;
+    }
+
+    public void setValuta(String valuta) {
+        this.valuta = valuta;
+    }
+
+    public void setStatoPrenotazione(StatoPrenotazione statoPrenotazione) {
+        this.statoPrenotazione = statoPrenotazione;
+    }
 }
