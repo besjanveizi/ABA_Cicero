@@ -43,15 +43,15 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
         while(true){
             GestoreTag gestoreTag= GestoreTag.getInstance();
-            Set<Tag> allTags = gestoreTag.getTags(e -> e.getState().equals(TagStatus.PROPOSTO));
-            Set<String> viewSet=allTags.stream().map(Tag::getName).collect(Collectors.toSet());
-            if(allTags.isEmpty()){
+            Set<Tag> proposti = gestoreTag.getTags(e -> e.getState().equals(TagStatus.PROPOSTO));
+            Set<String> viewSet=proposti.stream().map(Tag::getName).collect(Collectors.toSet());
+            if(proposti.isEmpty()){
                 view.message("Attualmente non ci sono Tag proposti nella piattaforma.");
                 return;
             }
             view.message("Selezionare il tag che si vuole gestire:",viewSet);
             String nomeTag=view.fetchSingleChoice(viewSet);
-            Optional<Tag> selectedTag=allTags.stream().filter(t->t.getName().equals(nomeTag)).findFirst();
+            Optional<Tag> selectedTag=proposti.stream().filter(t->t.getName().equals(nomeTag)).findFirst();
             selectedTag.ifPresent(this::approvaTag);
             if(view.fetchChoice("Scegliere una delle seguenti alternative:\n1-Gestisci un altro tag\n2-Esci",2)==2)break;
         }
@@ -69,7 +69,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void definisciTag() {
         GestoreTag gestoreTag= GestoreTag.getInstance();
-        Set<Tag> allTags = gestoreTag.getTags(e -> e.getState().equals(TagStatus.APPROVATO)||e.getState().equals(TagStatus.PROPOSTO));
+        Set<Tag> allTags = gestoreTag.getTags(t->true);
         boolean done=false,annulla=false;
         String nome="";
         while (!done && !annulla){
@@ -101,7 +101,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
                 done=true;
             }
         }
-        view.message("Vuoi confermare la proposta del tag "+nome+" con descrizione "+descrizione+"?");
+        view.message("Vuoi confermare la definizione del tag "+nome+" con descrizione "+descrizione+"?");
         if(view.fetchBool()){
             gestoreTag.add(nome,descrizione,TagStatus.APPROVATO);
             view.message("il tag "+nome+" è stato aggiunto alla collezione di tag della piattaforma.");

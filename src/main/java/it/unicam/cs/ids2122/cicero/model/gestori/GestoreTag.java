@@ -58,8 +58,7 @@ public class GestoreTag {
      */
     public void add(String tagName, String tagDescription, TagStatus tagStatus) {
         ServiceTag service= ServiceTag.getInstance();
-        service.insertTag(tagName,tagDescription,tagStatus);
-        updateTags();
+        allTags.add(service.insertTag(tagName,tagDescription,tagStatus));
     }
 
     /**
@@ -67,10 +66,9 @@ public class GestoreTag {
      * @param tag <code>Tag</code>
      * @param status nuovo stato
      */
-    public int changeStatus(Tag tag, TagStatus status){
+    public void changeStatus(Tag tag, TagStatus status){
         ServiceTag service= ServiceTag.getInstance();
-        int ret=service.updateTagStatus(tag,status);
+        service.updateTagStatus(tag,status);
         updateTags();
-        return ret;
     }
 }

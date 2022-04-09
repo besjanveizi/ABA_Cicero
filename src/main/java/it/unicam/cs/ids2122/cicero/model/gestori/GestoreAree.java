@@ -3,7 +3,6 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceArea;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -14,7 +13,7 @@ public class GestoreAree {
     private static GestoreAree instance = null;
     private Set<Area> aree;
 
-    private GestoreAree() {
+    private GestoreAree(){
         updateAree();
     }
 
@@ -25,9 +24,8 @@ public class GestoreAree {
     }
 
     private void updateAree() {
-        // TODO: update aree with database select request from table "aree"
-        //  return DBManager.select(DBTable.AREE) -> crea e ritorna un HashSet di oggetti SimpleArea
-        aree = new HashSet<>(); // temporary
+        ServiceArea service=ServiceArea.getInstance();
+        aree = service.getAree();
     }
 
     /**
@@ -39,7 +37,6 @@ public class GestoreAree {
 
     public void add(String nome, String descrizione){
         ServiceArea service=ServiceArea.getInstance();
-        service.insertArea(nome,descrizione);
-        updateAree();
+        aree.add(service.insertArea(nome,descrizione));
     }
 }
