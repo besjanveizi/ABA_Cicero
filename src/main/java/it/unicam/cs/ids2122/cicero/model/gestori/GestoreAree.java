@@ -1,6 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceArea;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,4 +37,9 @@ public class GestoreAree {
         return aree;
     }
 
+    public void add(String nome, String descrizione){
+        ServiceArea service=ServiceArea.getInstance();
+        service.insertArea(nome,descrizione);
+        updateAree();
+    }
 }

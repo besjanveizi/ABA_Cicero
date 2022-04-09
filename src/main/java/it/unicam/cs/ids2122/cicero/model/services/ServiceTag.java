@@ -20,6 +20,7 @@ public class ServiceTag extends AbstractService<Tag> {
     private final String col_values = "VALUES ( {0} , {1} , {2} )";
     private final String select_base_query = "SELECT " + pk_name + ", " + col_names + " FROM " + table_name_tags;
     private final String insert_query = "INSERT INTO " + table_name_tags + " (" + col_names + ") " + col_values + ";";
+    private final String update_query = "UPDATE " + table_name_tags + " SET stato= {0} WHERE id_tag= {1}";
 
     private ServiceTag() {}
 
@@ -82,5 +83,9 @@ public class ServiceTag extends AbstractService<Tag> {
         }
 
         return resultSet;
+    }
+
+    public int updateTagStatus(Tag tag,TagStatus status){
+        return getGeneratedKey(MessageFormat.format(update_query,status.getCode(),tag.getId()));
     }
 }
