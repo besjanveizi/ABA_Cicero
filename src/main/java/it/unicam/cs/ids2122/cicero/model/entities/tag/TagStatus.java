@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.tag;
+package it.unicam.cs.ids2122.cicero.model.entities.tag;
 
 /**
  * Stati dei <code>Tag</code> della piattaforma.

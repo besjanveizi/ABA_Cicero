@@ -1,6 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione_V3.gestori;
 
-import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.invito.Invito;
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.invito.SimpleInvito;
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.persistenza.DBInvito;

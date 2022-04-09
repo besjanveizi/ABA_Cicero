@@ -1,6 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model;
 
-import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 
 import java.util.Set;
 

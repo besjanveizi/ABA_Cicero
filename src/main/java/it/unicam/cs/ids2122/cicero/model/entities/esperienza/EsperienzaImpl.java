@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.esperienza;
+package it.unicam.cs.ids2122.cicero.model.entities.esperienza;
 
 import com.google.common.base.Objects;
 

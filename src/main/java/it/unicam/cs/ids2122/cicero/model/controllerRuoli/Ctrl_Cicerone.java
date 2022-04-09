@@ -1,12 +1,12 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreEsperienze;
-import it.unicam.cs.ids2122.cicero.model.esperienza.InfoEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.InfoEsperienza;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestorePercorso;
-import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Percorso;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreTag;
-import it.unicam.cs.ids2122.cicero.model.tag.Tag;
-import it.unicam.cs.ids2122.cicero.model.tag.TagStatus;
+import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
+import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
 import it.unicam.cs.ids2122.cicero.view.IView;

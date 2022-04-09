@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.territorio;
+package it.unicam.cs.ids2122.cicero.model.entities.territorio;
 
 /**
  * Semplice implementazione di un'{@code Area}.

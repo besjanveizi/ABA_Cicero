@@ -4,7 +4,7 @@ package it.unicam.cs.ids2122.cicero.model.prenotazione_V3.sistema;
 
 
 
-import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.gestori.SinGestoreDisponibilita;
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.gestori.SinGestoreInvito;
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.invito.Invito;

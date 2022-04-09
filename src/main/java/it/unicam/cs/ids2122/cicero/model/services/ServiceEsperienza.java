@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
-import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
-import it.unicam.cs.ids2122.cicero.model.esperienza.InfoEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.InfoEsperienza;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;

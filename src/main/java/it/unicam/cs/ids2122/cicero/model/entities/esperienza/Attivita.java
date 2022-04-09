@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.esperienza;
+package it.unicam.cs.ids2122.cicero.model.entities.esperienza;
 
 public class Attivita {
     private String nome;

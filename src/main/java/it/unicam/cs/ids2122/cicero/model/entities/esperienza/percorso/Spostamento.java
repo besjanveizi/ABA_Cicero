@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.esperienza.percorso;
+package it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso;
 
 public class Spostamento {
     private Tappa partenza;

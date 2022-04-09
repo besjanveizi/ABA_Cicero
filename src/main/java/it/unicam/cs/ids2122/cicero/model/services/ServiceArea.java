@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
-import it.unicam.cs.ids2122.cicero.model.territorio.Area;
-import it.unicam.cs.ids2122.cicero.model.territorio.SimpleArea;
+import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
+import it.unicam.cs.ids2122.cicero.model.entities.territorio.SimpleArea;
 
 import java.text.MessageFormat;
 import java.util.*;

@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.tag;
+package it.unicam.cs.ids2122.cicero.model.entities.tag;
 
 /**
  * Rappresenta un {@code Tag} nella piattaforma.

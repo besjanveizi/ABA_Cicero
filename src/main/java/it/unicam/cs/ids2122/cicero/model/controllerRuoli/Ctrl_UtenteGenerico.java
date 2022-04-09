@@ -1,13 +1,13 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.Piattaforma;
-import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreRicerca;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreTag;
-import it.unicam.cs.ids2122.cicero.model.tag.Tag;
-import it.unicam.cs.ids2122.cicero.model.tag.TagStatus;
+import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
+import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreAree;
-import it.unicam.cs.ids2122.cicero.model.territorio.Area;
+import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
 import it.unicam.cs.ids2122.cicero.model.services.AuthenticationErrorException;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;

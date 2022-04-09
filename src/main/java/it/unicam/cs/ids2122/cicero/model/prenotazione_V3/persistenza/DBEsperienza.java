@@ -1,14 +1,12 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione_V3.persistenza;
 
 
-import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.esperienza.EsperienzaStatus;
-import it.unicam.cs.ids2122.cicero.model.esperienza.SimpleEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;

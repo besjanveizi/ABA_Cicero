@@ -1,6 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione_V3.rimborso;
 
-import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.pagamento.Fattura;
 
 import java.time.LocalDateTime;

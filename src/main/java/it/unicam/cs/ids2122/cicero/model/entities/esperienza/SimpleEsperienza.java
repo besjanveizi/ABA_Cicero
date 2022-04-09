@@ -1,9 +1,9 @@
-package it.unicam.cs.ids2122.cicero.model.esperienza;
+package it.unicam.cs.ids2122.cicero.model.entities.esperienza;
 
 import com.google.common.base.Objects;
-import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Percorso;
-import it.unicam.cs.ids2122.cicero.model.tag.Tag;
-import it.unicam.cs.ids2122.cicero.model.territorio.Area;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
+import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
+import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
 

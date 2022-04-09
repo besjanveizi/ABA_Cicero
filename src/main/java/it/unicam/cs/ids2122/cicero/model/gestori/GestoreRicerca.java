@@ -2,9 +2,9 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.Bacheca;
 import it.unicam.cs.ids2122.cicero.model.IBacheca;
-import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.tag.Tag;
-import it.unicam.cs.ids2122.cicero.model.territorio.Area;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
+import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -1,16 +1,8 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione_V3.sistema;
 
-import it.unicam.cs.ids2122.cicero.model.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione_V3.persistenza.DBManager;
-import it.unicam.cs.ids2122.cicero.model.tag.Tag;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 
-import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 import it.unicam.cs.ids2122.cicero.view.IView;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class ServizioRicerca<E extends Esperienza> implements Service<E> {
 
