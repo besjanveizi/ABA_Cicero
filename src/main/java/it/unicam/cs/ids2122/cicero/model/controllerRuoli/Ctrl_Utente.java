@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.service.controllerRuoli;
+package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 /**
  * Rappresenta un gestore radice per un qualsiasi tipo di utente (autenticato o generico).

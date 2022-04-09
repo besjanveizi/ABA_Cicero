@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.persistence.services;
+package it.unicam.cs.ids2122.cicero.model.services;
 
 import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 import it.unicam.cs.ids2122.cicero.model.territorio.SimpleArea;

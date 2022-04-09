@@ -1,6 +1,7 @@
-package it.unicam.cs.ids2122.cicero.model.esperienza.percorso;
+package it.unicam.cs.ids2122.cicero.model.gestori;
 
-import it.unicam.cs.ids2122.cicero.model.territorio.GestoreAree;
+import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Percorso;
+import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Tappa;
 import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 import it.unicam.cs.ids2122.cicero.view.IView;
 

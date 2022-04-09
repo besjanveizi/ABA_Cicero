@@ -1,6 +1,6 @@
-package it.unicam.cs.ids2122.cicero.model.service.controllerRuoli;
+package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
-import it.unicam.cs.ids2122.cicero.model.tag.GestoreTag;
+import it.unicam.cs.ids2122.cicero.model.gestori.GestoreTag;
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;

@@ -1,6 +1,6 @@
-package it.unicam.cs.ids2122.cicero.model.territorio;
+package it.unicam.cs.ids2122.cicero.model.gestori;
 
-import it.unicam.cs.ids2122.cicero.model.esperienza.percorso.Percorso;
+import it.unicam.cs.ids2122.cicero.model.territorio.Area;
 
 import java.util.HashSet;
 import java.util.Set;

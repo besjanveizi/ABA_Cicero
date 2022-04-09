@@ -1,6 +1,9 @@
-package it.unicam.cs.ids2122.cicero.model.esperienza;
+package it.unicam.cs.ids2122.cicero.model.gestori;
 
-import it.unicam.cs.ids2122.cicero.persistence.services.ServiceEsperienza;
+import it.unicam.cs.ids2122.cicero.model.esperienza.EsperienzaStatus;
+import it.unicam.cs.ids2122.cicero.model.esperienza.IEsperienza;
+import it.unicam.cs.ids2122.cicero.model.esperienza.InfoEsperienza;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import java.util.*;
 import java.util.function.Predicate;

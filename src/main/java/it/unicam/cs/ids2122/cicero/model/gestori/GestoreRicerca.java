@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.service.ricerca;
+package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.Bacheca;
 import it.unicam.cs.ids2122.cicero.model.IBacheca;
