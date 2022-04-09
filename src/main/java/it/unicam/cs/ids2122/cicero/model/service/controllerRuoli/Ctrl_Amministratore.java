@@ -3,6 +3,8 @@ package it.unicam.cs.ids2122.cicero.model.service.controllerRuoli;
 import it.unicam.cs.ids2122.cicero.model.tag.GestoreTag;
 import it.unicam.cs.ids2122.cicero.model.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.tag.TagStatus;
+import it.unicam.cs.ids2122.cicero.model.territorio.Area;
+import it.unicam.cs.ids2122.cicero.model.territorio.GestoreAree;
 import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
@@ -38,15 +40,16 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     }
 
     private void gestisciTagProposti() {
-        GestoreTag gestoreTag= GestoreTag.getInstance();
-        Set<Tag> allTags = gestoreTag.getTags(e -> e.getState().equals(TagStatus.PROPOSTO));
-        Set<String> viewSet=allTags.stream().map(Tag::getName).collect(Collectors.toSet());
-        if(allTags.isEmpty()){
-            view.message("Attualmente non ci sono Tag proposti nella piattaforma.");
-            return;
-        }
+
         while(true){
-            view.message("Selezionare il tag che si vuole gestire:");
+            GestoreTag gestoreTag= GestoreTag.getInstance();
+            Set<Tag> allTags = gestoreTag.getTags(e -> e.getState().equals(TagStatus.PROPOSTO));
+            Set<String> viewSet=allTags.stream().map(Tag::getName).collect(Collectors.toSet());
+            if(allTags.isEmpty()){
+                view.message("Attualmente non ci sono Tag proposti nella piattaforma.");
+                return;
+            }
+            view.message("Selezionare il tag che si vuole gestire:",viewSet);
             String nomeTag=view.fetchSingleChoice(viewSet);
             Optional<Tag> selectedTag=allTags.stream().filter(t->t.getName().equals(nomeTag)).findFirst();
             selectedTag.ifPresent(this::approvaTag);
@@ -85,7 +88,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             }
         }
         if(annulla){
-            annullaDefinizioneTag();
+            annullaDefinizione("tag");
             return;
         }
         done=false;
@@ -103,15 +106,54 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             gestoreTag.add(nome,descrizione,TagStatus.APPROVATO);
             view.message("il tag "+nome+" è stato aggiunto alla collezione di tag della piattaforma.");
         }else{
-            annullaDefinizioneTag();
+            annullaDefinizione("tag");
         }
     }
-    private void annullaDefinizioneTag(){
-        view.message("La definizione del tag è stata annullata.");
+    private void annullaDefinizione(String tipo){
+        view.message("La definizione del "+tipo+" è stata annullata.");
     }
 
     private void definisciArea() {
-
+        GestoreAree gestoreAree=GestoreAree.getInstance();
+        Set<Area> allAree=gestoreAree.getAree();
+        boolean done=false, annulla=false;
+        String nome="";
+        while (!done && !annulla){
+            nome=view.ask("Inserire il nome del toponimo che si vuole definire: ");
+            if(nome.isEmpty()){
+                view.message("Il nome del toponimo da creare non può essere vuoto!");
+            }else{
+                String finalNome = nome;
+                Set<Area> searchByNome =allAree.stream().filter(a->a.getToponimo().equals(finalNome)).collect(Collectors.toSet());
+                if(searchByNome.isEmpty()){
+                    done=true;
+                }else{
+                    view.message("Un toponimo con lo stesso nome è gia presente.");
+                    if(view.fetchChoice("Scegliere una delle seguenti alternative:\n1-Inserire un nuovo nome\n2-Esci",2)==2)annulla=true;
+                }
+            }
+        }
+        if(annulla){
+            annullaDefinizione("toponimo");
+            return;
+        }
+        done=false;
+        String descrizione="";
+        while (!done){
+            descrizione=view.ask("Inserire la descrizione del toponimo '"+nome+"':");
+            if(descrizione.isEmpty()){
+                view.message("La descrizione inserita non è valida.");
+            }else{
+                done=true;
+            }
+        }
+        view.message("Vuoi confermare la proposta del toponimo '"+nome+"' con descrizione '"+descrizione+"'?");
+        if(view.fetchBool()){
+            gestoreAree.add(nome,descrizione);
+            view.message("il toponimo '"+nome+"' è stato aggiunto alla collezione di tag della piattaforma.");
+        }else{
+            annullaDefinizione("toponimo");
+        }
     }
 
     private void impostaMenu() {

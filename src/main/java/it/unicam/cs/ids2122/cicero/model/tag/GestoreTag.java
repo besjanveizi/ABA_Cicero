@@ -1,5 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.tag;
 
+import it.unicam.cs.ids2122.cicero.persistence.services.ServiceTag;
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -24,9 +26,8 @@ public class GestoreTag {
     }
 
     private void updateTags() {
-        //  TODO: update allTags with database select request from table "tags"
-        //   allTags = DBManager.select(DBTable.TAGS) -> ritorna un insieme di oggetti Tag
-        allTags = new HashSet<>();  // temporary
+        ServiceTag service= ServiceTag.getInstance();
+        allTags=service.getTags();
     }
 
     /**
@@ -44,11 +45,8 @@ public class GestoreTag {
      * @param tagDescription descrizione
      */
     public void add(String tagName, String tagDescription) {
-        add(tagName, tagDescription, TagStatus.PROPOSTO);
-        /*
-            TODO: insert tag into database and update database
-                "INSERT INTO TAGS (NOME, STATO, DESCRIZIONE) VALUES('"+t.getName()+"','"+t.getState()+"','"+t.getDescrizione()+"');"
-        */
+        ServiceTag service= ServiceTag.getInstance();
+        service.insertTag(tagName,tagDescription,TagStatus.PROPOSTO);
         updateTags();
     }
 
@@ -59,8 +57,9 @@ public class GestoreTag {
      * @param tagStatus stato
      */
     public void add(String tagName, String tagDescription, TagStatus tagStatus) {
-        //Tag tag = new SimpleTag(tagName, tagDescription, tagStatus);
-        //allTags.add(tag);
+        ServiceTag service= ServiceTag.getInstance();
+        service.insertTag(tagName,tagDescription,tagStatus);
+        updateTags();
     }
 
     /**
@@ -68,11 +67,10 @@ public class GestoreTag {
      * @param tag <code>Tag</code>
      * @param status nuovo stato
      */
-    public void changeStatus(Tag tag, TagStatus status){
-        /*
-            TODO: update old tag
-                "update tags set stato="+tag.getState.getCode+ where nome='"+tag.getName+"';"
-        */
+    public int changeStatus(Tag tag, TagStatus status){
+        ServiceTag service= ServiceTag.getInstance();
+        int ret=service.updateTagStatus(tag,status);
         updateTags();
+        return ret;
     }
 }
