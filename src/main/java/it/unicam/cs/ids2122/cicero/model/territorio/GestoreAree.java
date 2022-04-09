@@ -37,7 +37,6 @@ public class GestoreAree {
 
     public void add(String nome, String descrizione){
         ServiceArea service=ServiceArea.getInstance();
-        service.insertArea(nome,descrizione);
-        updateAree();
+        aree.add(service.insertArea(nome,descrizione));
     }
 }
