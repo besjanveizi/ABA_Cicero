@@ -1,7 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model;
 
 import it.unicam.cs.ids2122.cicero.model.controllerRuoli.*;
-import it.unicam.cs.ids2122.cicero.model.service.controllerRuoli.*;
 import it.unicam.cs.ids2122.cicero.persistence.PGManager;
 import it.unicam.cs.ids2122.cicero.ruoli.*;
 import it.unicam.cs.ids2122.cicero.view.CLIView;
