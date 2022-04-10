@@ -4,9 +4,7 @@ import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Spostamento;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Tappa;
 
-import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
 public class ServiceSpostamento extends AbstractService<Spostamento> {
@@ -24,15 +22,18 @@ public class ServiceSpostamento extends AbstractService<Spostamento> {
 
     private ServiceSpostamento() {}
 
-
     public static ServiceSpostamento getInstance() {
         if (instance == null)
             instance = new ServiceSpostamento();
         return instance;
     }
 
-    public Percorso download(int idEsperienza) {
-        return null;
+    public Percorso downloadPercorso(int idEsperienza) {
+        List<Spostamento> resultList = parseDataResult(
+                getDataResult(select_base_query + " WHERE id_esperienza = "+idEsperienza+";"));
+        Percorso p = new Percorso();
+        p.addAllSpostamenti(resultList);
+        return p;
     }
 
     public void upload(Percorso percorso, int idEsperienza) {
@@ -48,35 +49,43 @@ public class ServiceSpostamento extends AbstractService<Spostamento> {
     public List<Spostamento> parseDataResult(TreeMap<String, HashMap<String, String>> spostamenti) {
 
         List<Spostamento> resultList = new ArrayList<>();
-        int idSpostamento, idEsperienza, idTappaPartenza = 0, idTappaDestinazione = 0, indiceSpostamento;
-        String infoSpostamento;
 
         for (Map.Entry<String, HashMap<String, String>> firstEntry : spostamenti.entrySet()) {
-            idSpostamento = Integer.parseInt(firstEntry.getKey());
+
+            int idSpostamento = Integer.parseInt(firstEntry.getKey());
+            int indiceSpostamento = 0;
+            Tappa partenza = null, destinazione = null;
+            String infoSpostamento = "";
             HashMap<String, String> others = firstEntry.getValue();
+
             for (Map.Entry<String, String> secondEntry : others.entrySet()) {
                 String key = secondEntry.getKey();
                 String val = secondEntry.getValue();
                 switch (key) {
-                    case "id_esperienza": idEsperienza = Integer.parseInt(val); break;
-                    case "id_tappa_partenza": idTappaPartenza = Integer.parseInt(val); break;
-                    case "id_tappa_destinazione": idTappaDestinazione = Integer.parseInt(val); break;
+                    case "id_tappa_partenza":
+                        try {
+                            partenza = ServiceTappa.getInstance().download(Integer.parseInt(val));
+                        } catch (PersistenceErrorException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case "id_tappa_destinazione":
+                        try {
+                            destinazione = ServiceTappa.getInstance().download(Integer.parseInt(val));
+                        } catch (PersistenceErrorException e) {
+                            e.printStackTrace();
+                        }break;
                     case "info_spostamento": infoSpostamento = val; break;
                     case "indice_spostamento": indiceSpostamento = Integer.parseInt(val); break;
                     default: break;
                 }
             }
-            Tappa partenza = ServiceTappa.getInstance().download(idTappaPartenza);
-            Tappa destinazione = ServiceTappa.getInstance().download(idTappaDestinazione);
 
-
-
-            //InfoEsperienza infoE = new InfoEsperienza()
-            //resultSet.add();
+            Spostamento spostamento = new Spostamento(indiceSpostamento, partenza, destinazione, infoSpostamento);
+            spostamento.setId(idSpostamento);
+            resultList.add(spostamento);
         }
-
-
-
-        return null;
+        resultList.sort((s1, s2) -> s1.getIndice() < s2.getIndice() ? -1 : 0);
+        return resultList;
     }
 }

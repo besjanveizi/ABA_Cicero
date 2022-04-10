@@ -5,17 +5,14 @@ public class Attivita {
     int id;
     private String nome;
     private String descrizione;
+    private int indice_attivita;
 
-    public Attivita(String nome, String descrizione) {
+    public Attivita(int indice_attivita, String nome, String descrizione) {
         this.nome = nome;
         this.descrizione = descrizione;
+        this.indice_attivita = indice_attivita;
     }
 
-    public Attivita(int id, String nome, String descrizione) {
-        this.id = id;
-        this.nome = nome;
-        this.descrizione = descrizione;
-    }
 
     public String getNome() {
         return nome;
@@ -25,7 +22,22 @@ public class Attivita {
         return descrizione;
     }
 
+    public int getIndice() {
+        return indice_attivita;
+    }
+
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "\n\t\t\tAttivita n." + getIndice() +
+                "\n\t\t\t\tnome: '" + nome + '\'' +
+                "\n\t\t\t\tdescrizione: '" + descrizione + '\'';
     }
 }

@@ -1,12 +1,10 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Attivita;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Tappa;
-import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
+import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 public class ServiceTappa extends AbstractService<Tappa> {
 
@@ -29,15 +27,49 @@ public class ServiceTappa extends AbstractService<Tappa> {
         return instance;
     }
 
-    public Tappa download(int idTappa) {
+    public Tappa download(int idTappa) throws PersistenceErrorException {
+        Tappa t;
         Set<Tappa> resultSet = parseDataResult(
-                getDataResult(select_base_query + " WHERE id_tappa = '" + idTappa +";"));
-        return null;
+                getDataResult(select_base_query + " WHERE id_tappa = " + idTappa +";"));
+        if (!resultSet.isEmpty()) {
+             t = resultSet.stream().findFirst().get();
+        }
+        else {
+            logger.severe("Data consistency error: couldn't find Tappa with id= " + idTappa + ".\n");
+            throw new PersistenceErrorException();
+        }
+        List<Attivita> attivitaList = ServiceAttivita.getInstance().downloadAll(idTappa);
+        t.addAllAttivita(attivitaList);
+        return t;
     }
 
 
     @Override
-    public Set<Tappa> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult) {
-        return null;
+    public Set<Tappa> parseDataResult(TreeMap<String, HashMap<String, String>> tappe) {
+        Set<Tappa> resultSet = new HashSet<>();
+        int id_tappa, id_area = 0;
+        String info = "";
+
+        for (Map.Entry<String, HashMap<String, String>> firstEntry : tappe.entrySet()) {
+            id_tappa = Integer.parseInt(firstEntry.getKey());
+            HashMap<String, String> others = firstEntry.getValue();
+            for (Map.Entry<String, String> secondEntry : others.entrySet()) {
+                String key = secondEntry.getKey();
+                String val = secondEntry.getValue();
+                switch (key) {
+                    case "id_area": id_area = Integer.parseInt(val); break;
+                    case "info": info = val; break;
+                    default: break;
+                }
+            }
+            Area area = null;
+            try {
+                area = ServiceArea.getInstance().getArea(id_area);
+            } catch (PersistenceErrorException e) {
+                e.printStackTrace();
+            }
+            resultSet.add(new Tappa(id_tappa, area, info));
+        }
+        return resultSet;
     }
 }

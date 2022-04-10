@@ -83,7 +83,7 @@ public class ServiceUtente extends AbstractService<IUtente> {
      * @param username username dell'{@code IUtente}.
      * @param password password dell'{@code IUtente}.
      */
-    public void login(String username, String password) throws AuthenticationErrorException {
+    public void login(String username, String password) throws PersistenceErrorException {
         Set<IUtente> resultSet = parseDataResult(
                 getDataResult(select_base_query + " WHERE username = '" + username +
                                                         "' AND password = '" + password + "'"));
@@ -96,7 +96,7 @@ public class ServiceUtente extends AbstractService<IUtente> {
         }
         else {
             logger.warning("Authentication error: couldn't log in.\n");
-            throw new AuthenticationErrorException();
+            throw new PersistenceErrorException();
         }
     }
 

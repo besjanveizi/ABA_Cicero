@@ -33,7 +33,12 @@ public class Tappa {
     }
 
     public void addAttivita(String nomeAttivita, String descrizioneAttivita) {
-        listAttivita.add(new Attivita(nomeAttivita, descrizioneAttivita));
+        listAttivita.add(new Attivita(listAttivita.size(),nomeAttivita, descrizioneAttivita));
+    }
+
+    public void addAllAttivita(List<Attivita> attivitaList) {
+        if (listAttivita == null) listAttivita = new ArrayList<>();
+        listAttivita.addAll(attivitaList);
     }
 
     public int getId() {
@@ -42,12 +47,15 @@ public class Tappa {
 
     @Override
     public String toString() {
-        return "Tappa: " +
-                "\n\ttoponimo: " + getToponimo() +
-                "\n\tinfo: " + info +
+        return "\n\t\ttoponimo: " + getToponimo() +
+                "\n\t\tinfo ulteriori: " + info
+                +listAttivita.stream()
+                .map(Attivita::toString)
+                .collect(Collectors.toList());
+                /*+
                 "\n\tattività: " +
                 String.join("\n\t",
-                        listAttivita.stream().map(Attivita::toString).collect(Collectors.toSet()));
+                        listAttivita.stream().map(Attivita::toString).collect(Collectors.toSet()));*/
     }
 
     public List<Attivita> getListAttivita() {
