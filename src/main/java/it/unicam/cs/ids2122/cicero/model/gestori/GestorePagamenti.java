@@ -1,10 +1,10 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanFattura;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.StatoPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.TipoFattura;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.TipoFattura;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceFattura;
 import it.unicam.cs.ids2122.cicero.model.services.ServicePrenotazione;
 import it.unicam.cs.ids2122.cicero.persistence.SystemConstraints;

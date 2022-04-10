@@ -1,6 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanInvito;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.persistence.PGManager;
 
 import java.math.BigDecimal;

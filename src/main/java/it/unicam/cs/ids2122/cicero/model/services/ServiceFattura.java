@@ -1,8 +1,8 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
 
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanFattura;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.TipoFattura;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.TipoFattura;
 
 import java.sql.*;
 import java.util.HashMap;

@@ -2,7 +2,7 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 
 
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanInvito;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceDisponibilita;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceInvito;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;

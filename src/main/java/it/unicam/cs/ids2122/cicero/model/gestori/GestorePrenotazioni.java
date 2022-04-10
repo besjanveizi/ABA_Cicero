@@ -2,9 +2,9 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import com.google.common.collect.Sets;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanInvito;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.StatoPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceDisponibilita;
 import it.unicam.cs.ids2122.cicero.model.services.ServicePrenotazione;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
