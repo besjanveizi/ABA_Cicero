@@ -1,5 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
 
+
 /**
  *  enumerazione per i diversi stati in cui può trovarsi una
  *  <code>{@link BeanPrenotazione}</code>

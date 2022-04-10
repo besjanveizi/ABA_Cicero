@@ -1,4 +1,4 @@
-package it.unicam.cs.ids2122.cicero.model.prenotazione.gestori;
+package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import com.google.common.collect.Sets;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
@@ -13,10 +13,10 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-public final class SinGestorePrenotazione {
+public final class GestorePrenotazioni {
 
 
-    private static SinGestorePrenotazione sinGestorePrenotazione = null;
+    private static GestorePrenotazioni gestorePrenotazioni = null;
 
     private Turista utente_corrente;
 
@@ -27,15 +27,15 @@ public final class SinGestorePrenotazione {
 
 
 
-    private SinGestorePrenotazione(Turista iUtente) {
+    private GestorePrenotazioni(Turista iUtente) {
         utente_corrente = iUtente;
         carica();
     }
 
-    public static SinGestorePrenotazione getInstance(Turista iUtente)  {
-        if(sinGestorePrenotazione==null){
-            sinGestorePrenotazione = new  SinGestorePrenotazione(iUtente);
-        }return sinGestorePrenotazione;
+    public static GestorePrenotazioni getInstance(Turista iUtente)  {
+        if(gestorePrenotazioni ==null){
+            gestorePrenotazioni = new GestorePrenotazioni(iUtente);
+        }return gestorePrenotazioni;
     }
 
     /**
@@ -44,7 +44,7 @@ public final class SinGestorePrenotazione {
      * @throws SQLException possibile eccezione dal db o dal resultset
      */
     private void carica()  {
-        prenotazioni = ServicePrenotazione.getInstance().select(utente_corrente.getUID());
+        prenotazioni = ServicePrenotazione.getInstance().sql_select(utente_corrente.getUID());
     }
 
     /**
@@ -52,7 +52,7 @@ public final class SinGestorePrenotazione {
      * @param propEsperienza
      * @param posti_prenotati
      */
-    public void crea_prenotazione(IEsperienza propEsperienza, int posti_prenotati){
+    public BeanPrenotazione crea_prenotazione(IEsperienza propEsperienza, int posti_prenotati){
         BeanPrenotazione beanPrenotazione = new BeanPrenotazione(
                 propEsperienza.info().getDataInizio(),
                 propEsperienza.info().getMaxGiorniRiserva(), posti_prenotati,
@@ -64,6 +64,7 @@ public final class SinGestorePrenotazione {
         prenotazioni.add(beanPrenotazione);
         propEsperienza.info().cambiaPostiDisponibili(-posti_prenotati);
         ServiceDisponibilita.getInstance().update(propEsperienza.info().getPostiDisponibili(), propEsperienza.getId() );
+        return beanPrenotazione;
     }
 
     /**
@@ -87,8 +88,8 @@ public final class SinGestorePrenotazione {
     }
 
 
-    /**
-     * Modifica stato di una prenotazione
+     /**
+     * Modifica stato di una prenotazione ed elimina se è CANCELLATA
      * @param beanPrenotazione
      * @param nuovo_stato
      */
@@ -97,7 +98,7 @@ public final class SinGestorePrenotazione {
         if(nuovo_stato.equals(StatoPrenotazione.CANCELLATA)){
             int posti = ServiceDisponibilita.getInstance().select(beanPrenotazione.getID_esperienza());
             posti = posti + beanPrenotazione.getPosti();
-
+            ServiceDisponibilita.getInstance().update(posti, beanPrenotazione.getID_esperienza());
         }
     }
 
@@ -107,8 +108,14 @@ public final class SinGestorePrenotazione {
     }
 
     public Set<BeanPrenotazione> getPrenotazioni(StatoPrenotazione filtro){
-        return Sets.filter( prenotazioni, beanPrenotazione -> beanPrenotazione.getStatoPrenotazione().equals(filtro) );
+        return Sets.filter( prenotazioni,beanPrenotazione -> beanPrenotazione.getStatoPrenotazione().equals(filtro) );
     }
 
+
+    public BeanPrenotazione getPrenotazione(int id){
+        return Sets.filter( prenotazioni,beanPrenotazione -> beanPrenotazione.getID_prenotazione() == id ||
+                                                             beanPrenotazione.getID_esperienza() == id ||
+                                                             beanPrenotazione.getID_turista() == id).iterator().next();
+    }
 
 }

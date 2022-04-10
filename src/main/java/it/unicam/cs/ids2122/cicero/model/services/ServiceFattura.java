@@ -1,24 +1,22 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
+
 import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.BeanFattura;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.StatoPagamento;
-import it.unicam.cs.ids2122.cicero.persistence.PGManager;
+import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.TipoFattura;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
+
 
 public final class ServiceFattura extends AbstractService<BeanFattura> {
 
     private static ServiceFattura  serviceFattura = null;
 
     private final String sql_insert = "INSERT INTO public.fatture( id_prenotazione, id_client_origine, id_client_destinatario, " +
-            "data_pagamento, importo, valuta, stato_fattura, posti_pagati) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?);";
+            "data_pagamento, importo, valuta, tipo_fattura, posti_pagati) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?);";
 
-    private String sql_select = "SELECT * FROM public.fatture ";
 
     private ServiceFattura(){
 
@@ -61,54 +59,32 @@ public final class ServiceFattura extends AbstractService<BeanFattura> {
         }
     }
 
-    public Set<BeanFattura> select()  {
-        Connection connection = null;
-        Set<BeanFattura> fatture = new HashSet<>();
-        try{
-            PreparedStatement preparedStatement = PGManager.getInstance().connect().prepareStatement(this.sql_select);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while(resultSet.next()){
-                BeanFattura beanFattura = new BeanFattura();
-                beanFattura.setId_fattura(resultSet.getInt("id_fattura"));
-                beanFattura.setId_prenotazione(resultSet.findColumn("id_prenotazione"));
-                beanFattura.setId_client_destinatario(resultSet.getString("id_client_destinatario"));
-                beanFattura.setId_client_origine(resultSet.getString("id_client_origine"));
-                beanFattura.setData_pagamento(resultSet.getObject("data_pagamento", LocalDateTime.class));
-                beanFattura.setImporto(resultSet.getBigDecimal("importo"));
-                beanFattura.setValuta(resultSet.getString("valuta"));
-                beanFattura.setPosti_pagati(resultSet.getInt("posti_pagati"));
-                beanFattura.setStatoPagamento(trasformazione(resultSet.getInt("stato_fattura")));
-                fatture.add(beanFattura);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return fatture;
-    }
 
-    public Set<BeanFattura> select(String id_Client){
-        this.sql_select = sql_select+ " WHERE id_client_origine=" +"'"+id_Client+"'"+
-                " OR id_client_destinatario=" +"'"+id_Client+"';" ;
-        return select();
-    }
 
-    private StatoPagamento trasformazione(int stato){
-        switch (stato){
-            case 0: return StatoPagamento.ADMIN_ADMIN;
-            case 1: return StatoPagamento.ADMIN_TURISTA;
-            case 2: return StatoPagamento.ADMIN_CICERONE;
-            default:return null;
-        }
+    private String colonne = "id_fattura, id_prenotazione, id_client_origine, id_client_destinatario, data_pagamento, " +
+            "importo, valuta, tipo_fattura, posti_pagati";
+
+    private String sql_select_base = "SELECT " + colonne + " FROM public.fatture";
+
+
+    public Set<BeanFattura> sql_select(String id_client){
+        return parseDataResult( getDataResult(sql_select_base +  " WHERE id_client_origine=" + "'" + id_client + "'" +
+                " OR id_client_destinatario=" + "'" + id_client + "';"));
     }
 
     @Override
     public Set<BeanFattura> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult) {
         return null;
     }
+
+    private TipoFattura trasformazione(int stato){
+        switch (stato){
+            case 0: return TipoFattura.PAGAMENTO;
+            case 1: return TipoFattura.RIMBORSO;
+            case 2: return TipoFattura.LIQUIDAZIONE;
+            default:return null;
+        }
+    }
+
+
 }

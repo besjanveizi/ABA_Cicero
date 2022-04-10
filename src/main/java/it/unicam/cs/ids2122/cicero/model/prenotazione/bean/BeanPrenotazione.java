@@ -1,5 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
 
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
