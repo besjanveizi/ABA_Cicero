@@ -18,6 +18,10 @@ public class Percorso {
         spostamenti.add(new Spostamento(partenza, destinazione, info));
     }
 
+    public List<Spostamento> getSpostamenti() {
+        return spostamenti;
+    }
+
     public List<Tappa> getTappe() {
         List<Tappa> tappe = new ArrayList<>();
         for (Spostamento s : spostamenti) {

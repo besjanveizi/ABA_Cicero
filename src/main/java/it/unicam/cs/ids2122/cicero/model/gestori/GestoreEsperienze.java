@@ -3,8 +3,14 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.InfoEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.SimpleEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
+import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
+import it.unicam.cs.ids2122.cicero.util.Money;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -83,5 +89,10 @@ public class GestoreEsperienze {
         //  -> cambia lo stato al database
         //      ServiceEsperienza.changeState(id, newStatus);
         //      getEsperienza(id).info().setStatus(newStatus);
+    }
+
+    public void add(String nomeE, Cicerone cicerone, String descrizioneE, LocalDateTime dI, LocalDateTime dF,
+                    int minP, int maxP, Percorso percorso, Money costoIndividuale, int maxRiserva, Set<Tag> chosenTags) {
+        SimpleEsperienza e = serviceEsperienza.upload(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso, costoIndividuale, maxRiserva, chosenTags);
     }
 }

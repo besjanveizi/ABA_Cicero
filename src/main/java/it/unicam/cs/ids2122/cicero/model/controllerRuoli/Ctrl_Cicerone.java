@@ -7,10 +7,12 @@ import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreTag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -89,6 +91,10 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
      * Permette di elaborare la creazione di una nuova <code>Esperienza</code>.
      */
     private void creaEsperienza() {
+        ServiceEsperienza.getInstance().upload("Visita al Museo di Storia Naturale", cicerone, "Si tratta di una bella visita",
+                LocalDateTime.now().plusHours(3), LocalDateTime.now().plusHours(5),10, 5, null, new Money(new BigDecimal("3"), "EUR"),
+                3, null);
+        /*
         LocalDateTime now = LocalDateTime.now();
         String nomeE = view.ask("Inserisci il nome dell'esperienza:");
         String descrizioneE = view.ask("Inserisci una descrizione per l'esperienza:");
@@ -148,13 +154,14 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
 
         if (accetta) {
             GestoreEsperienze.getInstance(cicerone)
-                    .add(new InfoEsperienza(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso,
-                            costoIndividuale, maxRiserva, chosenTags));
+                    .add(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso,
+                            costoIndividuale, maxRiserva, chosenTags);
             view.message("La creazione dell'esperienza è avvenuta con successo");
         } else {
             percorso.reset();
             view.message("La creazione dell'esperienza è stata cancellata");
         }
+        */
     }
 
     private Set<Tag> impostaTags() {

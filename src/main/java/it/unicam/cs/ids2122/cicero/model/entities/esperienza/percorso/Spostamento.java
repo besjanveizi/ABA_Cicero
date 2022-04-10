@@ -1,8 +1,8 @@
 package it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso;
 
 public class Spostamento {
+    private int id;
     private Tappa partenza;
-
     private Tappa destinazione;
     private String info;
     public Spostamento(Tappa partenza, Tappa destinazione, String info) {
@@ -17,6 +17,16 @@ public class Spostamento {
 
     public Tappa getDestinazione() {
         return destinazione;
+    }
+
+    public String getInfoSpostamento() {
+        return info;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public int getId() {
+        return id;
     }
 
     public void reset() {

@@ -1,7 +1,13 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.InfoEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.SimpleEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
+import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
+import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
+import it.unicam.cs.ids2122.cicero.util.Money;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
@@ -17,7 +23,7 @@ public class ServiceEsperienza extends AbstractService<IEsperienza> {
 
     private final String table_name = "public.esperienze";
     private final String pk_name = "id_esperienza";
-    private final String col_names = "nome, descrizione, data_pubblicazione, data_inizio, data_conclusione, " +
+    private final String col_names = "uid_cicerone, nome, descrizione, data_pubblicazione, data_inizio, data_conclusione, " +
                                      "data_termine, stato, max_partecipanti, min_partecipanti, costo_individuale, " +
                                      "valuta, max_riserva, posti_disponibili";
     private final String col_values = "VALUES ( {0} , {1} , {2} , {3} , {4} , {5} , {6} , {7} , {8} , {9} , {10} , " +
@@ -64,6 +70,22 @@ public class ServiceEsperienza extends AbstractService<IEsperienza> {
         //  upload all the tags using genKey as id_esperienza and Tag.getId() as id_tag, delegate this to ServiceTag.upload(Set<Tag> s)
         //  upload spostamenti, tappe and attivita in their belonged table, delegate this to ServicePercorso.upload(Percorso p)
         //  IEsperienza e = new EsperienzaImpl(genKey, InfoEsperienza);
+        return null;
+    }
+
+    public SimpleEsperienza upload(String nomeE, Cicerone cicerone, String descrizioneE, LocalDateTime dI,
+                                   LocalDateTime dF, int minP, int maxP, Percorso percorso, Money costoIndividuale,
+                                   int maxRiserva, Set<Tag> chosenTags) {
+        int genKey = getGeneratedKey(
+                MessageFormat.format(insert_query, "'" + cicerone.getUID()  + "'",
+                        "'" + nomeE + "'", "'" + descrizioneE + "'",
+                        "'" + LocalDateTime.now().toString().replace("T", " ") + "'",
+                        "'" + dI.toString().replace("T", " ") + "'",
+                        "'" + dF.toString().replace("T", " ") + "'",
+                        "'" + dF.plusDays(2).toString().replace("T", " ") + "'",
+                        0, maxP, minP, "'" + costoIndividuale.getValore().toString() + "'",
+                        "'" + costoIndividuale.getValuta().toString() + "'", maxRiserva, maxP));
+        ServiceSpostamento.getInstance().upload(percorso, genKey);
         return null;
     }
 
