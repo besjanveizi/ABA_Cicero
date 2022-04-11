@@ -4,6 +4,7 @@ import it.unicam.cs.ids2122.cicero.persistence.PGManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeMap;
@@ -64,7 +65,7 @@ public abstract class AbstractService<T> {
      * @param dataResult {@code TreeMap} che contiene le informazioni recuperate.
      * @return {@code Set} coeso delle informazioni del tipo dell'entit&agrave cui si riferisce il servizio.
      */
-    public abstract Set<T> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult);
+    public abstract Collection<T> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult);
 
     private Logger setupLogger() {
         logger = Logger.getLogger(AbstractService.class.getName());

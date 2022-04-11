@@ -1,7 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreEsperienze;
-import it.unicam.cs.ids2122.cicero.model.entities.esperienza.InfoEsperienza;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestorePercorso;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreTag;
@@ -23,12 +22,14 @@ import java.util.stream.Collectors;
 public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
     private GestorePercorso gestorePercorso;
+    private GestoreEsperienze gestoreEsperienze;
     private Cicerone cicerone;
 
     public Ctrl_Cicerone(IView<String> view, Cicerone cicerone) {
         super(view, cicerone);
         this.cicerone = cicerone;
         impostaMenu();
+        gestoreEsperienze = GestoreEsperienze.getInstance(cicerone);
         gestorePercorso = new GestorePercorso(view);
     }
 
@@ -90,7 +91,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
      */
     private void creaEsperienza() {
         LocalDateTime now = LocalDateTime.now();
-        String nomeE = view.ask("Inserisci il nome dell'esperienza:");
+        String nomeE = view.ask("Inserisci il nome della nuova esperienza:");
         String descrizioneE = view.ask("Inserisci una descrizione per l'esperienza:");
 
         LocalDateTime dI, dF;
@@ -118,8 +119,8 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
         while (true) {
             view.message("Imposta numero max partecipanti");
             maxP = view.fetchInt();
-            if (maxP > minP) break;
-            else view.message("ERRORE: Il numero massimo di partecipanti deve essere maggiore del minimo inserito");
+            if (maxP >= minP) break;
+            else view.message("ERRORE: Il numero massimo di partecipanti deve essere maggiore o uguale del minimo inserito");
         }
 
         Percorso percorso = gestorePercorso.creaPercorso();
@@ -148,13 +149,14 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
 
         if (accetta) {
             GestoreEsperienze.getInstance(cicerone)
-                    .add(new InfoEsperienza(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso,
-                            costoIndividuale, maxRiserva, chosenTags));
+                    .add(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso,
+                            costoIndividuale, maxRiserva, chosenTags);
             view.message("La creazione dell'esperienza è avvenuta con successo");
         } else {
             percorso.reset();
             view.message("La creazione dell'esperienza è stata cancellata");
         }
+
     }
 
     private Set<Tag> impostaTags() {

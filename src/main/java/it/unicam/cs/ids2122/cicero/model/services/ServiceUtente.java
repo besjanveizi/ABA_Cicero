@@ -1,9 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
 import it.unicam.cs.ids2122.cicero.model.Piattaforma;
-import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
-import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
-import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
+import it.unicam.cs.ids2122.cicero.ruoli.*;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -29,6 +27,11 @@ public class ServiceUtente extends AbstractService<IUtente> {
         if (instance == null)
             instance = new ServiceUtente();
         return instance;
+    }
+
+    public Optional<IUtente> getUser(int uid) {
+        return parseDataResult(
+                getDataResult(select_base_query + " WHERE uid = " + uid + ";")).stream().findFirst();
     }
 
     /**
@@ -89,7 +92,7 @@ public class ServiceUtente extends AbstractService<IUtente> {
      * @param username username dell'{@code IUtente}.
      * @param password password dell'{@code IUtente}.
      */
-    public void login(String username, String password) throws AuthenticationErrorException {
+    public void login(String username, String password) throws PersistenceErrorException {
         Set<IUtente> resultSet = parseDataResult(
                 getDataResult(select_base_query + " WHERE username = '" + username +
                                                         "' AND password = '" + password + "'"));
@@ -102,7 +105,7 @@ public class ServiceUtente extends AbstractService<IUtente> {
         }
         else {
             logger.warning("Authentication error: couldn't log in.\n");
-            throw new AuthenticationErrorException();
+            throw new PersistenceErrorException();
         }
     }
 

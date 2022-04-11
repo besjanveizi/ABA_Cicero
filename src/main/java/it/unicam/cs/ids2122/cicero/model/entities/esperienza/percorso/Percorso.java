@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Percorso {
     private List<Spostamento> spostamenti;
@@ -15,7 +16,15 @@ public class Percorso {
     }
 
     public void addSpostamento(Tappa partenza, Tappa destinazione, String info) {
-        spostamenti.add(new Spostamento(partenza, destinazione, info));
+        spostamenti.add(new Spostamento(spostamenti.size(), partenza, destinazione, info));
+    }
+
+    public void addAllSpostamenti(List<Spostamento> spostamentiList) {
+        spostamenti.addAll(spostamentiList);
+    }
+
+    public List<Spostamento> getSpostamenti() {
+        return spostamenti;
     }
 
     public List<Tappa> getTappe() {
@@ -31,19 +40,18 @@ public class Percorso {
         List<Tappa> tappe = getTappe();
         Set<Area> aree = new HashSet<>();
         for (Tappa t : tappe) {
-            aree.add(t.getArea());
+            Area a = t.getArea();
+            aree.add(a);
         }
         return aree;
     }
 
     @Override
     public String toString() {
-        for (Spostamento s : spostamenti) {
-
-        }
-        return "Percorso {" +
-                "spostamenti=" + spostamenti +
-                '}';
+        return "Percorso: " +
+                spostamenti.stream()
+                .map(Spostamento::toString)
+                .collect(Collectors.toList()) + '}';
     }
 
     public void reset() {
