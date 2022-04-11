@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class CLIView implements IView<String> {
@@ -92,7 +93,7 @@ public class CLIView implements IView<String> {
             if (!input.isBlank() && items.contains(input)) {
                 break;
             }
-            else message("Devi scegliere uno ed uno solo degli elementi elencati");
+            else message("ERRORE: Devi scegliere uno ed uno solo degli elementi elencati, senza errori di battitura");
         }
         return input;
     }

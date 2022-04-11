@@ -13,6 +13,7 @@ import java.util.*;
 public class ServiceTag extends AbstractService<Tag> {
 
     private static ServiceTag instance = null;
+    private ServiceTagsEsperienze serviceTE;
 
     private final String table_name_tags = "public.tags";
     private final String pk_name = "id_tag";
@@ -22,7 +23,10 @@ public class ServiceTag extends AbstractService<Tag> {
     private final String insert_query = "INSERT INTO " + table_name_tags + " (" + col_names + ") " + col_values + ";";
     private final String update_query = "UPDATE " + table_name_tags + " SET stato= {0} WHERE id_tag= {1}";
 
-    private ServiceTag() {}
+
+    private ServiceTag() {
+        serviceTE = new ServiceTagsEsperienze();
+    }
 
     public static ServiceTag getInstance() {
         if (instance == null)
@@ -37,6 +41,21 @@ public class ServiceTag extends AbstractService<Tag> {
      */
     public Set<Tag> getTags(TagStatus status) {
         return parseDataResult(getDataResult(select_base_query + " WHERE stato = " + status.getCode() + ";"));
+    }
+
+    public Set<Tag> downloadTagsOf(int idEsperienza) {
+        Set<Tag> downloadedTags = new HashSet<>();
+        Set<Integer> tagIDsSet = serviceTE.download(idEsperienza);
+        tagIDsSet.forEach(id -> download(id).ifPresent(downloadedTags::add));
+        return downloadedTags;
+    }
+
+    public void uploadTagsOf(int idEsperienza, Set<Tag> tagSet) {
+        serviceTE.upload(idEsperienza, tagSet);
+    }
+
+    public Optional<Tag> download(int idTag) {
+        return parseDataResult(getDataResult(select_base_query + " WHERE id_tag = " + idTag + ";")).stream().findFirst();
     }
 
     /**
@@ -87,5 +106,40 @@ public class ServiceTag extends AbstractService<Tag> {
 
     public int updateTagStatus(Tag tag,TagStatus status){
         return getGeneratedKey(MessageFormat.format(update_query,status.getCode(),tag.getId()));
+    }
+
+    private static class ServiceTagsEsperienze extends AbstractService<Integer> {
+        private final String table_name = "public.tags_esperienze";
+        private final String pk_T = "id_tag";
+        private final String pk_E = "id_esperienza";
+        private final String select_query = "SELECT " + pk_T + " FROM " + table_name;
+        private String insert_query = "INSERT INTO " + table_name + " (" + pk_T + ", " + pk_E + ") VALUES ";
+
+        public Set<Integer> download(int idEsperienza) {
+            return parseDataResult(getDataResult(select_query + " WHERE id_esperienza = " +
+                    idEsperienza + ";"));
+        }
+
+        public void upload(int idEsperienza, Set<Tag> tagSet) {
+            StringBuilder s = new StringBuilder();
+            tagSet.forEach( tag -> {
+                s.append("(").append(tag.getId()).append(", ").append(idEsperienza).append("), ");
+            });
+            insert_query = insert_query + s;
+            int lastIndex = insert_query.length();
+            insert_query = insert_query.substring(0, lastIndex-2);
+            int genKey = getGeneratedKey(insert_query);
+        }
+
+        @Override
+        public Set<Integer> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult) {
+            Set<Integer> resultSet = new HashSet<>();
+            int idTag;
+            for (Map.Entry<String, HashMap<String, String>> firstEntry : dataResult.entrySet()) {
+                idTag = Integer.parseInt(firstEntry.getKey());
+                resultSet.add(idTag);
+            }
+            return resultSet;
+        }
     }
 }

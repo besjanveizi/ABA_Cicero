@@ -4,6 +4,7 @@ import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Attivita;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Tappa;
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 public class ServiceTappa extends AbstractService<Tappa> {
@@ -25,6 +26,12 @@ public class ServiceTappa extends AbstractService<Tappa> {
         if (instance == null)
             instance = new ServiceTappa();
         return instance;
+    }
+
+    public void upload(Tappa t) {
+        int gen_key = getGeneratedKey(MessageFormat.format(insert_query, t.getArea().getId(), "'" + t.getInfo() + "'"));
+        t.setId(gen_key);
+        t.getListAttivita().forEach(a -> ServiceAttivita.getInstance().uploadAttivitaOf(t, a));
     }
 
     public Tappa download(int idTappa) throws PersistenceErrorException {
@@ -68,7 +75,9 @@ public class ServiceTappa extends AbstractService<Tappa> {
             } catch (PersistenceErrorException e) {
                 e.printStackTrace();
             }
-            resultSet.add(new Tappa(id_tappa, area, info));
+            Tappa t = new Tappa(area, info);
+            t.setId(id_tappa);
+            resultSet.add(t);
         }
         return resultSet;
     }

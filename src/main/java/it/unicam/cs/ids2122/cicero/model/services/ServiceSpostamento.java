@@ -28,6 +28,11 @@ public class ServiceSpostamento extends AbstractService<Spostamento> {
         return instance;
     }
 
+    /**
+     * Scarica il percorso dell'esperienza cui id &egrave quello dato
+     * @param idEsperienza id dell'esperienza cui si desidera il percorso
+     * @return percorso dell'esperienza
+     */
     public Percorso downloadPercorso(int idEsperienza) {
         List<Spostamento> resultList = parseDataResult(
                 getDataResult(select_base_query + " WHERE id_esperienza = "+idEsperienza+";"));
@@ -36,12 +41,22 @@ public class ServiceSpostamento extends AbstractService<Spostamento> {
         return p;
     }
 
+    /**
+     * Carica il percorso dell'esperienza indicata.
+     * @param percorso percorso da caricare.
+     * @param idEsperienza id dell'esperienza indicata
+     */
     public void upload(Percorso percorso, int idEsperienza) {
         int i = 0;
         for (Spostamento s : percorso.getSpostamenti()) {
+            Tappa partenza = s.getPartenza();
+            Tappa destinazione = s.getDestinazione();
+            ServiceTappa.getInstance().upload(partenza);
+            ServiceTappa.getInstance().upload(destinazione);
             int gen_key = getGeneratedKey(
-                    MessageFormat.format(insert_query, idEsperienza, s.getPartenza().getId(),
-                            s.getDestinazione().getId(), "'" + s.getInfoSpostamento() + "'", i++));
+                    MessageFormat.format(insert_query, idEsperienza, partenza.getId(),
+                            destinazione.getId(), "'" + s.getInfoSpostamento() + "'", i++));
+            s.setId(gen_key);
         }
     }
 

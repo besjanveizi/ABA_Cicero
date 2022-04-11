@@ -1,7 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
-import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.InfoEsperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.SimpleEsperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public class GestoreEsperienze {
 
-    private Set<IEsperienza> esperienze;
+    private Set<SimpleEsperienza> esperienze;
     private Cicerone cicerone;
     private static GestoreEsperienze instance = null;
     private static ServiceEsperienza serviceEsperienza;
@@ -31,6 +30,7 @@ public class GestoreEsperienze {
      */
     private GestoreEsperienze(Cicerone cicerone) {
         this.cicerone = cicerone;
+        serviceEsperienza = ServiceEsperienza.getInstance();
         updateEsperienze();
     }
 
@@ -40,11 +40,9 @@ public class GestoreEsperienze {
     }
 
     private void updateEsperienze() {
-        Set<IEsperienza> temp = serviceEsperienza.download(cicerone.getUID());
-        // TODO:
-        //  -> rimpiazza il set esperienze corrente con uno aggiornato dal database
-        //      esperienze.clear();
-        //      esperienze.addAll(temp);
+        esperienze = new HashSet<>();
+        Set<SimpleEsperienza> temp = serviceEsperienza.download(cicerone.getUID());
+        esperienze.addAll(temp);
     }
 
     /**
@@ -52,7 +50,7 @@ public class GestoreEsperienze {
      * @param id identificativo dell'esperienza che si cerca.
      * @return l'esperienza con l'id dato oppure null se non trovata.
      */
-    public IEsperienza getEsperienza(int id){
+    public SimpleEsperienza getEsperienza(int id){
         return esperienze.stream().filter((e) -> e.getId()==id).findFirst().orElseThrow(NullPointerException::new);
     }
 
@@ -60,23 +58,30 @@ public class GestoreEsperienze {
      * Restituisce tutte le esperienze create dal <code>Cicerone</code> associato.
      * @return collezione di tutte le esperienze create dal <code>Cicerone</code> associato.
      */
-    public Set<IEsperienza> getAllEsperienze(Predicate<IEsperienza> p) {
+    public Set<SimpleEsperienza> getAllEsperienze(Predicate<SimpleEsperienza> p) {
         return esperienze.stream().filter(p).collect(Collectors.toSet());
     }
 
     /**
-     * Aggiunge un'<code>Esperienza</code> tra quelle create dal <code>Cicerone</code>.
-     * @param infoEsperienza informazioni dell'<code>Esperienza</code>.
+     * Aggiunge un'{@code Esperienza} tra quelle create dal {@code Cicerone}.
+     * @param nomeE nome dell'esperienza.
+     * @param cicerone
+     * @param descrizioneE
+     * @param dI
+     * @param dF
+     * @param minP
+     * @param maxP
+     * @param percorso
+     * @param costoIndividuale
+     * @param maxRiserva
+     * @param chosenTags
      */
-    public void add(InfoEsperienza infoEsperienza) {
-        serviceEsperienza.upload(infoEsperienza);
-        // TODO:
-        //  -> crea una nuova entry nel db e ritorna l'id generato
-        //      int id = ServiceEsperienza.upload(infoEsperienza);
-        //  -> crea l'oggetto Esperienza passando l'id generato e infoEsperienza
-        //      Esperienza e = new SimpleEsperienza(id, infoEsperienza);
-        //  -> aggiungi la nuova istanza Esperienza al set del gestore
-        //      esperienze.add(e);
+    public void add(String nomeE, Cicerone cicerone, String descrizioneE, LocalDateTime dI, LocalDateTime dF, int minP,
+                    int maxP, Percorso percorso, Money costoIndividuale, int maxRiserva, Set<Tag> chosenTags) {
+        SimpleEsperienza e =
+                serviceEsperienza.upload(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso,
+                costoIndividuale, maxRiserva, chosenTags);
+        esperienze.add(e);
     }
 
     /**
@@ -89,10 +94,5 @@ public class GestoreEsperienze {
         //  -> cambia lo stato al database
         //      ServiceEsperienza.changeState(id, newStatus);
         //      getEsperienza(id).info().setStatus(newStatus);
-    }
-
-    public void add(String nomeE, Cicerone cicerone, String descrizioneE, LocalDateTime dI, LocalDateTime dF,
-                    int minP, int maxP, Percorso percorso, Money costoIndividuale, int maxRiserva, Set<Tag> chosenTags) {
-        SimpleEsperienza e = serviceEsperienza.upload(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso, costoIndividuale, maxRiserva, chosenTags);
     }
 }

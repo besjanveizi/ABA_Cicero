@@ -1,7 +1,9 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Attivita;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Tappa;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 public class ServiceAttivita extends AbstractService<Attivita> {
@@ -21,6 +23,12 @@ public class ServiceAttivita extends AbstractService<Attivita> {
     public List<Attivita> downloadAll(int idTappa) {
         return parseDataResult(
                 getDataResult(select_base_query + " WHERE id_tappa = " + idTappa + ";"));
+    }
+
+    public void uploadAttivitaOf(Tappa t, Attivita a) {
+        getGeneratedKey(
+                MessageFormat.format(insert_query, t.getId(), "'" + a.getNome() + "'",
+                        "'" + a.getDescrizione() + "'", a.getIndice()));
     }
 
     public static ServiceAttivita getInstance() {

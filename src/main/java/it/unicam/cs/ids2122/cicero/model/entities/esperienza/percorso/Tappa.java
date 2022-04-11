@@ -10,6 +10,7 @@ public class Tappa {
     private int id;
     private Area area;
     private List<Attivita> listAttivita;
+
     private String info;
 
     public Tappa(Area area, String info) {
@@ -18,14 +19,12 @@ public class Tappa {
         this.listAttivita = new ArrayList<>();
     }
 
-    public Tappa(int id, Area area, String info) {
-        this.id = id;
-        this.area = area;
-        this.info = info;
-    }
-
     public String getToponimo() {
         return getArea().getToponimo();
+    }
+
+    public String getInfo() {
+        return info;
     }
 
     public Area getArea() {
@@ -37,12 +36,19 @@ public class Tappa {
     }
 
     public void addAllAttivita(List<Attivita> attivitaList) {
-        if (listAttivita == null) listAttivita = new ArrayList<>();
         listAttivita.addAll(attivitaList);
     }
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id_tappa) {
+        this.id = id_tappa;
+    }
+
+    public List<Attivita> getListAttivita() {
+        return listAttivita;
     }
 
     @Override
@@ -52,13 +58,5 @@ public class Tappa {
                 +listAttivita.stream()
                 .map(Attivita::toString)
                 .collect(Collectors.toList());
-                /*+
-                "\n\tattività: " +
-                String.join("\n\t",
-                        listAttivita.stream().map(Attivita::toString).collect(Collectors.toSet()));*/
-    }
-
-    public List<Attivita> getListAttivita() {
-        return listAttivita;
     }
 }

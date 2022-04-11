@@ -40,7 +40,8 @@ public class Percorso {
         List<Tappa> tappe = getTappe();
         Set<Area> aree = new HashSet<>();
         for (Tappa t : tappe) {
-            aree.add(t.getArea());
+            Area a = t.getArea();
+            aree.add(a);
         }
         return aree;
     }

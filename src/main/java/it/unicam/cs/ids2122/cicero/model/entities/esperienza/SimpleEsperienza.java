@@ -8,6 +8,7 @@ import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -79,6 +80,8 @@ public class SimpleEsperienza implements Esperienza {
         this.status = status;
         this.dataPubblicazione = dataPubblicazione;
         this.dataTermine = dataTermine;
+
+        this.aree = new HashSet<>();
     }
 
     @Override
@@ -215,19 +218,19 @@ public class SimpleEsperienza implements Esperienza {
 
     @Override
     public String toString() {
-        return "Info dell'esperienza {" +
-                "nome: '" + getName() + '\'' +
-                ", descrizione: " + getDescrizione() +
-                ", cicerone: '" + getCiceroneCreatore().getUsername() + '\'' +
-                ", inizio: " + getDataInizio() +
-                ", conclusione: " + getDataFine() +
-                ", num. max partecipanti: " + getMaxPartecipanti() +
-                ", num. min partecipanti: " + getMinPartecipanti() +
-                ", costo per posto: " + getCostoIndividuale() +
-                ", max giorni di riserva: " + getMaxRiserva() +
-                ", tags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet()) +
-                ", toponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
-                ", postiDisponibili: " + getPostiDisponibili() +
-                '}';
+        return "---INFORMAZIONI DELL'ESPERIENZA---" +
+                "\nNome: '" + getName() + '\'' +
+                "\nDescrizione: " + getDescrizione() +
+                "\nUsername cicerone: '" + getCiceroneCreatore().getUsername() + '\'' +
+                "\nData d'inizio: " + getDataInizio() +
+                "\nData di conclusione: " + getDataFine() +
+                "\nNumero max partecipanti: " + getMaxPartecipanti() +
+                "\nNumero min partecipanti: " + getMinPartecipanti() +
+                "\nCosto per posto: " + getCostoIndividuale().getValore() + " "
+                + getCostoIndividuale().getValuta().getSymbol() +
+                "\nMassimo giorni di riserva: " + getMaxRiserva() +
+                "\ntoponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
+                "\npostiDisponibili: " + getPostiDisponibili() +
+                "\ntags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet());
     }
 }
