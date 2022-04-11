@@ -1,4 +1,5 @@
-package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
+package it.unicam.cs.ids2122.cicero.model.entities.bean;
+
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -7,7 +8,7 @@ import java.util.Objects;
 
 public final class BeanFattura implements Serializable {
 
-    private StatoPagamento statoPagamento;
+    private TipoFattura tipoFattura;
     private int id_fattura;
     private int id_prenotazione;
     private String id_client_destinatario;
@@ -19,12 +20,12 @@ public final class BeanFattura implements Serializable {
 
     public BeanFattura(){ }
 
-    public StatoPagamento getStatoPagamento() {
-        return statoPagamento;
+    public TipoFattura getStatoPagamento() {
+        return tipoFattura;
     }
 
-    public void setStatoPagamento(StatoPagamento statoPagamento) {
-        this.statoPagamento = statoPagamento;
+    public void setStatoPagamento(TipoFattura tipoFattura) {
+        this.tipoFattura = tipoFattura;
     }
 
     public int getId_fattura() {
@@ -109,7 +110,7 @@ public final class BeanFattura implements Serializable {
     @Override
     public String toString() {
         return "BeanFattura{" +
-                "statoPagamento=" + statoPagamento +
+                "statoPagamento=" + tipoFattura +
                 ", id_fattura=" + id_fattura +
                 ", id_prenotazione=" + id_prenotazione +
                 ", id_client_destinatario='" + id_client_destinatario + '\'' +

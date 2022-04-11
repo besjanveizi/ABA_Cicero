@@ -1,4 +1,5 @@
-package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
+package it.unicam.cs.ids2122.cicero.model.entities.bean;
+
 
 import java.io.Serializable;
 import java.math.BigDecimal;

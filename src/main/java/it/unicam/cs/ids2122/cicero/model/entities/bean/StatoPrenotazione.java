@@ -1,4 +1,5 @@
-package it.unicam.cs.ids2122.cicero.model.prenotazione.bean;
+package it.unicam.cs.ids2122.cicero.model.entities.bean;
+
 
 /**
  *  enumerazione per i diversi stati in cui può trovarsi una
