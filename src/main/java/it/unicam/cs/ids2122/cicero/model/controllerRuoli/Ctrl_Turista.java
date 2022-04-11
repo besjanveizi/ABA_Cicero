@@ -12,7 +12,9 @@ import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
 import java.util.stream.Collectors;
-
+/**
+ * Rappresenta un gestore radice un utente <code>Turista</code> che elabora le sue interazioni con il sistema.
+ */
 public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
     Turista utente;
@@ -243,7 +245,6 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         view.message("errore nella selezione");
 
     }
-
 
     private void impostaMenu() {
         menuItems.add("4) Prenota Esperienza");

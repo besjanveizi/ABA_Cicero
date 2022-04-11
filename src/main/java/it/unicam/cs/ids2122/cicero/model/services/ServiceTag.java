@@ -6,6 +6,7 @@ import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Singleton Service class per operazioni di persistenza riguardanti i tag.
@@ -22,6 +23,10 @@ public class ServiceTag extends AbstractService<Tag> {
     private final String insert_query = "INSERT INTO " + table_name_tags + " (" + col_names + ") " + col_values + ";";
     private final String update_query = "UPDATE " + table_name_tags + " SET stato= {0} WHERE id_tag= {1}";
 
+    private final String table_name_tags_esperienza="public.tags_esperienze";
+    private final String select_esperienza_query = "SELECT " + pk_name + " FROM " + table_name_tags_esperienza +" WHERE id_esperienza ={0};";
+
+
     private ServiceTag() {}
 
     public static ServiceTag getInstance() {
@@ -37,6 +42,16 @@ public class ServiceTag extends AbstractService<Tag> {
      */
     public Set<Tag> getTags(TagStatus status) {
         return parseDataResult(getDataResult(select_base_query + " WHERE stato = " + status.getCode() + ";"));
+    }
+
+    /**
+     * Recupera i {@code Tag} associati ad una determinata esperienza.
+     * @param id_esperienza identificativo dell'esperienza.
+     * @return {@code Set} dei {@code Tag} associati all'esperienza specificata.
+     */
+    public Set<Tag> getTags(int id_esperienza){
+        Set<Integer> idsTagsEsperienza= parseIntegerDataResult(getDataResult(MessageFormat.format(select_esperienza_query,id_esperienza)));
+        return getTags(TagStatus.APPROVATO).stream().filter(t->idsTagsEsperienza.contains(t.getId())).collect(Collectors.toSet());
     }
 
     /**
@@ -59,13 +74,21 @@ public class ServiceTag extends AbstractService<Tag> {
         return new SimpleTag(id, nome, descrizione, stato);
     }
 
+    public Set<Integer> parseIntegerDataResult(TreeMap<String, HashMap<String, String>> ids) {
+        Set<Integer> resultSet = new HashSet<>();
+        int id= 0;
+        for (Map.Entry<String, HashMap<String, String>> firstEntry : ids.entrySet()) {
+            id = Integer.parseInt(firstEntry.getKey());
+            resultSet.add(id);
+        }
+        return resultSet;
+    }
+
     @Override
     public Set<Tag> parseDataResult(TreeMap<String, HashMap<String, String>> tags) {
-
         Set<Tag> resultSet = new HashSet<>();
         int id, stato = 0;
         String nome = "", descrizione = "";
-
         for (Map.Entry<String, HashMap<String, String>> firstEntry : tags.entrySet()) {
             id = Integer.parseInt(firstEntry.getKey());
             HashMap<String, String> others = firstEntry.getValue();
@@ -81,11 +104,15 @@ public class ServiceTag extends AbstractService<Tag> {
             }
             resultSet.add(new SimpleTag(id, nome, descrizione, TagStatus.fetchStatus(stato)));
         }
-
         return resultSet;
     }
 
-    public int updateTagStatus(Tag tag,TagStatus status){
-        return getGeneratedKey(MessageFormat.format(update_query,status.getCode(),tag.getId()));
+    /**
+     * Aggiorna lo stato di un tag presente nella piattaforma.
+     * @param tag tag il cui stato sarà modificato.
+     * @param status nuovo stato da assegnare.
+     */
+    public void updateTagStatus(Tag tag,TagStatus status){
+        getGeneratedKey(MessageFormat.format(update_query,status.getCode(),tag.getId()));
     }
 }
