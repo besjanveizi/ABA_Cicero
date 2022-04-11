@@ -109,4 +109,10 @@ public class ServiceEsperienza extends AbstractService<IEsperienza> {
         }
         return resultSet;
     }
+
+    public void remove(int idEsperienza){
+        // TODO:
+        //  -> chiamata al service per effettuare la rimozione dell'esperienza
+        //      conseguente eliminazione di tutte le prenotazioni associate e avvio pratiche di rimborso, se necessario
+    }
 }

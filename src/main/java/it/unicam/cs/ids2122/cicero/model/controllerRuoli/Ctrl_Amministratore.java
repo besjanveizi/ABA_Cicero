@@ -1,11 +1,12 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
+import it.unicam.cs.ids2122.cicero.model.entities.segnalazione.Segnalazione;
+import it.unicam.cs.ids2122.cicero.model.entities.segnalazione.SegnalazioneStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
-import it.unicam.cs.ids2122.cicero.model.gestori.GestoreAree;
-import it.unicam.cs.ids2122.cicero.model.gestori.GestoreTag;
+import it.unicam.cs.ids2122.cicero.model.gestori.*;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
-import it.unicam.cs.ids2122.cicero.model.gestori.GestoreUtenti;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
@@ -40,6 +41,12 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
                 break;
             case 7:
                 gestisciUtenti();
+                break;
+            case 8:
+                gestisciSegnalazioni();
+                break;
+            case 9:
+                gestisciRimborsi();
                 break;
             default:
                 loop = super.switchMenu(scelta);
@@ -182,11 +189,39 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         }
     }
 
+    private void gestisciSegnalazioni(){
+        while(true){
+            GestoreSegnalazioni gestoreSegnalazioni= GestoreSegnalazioni.getInstance();
+            Set<Segnalazione> segnalazioni=gestoreSegnalazioni.getSegnalazioni(s->s.getState().equals(SegnalazioneStatus.PENDING));
+            Set<String> viewSet=segnalazioni.stream().map(Segnalazione::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
+            view.message("Selezionare una delle segnalazioni presenti nella piattaforma:",viewSet);
+            Integer id =Integer.parseInt(view.fetchSingleChoice(viewSet));
+            Segnalazione segnalazione= segnalazioni.stream().filter(s->s.getId()==id).findFirst().get();
+            view.message("Segnalazione scelta:\nID:"+segnalazione.getId()+"\nID esperienza:"+segnalazione.getEsperienzaId()+"\nId utente:"+segnalazione.getUId()+"\nDescrizione:"+segnalazione.getDescrizione());
+            if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la segnalazione e cancellare l'esperienza associata\n2)Rifiutare la segnalazione",2)==1) {
+                gestoreSegnalazioni.accettaSegnalazione(segnalazione);
+                view.message("Pratica di cancellazione esperienza iniziata");
+                ServiceEsperienza serviceEsperienza=ServiceEsperienza.getInstance();
+                serviceEsperienza.remove(segnalazione.getEsperienzaId());
+            }else{
+                gestoreSegnalazioni.rifiutaSegnalazione(segnalazione);
+                view.message("Segnalazione rifiutata");
+            }
+            if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Selezionare una nuova segnalazione da gestire\n2)Uscire",2)==2)break;
+        }
+    }
+
+    private void gestisciRimborsi(){
+        view.message("Area in fase di sviluppo.");
+    }
+
     private void impostaMenu() {
         menuItems.add("4) Definisci Nuova Area");
         menuItems.add("5) Definisci Nuovo Tag");
         menuItems.add("6) Gestisci Tag Proposti");
         menuItems.add("7) Gestisci utenti");
+        menuItems.add("8) Gestisci segnalazioni");
+        menuItems.add("9) Gestisci rimborsi");
     }
 }
 
