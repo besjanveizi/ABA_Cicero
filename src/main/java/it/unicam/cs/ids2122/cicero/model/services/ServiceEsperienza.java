@@ -158,10 +158,6 @@ public class ServiceEsperienza extends AbstractService<SimpleEsperienza> {
         return ciceroneAutore;
     }
 
-    public SimpleEsperienza downloadE(int i) {
-        return parseDataResult(
-                getDataResult(select_base_query + " WHERE id_esperienza = " + i + ";")).stream().findFirst().orElse(null);
-
     public void remove(int idEsperienza){
         // TODO:
         //  -> chiamata al service per effettuare la rimozione dell'esperienza
