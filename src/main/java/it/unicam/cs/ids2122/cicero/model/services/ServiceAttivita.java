@@ -26,9 +26,10 @@ public class ServiceAttivita extends AbstractService<Attivita> {
     }
 
     public void uploadAttivitaOf(Tappa t, Attivita a) {
-        getGeneratedKey(
+        int gen_key = getGeneratedKey(
                 MessageFormat.format(insert_query, t.getId(), "'" + a.getNome() + "'",
                         "'" + a.getDescrizione() + "'", a.getIndice()));
+        a.setId(gen_key);
     }
 
     public static ServiceAttivita getInstance() {
