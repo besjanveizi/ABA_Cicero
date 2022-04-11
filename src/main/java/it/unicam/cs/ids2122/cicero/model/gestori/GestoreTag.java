@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Classe che gestisce la collezione di tag presenti nella piattaforma cicero
+ * Classe che gestisce la collezione di <code>Tag</code> presenti nella piattaforma cicero
  */
 public class GestoreTag {
 
@@ -20,6 +20,9 @@ public class GestoreTag {
         updateTags();
     }
 
+    /**
+     * @return l'istanza aggiornata del gestore dei <code>Tag</code>.
+     */
     public static GestoreTag getInstance() {
         if (instance == null) instance = new GestoreTag();
         return instance;

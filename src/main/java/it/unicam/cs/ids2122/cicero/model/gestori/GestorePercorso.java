@@ -21,9 +21,14 @@ public class GestorePercorso {
     }
 
     public Percorso creaPercorso() {
+        view.message("\nCreazione del percorso dell'esperienza:");
+        int i = 1;
+        view.message("Tappa n."+i);
         Tappa partenza = creaTappa();
         while (true) {
-            String infoSpostamento = view.ask("Descrivi lo spostamento alla prossima tappa:");
+            i++;
+            String infoSpostamento = view.ask("Descrivi lo spostamento dalla tappa appena creata alla prossima tappa [opzionale]");
+            view.message("Tappa n."+i);
             Tappa destinazione = creaTappa();
             percorso.addSpostamento(partenza, destinazione, infoSpostamento);
             view.message("Vuoi inserire una tappa successiva? [Y, n]");
@@ -35,7 +40,7 @@ public class GestorePercorso {
 
     private Tappa creaTappa() {
         Area area = impostaArea();
-        String info = view.ask("Inserisci ulteriori informazioni riguardo la tappa (es. via, piazza, vicino a.., etc.)");
+        String info = view.ask("Inserisci ulteriori informazioni riguardo la tappa (es. via, piazza, vicino a.., etc.) [opzionale]");
         Tappa tappa = new Tappa(area, info);
         String nomeAttivita, descrizioneAttivita;
         int i = 1;
@@ -46,9 +51,9 @@ public class GestorePercorso {
                     view.message("Il nome inserito non è valido");
                 else break;
             }
-            descrizioneAttivita = view.ask("Inserisci una descrizione per la " + i + "° attività della tappa");
+            descrizioneAttivita = view.ask("Inserisci una descrizione per la " + i + "° attività della tappa [opzionale]");
             tappa.addAttivita(nomeAttivita, descrizioneAttivita);
-            view.message("Vuoi inserire una nuova attività per la tappa?");
+            view.message("Vuoi inserire una nuova attività per la tappa? [Y, n]");
             if (view.fetchBool()) i++;
             else break;
         }
@@ -57,7 +62,7 @@ public class GestorePercorso {
 
     private Area impostaArea() {
         Set<String> viewSet = aree.stream().map(Area::getToponimo).collect(Collectors.toSet());
-        view.message("Seleziona il toponimo per la nuova tappa", viewSet);
+        view.message("Imposta il toponimo della tappa", viewSet);
         String toponimo = view.fetchSingleChoice(viewSet);
         return aree.stream().filter(e -> Objects.equals(e.getToponimo(), toponimo)).findFirst().orElse(null);
     }

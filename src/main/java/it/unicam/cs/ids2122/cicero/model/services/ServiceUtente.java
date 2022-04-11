@@ -1,9 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
 import it.unicam.cs.ids2122.cicero.model.Piattaforma;
-import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
-import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
-import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
+import it.unicam.cs.ids2122.cicero.ruoli.*;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -21,6 +19,7 @@ public class ServiceUtente extends AbstractService<IUtente> {
     private final String col_values = "VALUES ( {0} , {1} , {2} , {3} )";
     private final String select_base_query = "SELECT " + pk_name + ", " + col_names + " FROM " + table_name;
     private final String insert_query = "INSERT INTO " + table_name + " (" + col_names + ") " + col_values + ";";
+    private final String delete_query = "DELETE FROM "+ table_name + " WHERE uid={0} ;";
 
     private ServiceUtente(){}
 
@@ -28,6 +27,11 @@ public class ServiceUtente extends AbstractService<IUtente> {
         if (instance == null)
             instance = new ServiceUtente();
         return instance;
+    }
+
+    public Optional<IUtente> getUser(int uid) {
+        return parseDataResult(
+                getDataResult(select_base_query + " WHERE uid = " + uid + ";")).stream().findFirst();
     }
 
     /**
@@ -73,6 +77,11 @@ public class ServiceUtente extends AbstractService<IUtente> {
         return fetchThroughEmail(email).isPresent();
     }
 
+    /**
+     * COntrolla se l'username dato è gia stato registrato ad un profilo.
+     * @param username username ricercato.
+     * @return {@code true} se è gia stato registrato, altrimenti false.
+     */
     public boolean isAlreadyTaken(String username) {
         return fetchThroughUsername(username).isPresent();
     }
@@ -83,7 +92,7 @@ public class ServiceUtente extends AbstractService<IUtente> {
      * @param username username dell'{@code IUtente}.
      * @param password password dell'{@code IUtente}.
      */
-    public void login(String username, String password) throws AuthenticationErrorException {
+    public void login(String username, String password) throws PersistenceErrorException {
         Set<IUtente> resultSet = parseDataResult(
                 getDataResult(select_base_query + " WHERE username = '" + username +
                                                         "' AND password = '" + password + "'"));
@@ -96,7 +105,7 @@ public class ServiceUtente extends AbstractService<IUtente> {
         }
         else {
             logger.warning("Authentication error: couldn't log in.\n");
-            throw new AuthenticationErrorException();
+            throw new PersistenceErrorException();
         }
     }
 
@@ -137,5 +146,13 @@ public class ServiceUtente extends AbstractService<IUtente> {
             resultSet.add(new UtenteAutenticato(uid, username, email, password, UtenteType.fetchUtype(user_type)));
         }
         return resultSet;
+    }
+
+    /**
+     * Effettua l'eliminazione di un utente dalla piattaforma.
+     * @param id identificativo dell'utente da eliminare.
+     */
+    public void delete(int id){
+        getGeneratedKey(MessageFormat.format(delete_query,id));
     }
 }

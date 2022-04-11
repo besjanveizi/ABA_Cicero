@@ -18,7 +18,9 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.util.stream.Collectors;
-
+/**
+ * Rappresenta un gestore radice un utente <code>Turista</code> che elabora le sue interazioni con il sistema.
+ */
 public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
 

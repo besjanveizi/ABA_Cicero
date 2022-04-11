@@ -1,7 +1,10 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
+import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.SimpleArea;
+import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
+import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -26,6 +29,20 @@ public class ServiceArea extends AbstractService<Area> {
         if (instance == null)
             instance = new ServiceArea();
         return instance;
+    }
+
+    public Area getArea(int id_area) throws PersistenceErrorException {
+        Area area;
+        Set<Area> resultSet = parseDataResult(
+                getDataResult(select_base_query + " WHERE id_area = " + id_area + ";"));
+        if (!resultSet.isEmpty()) {
+            area = resultSet.stream().findFirst().get();
+        }
+        else {
+            logger.warning("Data consistency error: couldn't find Area with id= " + id_area + ".\n");
+            throw new PersistenceErrorException();
+        }
+        return area;
     }
 
     /**

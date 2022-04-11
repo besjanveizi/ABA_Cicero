@@ -8,7 +8,7 @@ import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreAree;
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
-import it.unicam.cs.ids2122.cicero.model.services.AuthenticationErrorException;
+import it.unicam.cs.ids2122.cicero.model.services.PersistenceErrorException;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 import it.unicam.cs.ids2122.cicero.view.IView;
@@ -77,7 +77,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
                 view.message("\n--LOGIN--");
                 String username = view.ask("Inserisci lo username:");
                 String password = view.ask("Inserisci la password:");
-                try { serviceUtente.login(username, password); break; } catch (AuthenticationErrorException ignored) {}
+                try { serviceUtente.login(username, password); break; } catch (PersistenceErrorException ignored) {}
             }
         } while (true);
     }
