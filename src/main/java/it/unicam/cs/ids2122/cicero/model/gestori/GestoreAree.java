@@ -17,6 +17,10 @@ public class GestoreAree {
         updateAree();
     }
 
+    /**
+     *
+     * @return l'istanza aggiornata del gestore dei toponimi della piattaforma.
+     */
     public static GestoreAree getInstance() {
         if (instance == null)
             instance = new GestoreAree();
@@ -35,6 +39,11 @@ public class GestoreAree {
         return aree;
     }
 
+    /**
+     * aggiunge un nuovo toponimo nella piattaforma
+     * @param nome nome area
+     * @param descrizione descrizione area
+     */
     public void add(String nome, String descrizione){
         ServiceArea service=ServiceArea.getInstance();
         aree.add(service.insertArea(nome,descrizione));
