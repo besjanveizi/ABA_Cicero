@@ -2,14 +2,13 @@ package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.gestori.GestoreAutenticazione;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreRicerca;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreTag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreAree;
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
-import it.unicam.cs.ids2122.cicero.model.services.PersistenceErrorException;
-import it.unicam.cs.ids2122.cicero.model.services.ServiceUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
@@ -29,14 +28,14 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     protected List<String> menuItems;
     private GestoreRicerca gestoreRicerca;
     private Set<Esperienza> lastRicerca;
-    private ServiceUtente serviceUtente = ServiceUtente.getInstance();
     private Logger logger = Logger.getLogger(Piattaforma.class.getName());
+    private GestoreAutenticazione gestoreAutenticazione;
 
     public Ctrl_UtenteGenerico(IView<String> view) {
         this.view = view;
         menuItems = new ArrayList<>();
         impostaMenu();
-
+        gestoreAutenticazione = GestoreAutenticazione.getInstance();
         gestoreRicerca=new GestoreRicerca();
     }
 
@@ -79,7 +78,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
                 view.message("\n--LOGIN--");
                 String username = view.ask("Inserisci lo username:");
                 String password = view.ask("Inserisci la password:");
-                try { serviceUtente.login(username, password); break; } catch (PersistenceErrorException ignored) {}
+                if (gestoreAutenticazione.login(username, password)) break;
             }
         } while (true);
     }
@@ -90,7 +89,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         view.message("\n--REGISTRAZIONE--");
         do {
             email = view.ask("Inserisci l'email: ");
-            if (!serviceUtente.isAlreadySignedIn(email))
+            if (!gestoreAutenticazione.isAlreadySignedIn(email))
                 break;
             else {
                 logger.info("L'email è già registrata ad un profilo nel sistema.");
@@ -102,7 +101,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         String username;
         do {
             username = view.ask("Scegli lo username: ");
-            if (!serviceUtente.isAlreadyTaken(username))
+            if (!gestoreAutenticazione.isAlreadyTaken(username))
                 break;
             else {
                 logger.info("Lo username scelto è già registrato ad un profilo nel sistema con un'altra email.");
@@ -120,7 +119,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         UtenteType utype = UtenteType.fetchUtype(
                 view.fetchChoice("Scegli il tipo di utente:\n1) Cicerone;\n2) Turista;", 2));
 
-        serviceUtente.signIn(username, email, password, utype);
+        gestoreAutenticazione.signUp(username, email, password, utype);
     }
 
     protected void exit() {

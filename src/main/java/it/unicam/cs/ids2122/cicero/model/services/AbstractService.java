@@ -15,8 +15,20 @@ import java.util.logging.*;
  */
 public abstract class AbstractService<T> {
 
-    DBManager dbMng = DBManager.getInstance();
-    Logger logger = setupLogger();
+    protected DBManager dbMng = DBManager.getInstance();
+    protected static final Logger logger = Logger.getLogger(AbstractService.class.getName());
+    static {
+        logger.setUseParentHandlers(false);
+        ConsoleHandler ch = new ConsoleHandler();
+        ch.setLevel(Level.WARNING);
+        ch.setFormatter(new SimpleFormatter() {
+            @Override
+            public String format(LogRecord record) {
+                return record.getMessage() + "\n";
+            }
+        });
+        logger.addHandler(ch);
+    }
 
 
     public final int getGeneratedKey(String sql) {
@@ -65,20 +77,5 @@ public abstract class AbstractService<T> {
      * @return {@code Set} coeso delle informazioni del tipo dell'entit&agrave cui si riferisce il servizio.
      */
     public abstract Collection<T> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult);
-
-    private Logger setupLogger() {
-        logger = Logger.getLogger(AbstractService.class.getName());
-        logger.setUseParentHandlers(false);
-        ConsoleHandler ch = new ConsoleHandler();
-        ch.setLevel(Level.WARNING);
-        ch.setFormatter(new SimpleFormatter() {
-            @Override
-            public String format(LogRecord record) {
-                return record.getMessage() + "\n";
-            }
-        });
-        logger.addHandler(ch);
-        return logger;
-    }
 
 }
