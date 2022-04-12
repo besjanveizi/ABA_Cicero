@@ -1,3 +1,5 @@
+
+
 plugins {
     id 'java'
     id 'application'
@@ -31,4 +33,3 @@ run {
 
 application {
     mainClassName = 'it.unicam.cs.ids2122.cicero.Demo'
-}
