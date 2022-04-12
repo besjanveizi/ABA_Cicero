@@ -2,7 +2,7 @@ package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.Bacheca;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
-import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
@@ -66,13 +66,13 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             beanPrenotazione = seleziona_prenotazione(StatoPrenotazione.PAGATA);
         }
         view.message(" elaborazione richiesta di rimborso... ");
-            IEsperienza iEsperienza = null;
+            Esperienza iEsperienza = null;
         final BeanPrenotazione finalBeanPrenotazione = beanPrenotazione;
         BeanFattura beanFattura = GestorePagamenti.getInstance((Turista) utente).getEffettuati()
                     .stream()
                     .filter(f-> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione()).findFirst().get();
 
-           if(iEsperienza.info().getStatus().equals(EsperienzaStatus.IDLE) || iEsperienza.info().getStatus().equals(EsperienzaStatus.VALIDA) ){
+           if(iEsperienza.getStatus().equals(EsperienzaStatus.IDLE) || iEsperienza.getStatus().equals(EsperienzaStatus.VALIDA) ){
                view.message("rimborso accettato");
                GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
                GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanFattura);
@@ -115,10 +115,10 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
     private void invitaEsperienza() {
        view.message("invita");
 
-       IEsperienza esperienza = seleziona_esperienza();
+       Esperienza esperienza = seleziona_esperienza();
 
        if(esperienza!=null){
-           int posti = esperienza.info().getPostiDisponibili();
+           int posti = esperienza.getPostiDisponibili();
 
            view.message("posti disponibili:  " + posti);
            view.message("Continuare y/n ?");
@@ -138,9 +138,9 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
 
 
     private void prenotaEsperienza() {
-         IEsperienza esperienza = seleziona_esperienza();
+         Esperienza esperienza = seleziona_esperienza();
             if (esperienza != null) {
-                int posti = esperienza.info().getPostiDisponibili();
+                int posti = esperienza.getPostiDisponibili();
                 view.message("posti attualmente disponibili: " + posti);
 
                 if (posti < 0) {
@@ -157,7 +157,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                         else view.message("riprova");
                     }
 
-                    view.message("costo totale: " + esperienza.info().getCostoIndividuale().op_multi(String.valueOf(posti_scelti)));
+                    view.message("costo totale: " + esperienza.getCostoIndividuale().op_multi(String.valueOf(posti_scelti)));
                     view.message("confermare prenotazione [y/n]");
 
                     boolean flag = view.fetchBool();
@@ -266,13 +266,13 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
     }
 
 
-    private IEsperienza seleziona_esperienza() {
+    private Esperienza seleziona_esperienza() {
         while(true){
             try {
                 view.message("=====ESPERIENZE DISPONIBILI=====");
                 Bacheca.getInstance().getAllEsperienze().stream().forEach(esperienza -> view.message(esperienza.toString()));
                 view.message("=====SELEZIONA INDICE=====");
-                return Bacheca.getInstance().getAllIEsperienze().stream().collect(Collectors.toList()).get(view.fetchInt());
+                return Bacheca.getInstance().getAllEsperienze().stream().collect(Collectors.toList()).get(view.fetchInt());
             }catch (IndexOutOfBoundsException e){
                 e.printStackTrace();
             }

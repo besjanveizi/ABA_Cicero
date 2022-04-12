@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import com.google.common.collect.Sets;
-import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
@@ -52,18 +52,18 @@ public final class GestorePrenotazioni {
      * @param propEsperienza
      * @param posti_prenotati
      */
-    public BeanPrenotazione crea_prenotazione(IEsperienza propEsperienza, int posti_prenotati){
+    public BeanPrenotazione crea_prenotazione(Esperienza propEsperienza, int posti_prenotati){
         BeanPrenotazione beanPrenotazione = new BeanPrenotazione(
-                propEsperienza.info().getDataInizio(),
-                propEsperienza.info().getMaxGiorniRiserva(), posti_prenotati,
-                propEsperienza.info().getCostoIndividuale().getValore(),
-                propEsperienza.info().getCostoIndividuale().getValuta().toString());
+                propEsperienza.getDataInizio(),
+                propEsperienza.getMaxRiserva(), posti_prenotati,
+                propEsperienza.getCostoIndividuale().getValore(),
+                propEsperienza.getCostoIndividuale().getValuta().toString());
         beanPrenotazione.setID_turista(utente_corrente.getUID());
         beanPrenotazione.setStatoPrenotazione(StatoPrenotazione.RISERVATA);
         ServicePrenotazione.getInstance().insert(beanPrenotazione);
         prenotazioni.add(beanPrenotazione);
-        propEsperienza.info().cambiaPostiDisponibili(-posti_prenotati);
-        ServiceDisponibilita.getInstance().update(propEsperienza.info().getPostiDisponibili(), propEsperienza.getId() );
+        propEsperienza.cambiaPostiDisponibili('-', posti_prenotati);
+        ServiceDisponibilita.getInstance().update(propEsperienza.getPostiDisponibili(), propEsperienza.getId() );
         return beanPrenotazione;
     }
 

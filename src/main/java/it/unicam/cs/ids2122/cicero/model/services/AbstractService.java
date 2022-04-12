@@ -1,12 +1,11 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
-import it.unicam.cs.ids2122.cicero.persistence.PGManager;
+import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.*;
 
@@ -16,7 +15,7 @@ import java.util.logging.*;
  */
 public abstract class AbstractService<T> {
 
-    PGManager dbMng = PGManager.getInstance();
+    DBManager dbMng = DBManager.getInstance();
     Logger logger = setupLogger();
 
 
@@ -25,7 +24,7 @@ public abstract class AbstractService<T> {
         Connection conn = null;
         try {
             conn = dbMng.connect();
-            key = dbMng.insert(conn, sql);
+            key = dbMng.executeGeneralDML(conn, sql);
         } catch (SQLException e) {
             logger.severe("Connection failed");
             e.printStackTrace();

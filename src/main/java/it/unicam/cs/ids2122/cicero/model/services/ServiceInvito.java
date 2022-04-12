@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
-import it.unicam.cs.ids2122.cicero.persistence.PGManager;
+import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -31,7 +31,7 @@ public final class ServiceInvito extends AbstractService<BeanInvito> {
     public void insert(BeanInvito beanInvito){
         Connection connection = null;
         try{
-            connection = PGManager.getInstance().connect();
+            connection = DBManager.getInstance().connect();
             PreparedStatement preparedStatement = connection.prepareStatement(sql_insert, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, beanInvito.getId_mittente());
             preparedStatement.setInt(2, beanInvito.getId_esperienza());
@@ -62,7 +62,7 @@ public final class ServiceInvito extends AbstractService<BeanInvito> {
         String query = "delete from public.inviti where id_invito="+id_invito+";";
         Connection connection = null;
         try{
-            connection = PGManager.getInstance().connect();
+            connection = DBManager.getInstance().connect();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {

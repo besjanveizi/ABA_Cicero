@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model;
 
 import it.unicam.cs.ids2122.cicero.model.controllerRuoli.*;
-import it.unicam.cs.ids2122.cicero.persistence.PGManager;
+import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 import it.unicam.cs.ids2122.cicero.ruoli.*;
 import it.unicam.cs.ids2122.cicero.view.CLIView;
 import it.unicam.cs.ids2122.cicero.view.IView;
@@ -16,7 +16,7 @@ public class Piattaforma {
 
     private Piattaforma()  {
         setupLogger();
-        PGManager.getInstance().testConnection();
+        DBManager.getInstance().testConnection();
     }
 
     public static Piattaforma getInstance() {

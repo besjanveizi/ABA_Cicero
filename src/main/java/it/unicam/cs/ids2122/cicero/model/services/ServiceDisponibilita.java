@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
 
-import it.unicam.cs.ids2122.cicero.persistence.PGManager;
+import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +33,7 @@ public final class ServiceDisponibilita {
         Connection connection = null;
         try{
             connection.setAutoCommit(false);
-            PreparedStatement preparedStatement = PGManager.getInstance().connect().prepareStatement(sql_update);
+            PreparedStatement preparedStatement = DBManager.getInstance().connect().prepareStatement(sql_update);
             preparedStatement.setInt(1, posti);
             preparedStatement.setInt(2, id_esperienza);
             preparedStatement.executeUpdate();
@@ -54,7 +54,7 @@ public final class ServiceDisponibilita {
         Connection connection = null;
         int posti_disponibili = -1;
         try{
-            PreparedStatement preparedStatement = PGManager.getInstance().connect().prepareStatement(sql_select);
+            PreparedStatement preparedStatement = DBManager.getInstance().connect().prepareStatement(sql_select);
             preparedStatement.setInt(1, id_esperienza);
             ResultSet resultSet = preparedStatement.executeQuery();
             resultSet.next();

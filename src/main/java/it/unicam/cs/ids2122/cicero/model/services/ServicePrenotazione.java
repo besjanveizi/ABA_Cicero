@@ -2,7 +2,7 @@ package it.unicam.cs.ids2122.cicero.model.services;
 
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
-import it.unicam.cs.ids2122.cicero.persistence.PGManager;
+import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -40,7 +40,7 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
     public void insert(BeanPrenotazione prenotazione){
         Connection connection = null;
         try{
-            connection = PGManager.getInstance().connect();
+            connection = DBManager.getInstance().connect();
             PreparedStatement preparedStatement = connection.prepareStatement(sql_insert, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, prenotazione.getID_esperienza());
             preparedStatement.setInt(2, prenotazione.getID_turista());
@@ -78,7 +78,7 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
     public void update(String sql){
         Connection connection = null;
         try{
-            connection = PGManager.getInstance().connect();
+            connection = DBManager.getInstance().connect();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
         }catch (SQLException sqlException){

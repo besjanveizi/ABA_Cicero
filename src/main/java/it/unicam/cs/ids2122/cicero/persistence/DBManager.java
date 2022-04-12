@@ -1,17 +1,14 @@
 package it.unicam.cs.ids2122.cicero.persistence;
 
-import it.unicam.cs.ids2122.cicero.model.Piattaforma;
-import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
-import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
-
 import java.sql.*;
+import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.logging.*;
 
+/**
+ * Rappresenta il gestore del database.
+ */
 public class DBManager {
-
-    private static DBManager instance;
-    private Connection connection;
-    private Logger logger;
 
     private final static String uri = SystemConstraints.DB_URI;
     private final static String host = SystemConstraints.DB_HOST;
@@ -20,27 +17,36 @@ public class DBManager {
     private final static String dbUser = SystemConstraints.DB_USER;
     private final static String dbPass = SystemConstraints.DB_PASS;
 
-    private DBManager() throws SQLException {
-         setupLogger();
-         connect();
+    private static DBManager instance = null;
+    private Logger logger;
+
+    private DBManager() {
+        setupLogger();
     }
 
-    public static DBManager getInstance() throws SQLException {
-         if (instance == null)
-             instance = new DBManager();
-         return instance;
+    public static DBManager getInstance() {
+        if (instance == null)
+            instance = new DBManager();
+        return instance;
     }
 
-    private void connect() throws SQLException {
+    /**
+     * Esegue un test della connessione al database e riporta il risultato nella console.
+     */
+    public void testConnection() {
+        Connection conn = null;
         try {
-            Connection connection = DriverManager
-                            .getConnection(uri + "://" + host + ":" + port + "/" + dbName, dbUser, dbPass);
+            conn = connect();
             logger.info("Successfully connected to '" + dbName + "'. Ready to go!\n");
-            connection.close();
         } catch (SQLException e) {
             logger.severe("Connection failed\n");
-            connection.close();
-            throw e;
+            e.printStackTrace();
+        } finally {
+            try {
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -48,87 +54,83 @@ public class DBManager {
         logger = Logger.getLogger(DBManager.class.getName());
         logger.setUseParentHandlers(false);
         ConsoleHandler ch = new ConsoleHandler();
-        ch.setLevel(Level.ALL);
+        ch.setLevel(Level.SEVERE);
         ch.setFormatter(new SimpleFormatter() {
             @Override
             public String format(LogRecord record) {
-                return record.getMessage();
+                return record.getMessage() + "\n";
             }
         });
         logger.addHandler(ch);
     }
 
-    public void login(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM utenti_registrati WHERE username = '" + username + "' AND password = '" + password + "'";
-        try (Connection connection = DriverManager
-                .getConnection(uri + "://" + host + ":" + port + "/" + dbName, dbUser, dbPass)) {
-            Statement statement;
-            ResultSet resultSet;
-            UtenteAutenticato utenteAutenticato;
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql);
-            if (resultSet != null && resultSet.next()) {
-                utenteAutenticato = new UtenteAutenticato(resultSet.getInt("uid"), resultSet.getString("username"),
-                        resultSet.getString("email"), "password",
-                        tipoUtente(resultSet.getInt("user_type")));
-                Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
-            }
+    /**
+     * Esegue {@code INSERT}, {@code UPDATE} e {@code DELETE} statements.
+     * @param conn connessione al database.
+     * @param sql query statement.
+     * @return la chiave primaria generata dall'esecuzione della query.
+     */
+    public int executeGeneralDML(Connection conn, String sql) {
+        int genKey = 0;
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = conn.createStatement();
+            stmt.executeUpdate(sql,Statement.RETURN_GENERATED_KEYS);
+            rs = stmt.getGeneratedKeys();
+            rs.next();
+            genKey = rs.getInt(1);
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+            try { if (stmt != null) stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
-
-    }
-
-    private UtenteType tipoUtente(int tipo){
-        switch (tipo){
-            case 1 : return UtenteType.CICERONE;
-            case 2: return UtenteType.TURISTA;
-            case 0: return UtenteType.ADMIN;
-            default: return null;
-        }
+        return genKey;
     }
 
     /**
-     * si connette al database per inserire la query di tipo select
-     * @param sql query preparata
-     * @return il <code>{@link ResultSet}</code>
+     * Esegue il {@code SELECT} statement.
+     * @param conn connessione al database.
+     * @param sql query statement.
+     * @return {@code TreeMap} che contiene ogni chiave primaria associata al {@code HashMap} delle altre
+     * colonne associate ai corrispettivi valori.<br>
+     * Tutti gli elementi sono memorizzati come stringe, pertanto bisogna fare l'analisi per ottenere
+     * un insieme coeso di ciascuna entry selezionata dalla query.
      */
-    public ResultSet select_query(String sql) {
-        try{
-            Statement statement = connection.createStatement();
-            return statement.executeQuery(sql);
-        } catch (SQLException sqlException) {
-            process_exception(sqlException);
-            return null;
+    public TreeMap<String, HashMap<String,String>> select(Connection conn, String sql) {
+
+        TreeMap<String, HashMap<String, String>> selectDataResult = new TreeMap<>();
+        String[] columns = sql
+                .replace(" ","")
+                .replace("SELECT", "")
+                .split("FROM")[0]
+                .split(",");
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                HashMap<String,String> eachResult = new HashMap<>();
+                for (int i = 1; i < columns.length; i++) {
+                    eachResult.put(columns[i], rs.getString(i+1));
+                }
+                selectDataResult.put(rs.getString(1),eachResult);
+            }
+
+        } catch(SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+            try { if (stmt != null) stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
+
+        return selectDataResult;
     }
 
-
-    /**
-     * si connette al database per inserire la query di tipo update, delete, insert
-     * @param sql query preparata
-     * @return una chiave generata se questa viene generata
-     */
-    public int insert_update_delete_query(String sql)  {
-        try{
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(sql,Statement.RETURN_GENERATED_KEYS);
-            ResultSet resultSet = statement.getGeneratedKeys();
-            resultSet.next();
-            return resultSet.getInt(1);
-        } catch (SQLException throwable) {
-            process_exception(throwable);
-            return -1;
-        }
-    }
-
-    /**
-     * log delle informazioni sul fallimento della query
-     *
-     * @param sqlException info su <code>SQLException</code>
-     */
-    private void process_exception(SQLException sqlException){
-        logger.log(Level.SEVERE, sqlException.getMessage());
-        logger.log(Level.SEVERE, sqlException.getSQLState());
+    public final Connection connect() throws SQLException {
+        return DriverManager.getConnection(uri + "://" + host + ":" + port + "/" + dbName, dbUser, dbPass);
     }
 }

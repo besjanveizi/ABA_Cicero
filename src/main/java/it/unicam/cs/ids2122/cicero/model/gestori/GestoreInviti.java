@@ -1,7 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
 
-import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceDisponibilita;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceInvito;
@@ -37,17 +37,17 @@ public final class GestoreInviti {
      * @param esperienza l' esperienza selezionata
      * @param mail_invitato mail del destinatario
      */
-    public void crea_invito(IEsperienza esperienza, String mail_invitato, int posti_riservati){
-      BeanInvito beanInvito = new BeanInvito(esperienza.info().getDataInizio(),esperienza.info().getMaxGiorniRiserva());
+    public void crea_invito(Esperienza esperienza, String mail_invitato, int posti_riservati){
+      BeanInvito beanInvito = new BeanInvito(esperienza.getDataInizio(),esperienza.getMaxRiserva());
       beanInvito.setPosti_riservati(posti_riservati);
       beanInvito.setEmail_destinatario(mail_invitato);
       beanInvito.setId_esperienza(esperienza.getId());
-      beanInvito.setImporto(esperienza.info().getCostoIndividuale().op_multi(String.valueOf(posti_riservati)));
-      beanInvito.setValuta(esperienza.info().getCostoIndividuale().getValuta().toString());
+      beanInvito.setImporto(esperienza.getCostoIndividuale().op_multi(String.valueOf(posti_riservati)));
+      beanInvito.setValuta(esperienza.getCostoIndividuale().getValuta().toString());
       ServiceInvito.getInstance().insert(beanInvito);
 
-      esperienza.info().cambiaPostiDisponibili(-posti_riservati);
-      ServiceDisponibilita.getInstance().update(esperienza.info().getPostiDisponibili(),esperienza.getId());
+      esperienza.cambiaPostiDisponibili('-', posti_riservati);
+      ServiceDisponibilita.getInstance().update(esperienza.getPostiDisponibili(),esperienza.getId());
 
     }
 

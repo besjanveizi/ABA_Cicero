@@ -2,7 +2,6 @@ package it.unicam.cs.ids2122.cicero.model;
 
 
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
-import it.unicam.cs.ids2122.cicero.model.entities.esperienza.IEsperienza;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 
 import java.util.*;
@@ -32,10 +31,5 @@ public class Bacheca implements IBacheca {
     @Override
     public Set<Esperienza> getAllEsperienze() {
         return esperienze;
-    }
-
-    @Override
-    public Set<IEsperienza> getAllIEsperienze() {
-        return null;
     }
 }

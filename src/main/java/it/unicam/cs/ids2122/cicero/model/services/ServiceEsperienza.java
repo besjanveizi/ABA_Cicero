@@ -1,6 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.SimpleEsperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
@@ -15,7 +16,7 @@ import java.util.*;
 /**
  * Singleton Service class per operazioni di persistenza riguardanti le esperienze.
  */
-public class ServiceEsperienza extends AbstractService<SimpleEsperienza> {
+public class ServiceEsperienza extends AbstractService<Esperienza> {
 
     private static ServiceEsperienza instance = null;
 
@@ -42,7 +43,7 @@ public class ServiceEsperienza extends AbstractService<SimpleEsperienza> {
      * @param idCicerone id del {@code Cicerone}.
      * @return {@code Set} delle esperienze.
      */
-    public Set<SimpleEsperienza> download(int idCicerone) {
+    public Set<Esperienza> download(int idCicerone) {
         return parseDataResult(
                 getDataResult(select_base_query + " WHERE uid_cicerone = " + idCicerone + ";"));
     }
@@ -51,7 +52,7 @@ public class ServiceEsperienza extends AbstractService<SimpleEsperienza> {
      * Recupera tutte le esperienze salvate nella piattaforma.
      * @return {@code Set} delle esperienze.
      */
-    public Set<SimpleEsperienza> download() {
+    public Set<Esperienza> download() {
         return parseDataResult(
                 getDataResult(select_base_query + ";"));
     }
@@ -71,7 +72,7 @@ public class ServiceEsperienza extends AbstractService<SimpleEsperienza> {
      * @param chosenTags tag selezionati per l'esperienza
      * @return l'esperienza
      */
-    public SimpleEsperienza upload(String nomeE, Cicerone cicerone, String descrizioneE, LocalDateTime dI,
+    public Esperienza upload(String nomeE, Cicerone cicerone, String descrizioneE, LocalDateTime dI,
                                    LocalDateTime dF, int minP, int maxP, Percorso percorso, Money costoIndividuale,
                                    int maxRiserva, Set<Tag> chosenTags) {
 
@@ -95,8 +96,8 @@ public class ServiceEsperienza extends AbstractService<SimpleEsperienza> {
     }
 
     @Override
-    public Set<SimpleEsperienza> parseDataResult(TreeMap<String, HashMap<String, String>> esperienze) {
-        Set<SimpleEsperienza> resultSet = new HashSet<>();
+    public Set<Esperienza> parseDataResult(TreeMap<String, HashMap<String, String>> esperienze) {
+        Set<Esperienza> resultSet = new HashSet<>();
         int idEsperienza, uidCicerone = 0, maxPartecipanti = 0, minPartecipanti = 0, maxRiserva = 0, postiDisponibili = 0;
         String nome = "", descrizione = "";
         LocalDateTime dataPubblicazione = null, dataInizio = null, dataFine = null, dataTermine = null;
@@ -138,7 +139,7 @@ public class ServiceEsperienza extends AbstractService<SimpleEsperienza> {
             Percorso percorso = ServiceSpostamento.getInstance().downloadPercorso(idEsperienza);
             Set<Tag> tags = ServiceTag.getInstance().downloadTagsOf(idEsperienza);
 
-            SimpleEsperienza esperienza = new SimpleEsperienza(idEsperienza, nome, ciceroneAutore, descrizione,
+            Esperienza esperienza = new SimpleEsperienza(idEsperienza, nome, ciceroneAutore, descrizione,
                     dataInizio, dataFine, maxPartecipanti, minPartecipanti, percorso, costo,
                     maxRiserva, tags, postiDisponibili, stato, dataPubblicazione, dataTermine);
             resultSet.add(esperienza);
