@@ -171,4 +171,13 @@ public class ServiceEsperienza extends AbstractService<Esperienza> {
                 getDataResult(select_base_query + " WHERE id_esperienza = " + id + ";")).iterator().next();
     }
 
+    /**
+     * Modifica lo stato dell'{@code Esperienza} corrispondente all'identificativo dato, nel nuovo stato dato.
+     * @param id identificativo dell'{@code Esperienza}.
+     * @param newStatus nuovo stato dell'{@code Esperienza}.
+     */
+    public void updateStatus(int id, EsperienzaStatus newStatus) {
+        getGeneratedKey("UPDATE public.esperienze SET stato =" + newStatus +
+                " WHERE id_esperienza=" + id +" ;");
+    }
 }
