@@ -14,11 +14,8 @@ import java.util.stream.Collectors;
  * Rappresenta il gestore del processo di ricerca di esperienze pubblicate sulla piattaforma Cicero
  */
 public class GestoreRicerca {
-    private final IBacheca bacheca;
 
-    public GestoreRicerca(){
-        bacheca = Bacheca.getInstance();
-    }
+    public GestoreRicerca(){ }
 
     /**
      * Effettua la ricerca di esperienze applicando i filtri passati
@@ -28,11 +25,13 @@ public class GestoreRicerca {
      * @return Set di esperienze trovate
      */
     public Set<Esperienza> ricerca(String filtroNome, Set<Tag> filtroTags, Set<Area> filtroAree){
+        Bacheca bacheca = Bacheca.getInstance();
         Set<Esperienza> allEsperienze = bacheca.getAllEsperienze();
         Set<Esperienza> esperienzeFiltrate = new HashSet<>();
-        esperienzeFiltrate.addAll(filterByNome(allEsperienze,filtroNome));
-        esperienzeFiltrate.addAll(filterByTags(esperienzeFiltrate,filtroTags));
-        esperienzeFiltrate.addAll(filterByToponimi(esperienzeFiltrate,filtroAree));
+        if(filtroNome.isEmpty() && filtroAree.isEmpty() && filtroTags.isEmpty())return allEsperienze;
+        if(!filtroNome.isEmpty()) esperienzeFiltrate.addAll(filterByNome(allEsperienze,filtroNome));
+        if(!filtroTags.isEmpty()) esperienzeFiltrate.addAll(filterByTags(allEsperienze,filtroTags));
+        if(!filtroAree.isEmpty()) esperienzeFiltrate.addAll(filterByToponimi(allEsperienze,filtroAree));
         return esperienzeFiltrate;
     }
 
@@ -41,7 +40,7 @@ public class GestoreRicerca {
     }
 
     private Set<Esperienza> filterByTags(Set<Esperienza> esperienze, Set<Tag> filtroTags){
-        return esperienze.stream().filter(e -> e.getTags().stream().anyMatch(filtroTags::contains)).collect(Collectors.toSet());
+            return esperienze.stream().filter(e -> e.getTags().stream().anyMatch(filtroTags::contains)).collect(Collectors.toSet());
     }
 
     private Set<Esperienza> filterByToponimi(Set<Esperienza> esperienze, Set<Area> filtroAree){

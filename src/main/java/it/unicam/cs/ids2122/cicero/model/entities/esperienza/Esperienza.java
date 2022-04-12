@@ -141,4 +141,9 @@ public interface Esperienza {
      * @param numeroPosti numero dei posti da sottrarre o aggiungere.
      */
     void cambiaPostiDisponibili(char simbolo, int numeroPosti);
+
+    /**
+     * Restituisce informazioni basilari dell'esperienza sotto forma di stringa.
+     */
+    String shortToString();
 }
