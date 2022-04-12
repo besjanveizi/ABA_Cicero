@@ -41,7 +41,8 @@ public final class ServiceInvito extends AbstractService<BeanInvito> {
             preparedStatement.setInt(6, beanInvito.getPosti_riservati());
             preparedStatement.setBigDecimal(7,beanInvito.getImporto() );
             preparedStatement.setString(8, beanInvito.getValuta());
-            ResultSet resultSet = preparedStatement.executeQuery();
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
             resultSet.next();
             beanInvito.setId_invito(resultSet.getInt(1));
              } catch (SQLException e) {
@@ -92,7 +93,7 @@ public final class ServiceInvito extends AbstractService<BeanInvito> {
         for (Map.Entry<String, HashMap<String, String>> firstEntry : dataResult.entrySet()) {
 
             BeanInvito beanInvito = new BeanInvito();
-            beanInvito.setId_invito(Integer.parseInt(dataResult.firstKey()));
+            beanInvito.setId_invito(Integer.parseInt(firstEntry.getKey()));
 
             HashMap<String, String> others = firstEntry.getValue();
             for (Map.Entry<String, String> secondEntry : others.entrySet()) {

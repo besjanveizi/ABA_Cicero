@@ -165,4 +165,10 @@ public class ServiceEsperienza extends AbstractService<Esperienza> {
         //      conseguente eliminazione di tutte le prenotazioni associate e avvio pratiche di rimborso, se necessario
 
     }
+
+    public Esperienza getEsperienza(int id){
+        return parseDataResult(
+                getDataResult(select_base_query + " WHERE id_esperienza = " + id + ";")).iterator().next();
+    }
+
 }

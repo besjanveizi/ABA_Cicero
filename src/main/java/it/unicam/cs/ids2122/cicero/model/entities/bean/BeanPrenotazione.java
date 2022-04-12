@@ -64,12 +64,17 @@ public final class BeanPrenotazione implements Serializable {
     public BeanPrenotazione(){}
 
     public BeanPrenotazione(LocalDateTime data_inizio_esperienza, int maxGiorniRiserva,int posti, BigDecimal importo, String valuta){
+
         this.scadenza = LocalDateTime.now().plus(maxGiorniRiserva, ChronoUnit.DAYS).truncatedTo(ChronoUnit.HOURS);
+
         if(scadenza.isAfter(data_inizio_esperienza)){
             this.scadenza = data_inizio_esperienza;
         }
+
+        this.posti = posti;
         this.prezzo_totale = importo.multiply(BigDecimal.valueOf(posti));
         this.valuta = valuta;
+        this.data_prenotazione = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
     }
 
 
@@ -168,12 +173,14 @@ public final class BeanPrenotazione implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BeanPrenotazione that = (BeanPrenotazione) o;
-        return getID_prenotazione() == that.getID_prenotazione();
+        return getID_prenotazione() == that.getID_prenotazione() &&
+                getID_esperienza() == that.getID_esperienza() &&
+                getID_turista() == that.getID_turista();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getID_prenotazione());
+        return Objects.hash(getID_prenotazione(), getID_esperienza(), getID_turista());
     }
 
     @Override

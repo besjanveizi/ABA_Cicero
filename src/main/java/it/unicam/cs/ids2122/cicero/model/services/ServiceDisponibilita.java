@@ -3,12 +3,12 @@ package it.unicam.cs.ids2122.cicero.model.services;
 
 import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.TreeMap;
 
-public final class ServiceDisponibilita {
+public final class ServiceDisponibilita  {
 
     private static ServiceDisponibilita serviceDisponibilita = null;
 
@@ -20,9 +20,9 @@ public final class ServiceDisponibilita {
         }return serviceDisponibilita;
     }
 
-    private String sql_update = "UPDATE public.esperienze SET posti_disponibili= ? WHERE id_esperienza= ? ;";
+    private String sql_update = "UPDATE public.esperienze SET posti_disponibili=? WHERE id_esperienza=? ;";
 
-    private String sql_select = "SELECT posti_disponibili FROM public.esperienze WHERE id_esperienza= ? ";
+    private String sql_select = "SELECT posti_disponibili FROM public.esperienze WHERE id_esperienza=? ";
 
     /**
      *
@@ -32,12 +32,11 @@ public final class ServiceDisponibilita {
     public void update(int posti, int id_esperienza){
         Connection connection = null;
         try{
-            connection.setAutoCommit(false);
-            PreparedStatement preparedStatement = DBManager.getInstance().connect().prepareStatement(sql_update);
+            connection = DBManager.getInstance().connect();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql_update, Statement.NO_GENERATED_KEYS);
             preparedStatement.setInt(1, posti);
             preparedStatement.setInt(2, id_esperienza);
             preparedStatement.executeUpdate();
-            connection.commit();
         }catch (SQLException e){
             e.printStackTrace();
         }finally {
@@ -54,7 +53,8 @@ public final class ServiceDisponibilita {
         Connection connection = null;
         int posti_disponibili = -1;
         try{
-            PreparedStatement preparedStatement = DBManager.getInstance().connect().prepareStatement(sql_select);
+            connection = DBManager.getInstance().connect();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql_select);
             preparedStatement.setInt(1, id_esperienza);
             ResultSet resultSet = preparedStatement.executeQuery();
             resultSet.next();
@@ -70,4 +70,6 @@ public final class ServiceDisponibilita {
         }
         return posti_disponibili;
     }
+
+
 }

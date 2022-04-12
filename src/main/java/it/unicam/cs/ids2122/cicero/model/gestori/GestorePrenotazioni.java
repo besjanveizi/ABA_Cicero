@@ -6,12 +6,16 @@ import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceDisponibilita;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceInvito;
 import it.unicam.cs.ids2122.cicero.model.services.ServicePrenotazione;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class GestorePrenotazioni {
 
@@ -29,13 +33,15 @@ public final class GestorePrenotazioni {
 
     private GestorePrenotazioni(Turista iUtente) {
         utente_corrente = iUtente;
+        prenotazioni = new HashSet<>();
         carica();
     }
 
     public static GestorePrenotazioni getInstance(Turista iUtente)  {
         if(gestorePrenotazioni ==null){
             gestorePrenotazioni = new GestorePrenotazioni(iUtente);
-        }return gestorePrenotazioni;
+        }
+        return gestorePrenotazioni;
     }
 
     /**
@@ -52,7 +58,7 @@ public final class GestorePrenotazioni {
      * @param propEsperienza
      * @param posti_prenotati
      */
-    public BeanPrenotazione crea_prenotazione(Esperienza propEsperienza, int posti_prenotati){
+    public void crea_prenotazione(Esperienza propEsperienza, int posti_prenotati){
         BeanPrenotazione beanPrenotazione = new BeanPrenotazione(
                 propEsperienza.getDataInizio(),
                 propEsperienza.getMaxRiserva(), posti_prenotati,
@@ -60,11 +66,14 @@ public final class GestorePrenotazioni {
                 propEsperienza.getCostoIndividuale().getValuta().toString());
         beanPrenotazione.setID_turista(utente_corrente.getUID());
         beanPrenotazione.setStatoPrenotazione(StatoPrenotazione.RISERVATA);
+        beanPrenotazione.setID_esperienza(propEsperienza.getId());
+
         ServicePrenotazione.getInstance().insert(beanPrenotazione);
         prenotazioni.add(beanPrenotazione);
+
         propEsperienza.cambiaPostiDisponibili('-', posti_prenotati);
+
         ServiceDisponibilita.getInstance().update(propEsperienza.getPostiDisponibili(), propEsperienza.getId() );
-        return beanPrenotazione;
     }
 
     /**
@@ -78,13 +87,14 @@ public final class GestorePrenotazioni {
         beanPrenotazione.setID_turista(utente_corrente.getUID());
         beanPrenotazione.setStatoPrenotazione(StatoPrenotazione.RISERVATA);
         beanPrenotazione.setScadenza(invito_ricevuto.getData_scadenza_riserva());
-        beanPrenotazione.setData_prenotazione(LocalDateTime.now());
+        beanPrenotazione.setData_prenotazione(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
         beanPrenotazione.setPrezzo_totale(invito_ricevuto.getImporto());
         beanPrenotazione.setValuta(invito_ricevuto.getValuta());
         beanPrenotazione.setID_esperienza(invito_ricevuto.getId_esperienza());
+        beanPrenotazione.setPosti(invito_ricevuto.getPosti_riservati());
         ServicePrenotazione.getInstance().insert(beanPrenotazione);
         prenotazioni.add(beanPrenotazione);
-        // non c' modifica dell'esperienza
+        ServiceInvito.getInstance().delete(invito_ricevuto.getId_invito());
     }
 
 
@@ -95,6 +105,8 @@ public final class GestorePrenotazioni {
      */
     public void modifica_stato(BeanPrenotazione beanPrenotazione, StatoPrenotazione nuovo_stato){
         ServicePrenotazione.getInstance().update(beanPrenotazione.getID_prenotazione(), nuovo_stato);
+        beanPrenotazione.setStatoPrenotazione(nuovo_stato);
+
         if(nuovo_stato.equals(StatoPrenotazione.CANCELLATA)){
             int posti = ServiceDisponibilita.getInstance().select(beanPrenotazione.getID_esperienza());
             posti = posti + beanPrenotazione.getPosti();
@@ -108,7 +120,7 @@ public final class GestorePrenotazioni {
     }
 
     public Set<BeanPrenotazione> getPrenotazioni(StatoPrenotazione filtro){
-        return Sets.filter( prenotazioni,beanPrenotazione -> beanPrenotazione.getStatoPrenotazione().equals(filtro) );
+        return prenotazioni.stream().filter(beanPrenotazione -> beanPrenotazione.getStatoPrenotazione().getN()==filtro.getN()).collect(Collectors.toSet());
     }
 
 

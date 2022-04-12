@@ -185,9 +185,10 @@ public class SimpleEsperienza implements Esperienza {
     public void cambiaPostiDisponibili(char simbolo, int numeroPosti) {
         switch (simbolo) {
             case '-':
-                postiDisponibili -= numeroPosti;
+                this.postiDisponibili = postiDisponibili - numeroPosti;break;
             case '+':
-                postiDisponibili += numeroPosti;
+                this.postiDisponibili = postiDisponibili + numeroPosti;break;
+
         }
     }
 

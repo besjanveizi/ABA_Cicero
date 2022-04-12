@@ -12,6 +12,7 @@ import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,9 +59,8 @@ public final class GestorePagamenti {
      */
     public void crea_fattura(BeanPrenotazione beanPrenotazione) {
         BeanFattura beanFattura = new BeanFattura();
-        beanFattura.setData_pagamento(LocalDateTime.now());
-        beanFattura.setPosti_pagati(beanPrenotazione.getPosti());
-        beanFattura.setImporto(beanFattura.getImporto());
+        beanFattura.setData_pagamento(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
+        beanFattura.setImporto(beanPrenotazione.getPrezzo_totale());
         beanFattura.setValuta(beanPrenotazione.getValuta());
         beanFattura.setStatoPagamento(TipoFattura.PAGAMENTO);
         beanFattura.setId_prenotazione(beanPrenotazione.getID_prenotazione());
@@ -77,9 +77,8 @@ public final class GestorePagamenti {
      */
     public void crea_fattura(BeanFattura beanFattura){
          BeanFattura newBeanFattura = new BeanFattura();
-         newBeanFattura.setData_pagamento(LocalDateTime.now());
+         newBeanFattura.setData_pagamento(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
          newBeanFattura.setStatoPagamento(TipoFattura.RIMBORSO);
-         newBeanFattura.setPosti_pagati(beanFattura.getPosti_pagati());
          newBeanFattura.setId_client_destinatario(beanFattura.getId_client_origine());
          newBeanFattura.setId_client_origine(beanFattura.getId_client_destinatario());
          newBeanFattura.setImporto(beanFattura.getImporto());
