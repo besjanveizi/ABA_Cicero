@@ -4,6 +4,7 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceDisponibilita;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceInvito;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 
@@ -44,15 +45,25 @@ public final class GestoreInviti {
       beanInvito.setId_esperienza(esperienza.getId());
       beanInvito.setImporto(esperienza.getCostoIndividuale().op_multi(String.valueOf(posti_riservati)));
       beanInvito.setValuta(esperienza.getCostoIndividuale().getValuta().toString());
+      beanInvito.setId_mittente(utente_corrente.getUID());
       ServiceInvito.getInstance().insert(beanInvito);
 
       esperienza.cambiaPostiDisponibili('-', posti_riservati);
       ServiceDisponibilita.getInstance().update(esperienza.getPostiDisponibili(),esperienza.getId());
-
     }
 
+    /**
+     * Ripristina  i posti disponibili dell esperienza una volta rifiutato l'invito.
+     * Cancella l' invito dal db.
+     *
+     * @param beanInvito
+     */
     public void rifiuta_invito(BeanInvito beanInvito) {
         ServiceInvito.getInstance().delete(beanInvito.getId_invito());
+        int attuale = ServiceDisponibilita.getInstance().select(beanInvito.getId_esperienza());
+        int nuovo = attuale + beanInvito.getPosti_riservati();
+        ServiceDisponibilita.getInstance().update(nuovo, beanInvito.getId_esperienza());
+        this.ricevuti.remove(beanInvito);
     }
 
 

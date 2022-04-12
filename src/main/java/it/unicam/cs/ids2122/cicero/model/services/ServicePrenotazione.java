@@ -13,8 +13,8 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
 
     private static ServicePrenotazione servicePrenotazione=null;
 
-    private final String sql_insert = "INSERT INTO public.prenotazioni( id_esperienza, uid_turista, " +
-            "stato_prenotazione, posti_prenotati, data_prenotazione, data_scadenza_riserva, costo_totale, valuta)" +
+    private final String sql_insert = "INSERT INTO public.prenotazioni(id_esperienza, uid_turista, stato_prenotazione," +
+            " posti_prenotati, data_prenotazione, data_scadenza_riserva, costo_totale, valuta)" +
             "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?);";
 
     private final String sql_select = "SELECT * FROM public.prenotazioni";
@@ -43,16 +43,17 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
             connection = DBManager.getInstance().connect();
             PreparedStatement preparedStatement = connection.prepareStatement(sql_insert, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, prenotazione.getID_esperienza());
-            preparedStatement.setInt(2, prenotazione.getID_turista());
+            preparedStatement.setInt( 2, prenotazione.getID_turista());
             preparedStatement.setInt(3, prenotazione.getStatoPrenotazione().getN());
             preparedStatement.setInt(4, prenotazione.getPosti());
             preparedStatement.setObject(5, prenotazione.getData_prenotazione());
             preparedStatement.setObject(6, prenotazione.getScadenza());
             preparedStatement.setBigDecimal(7, prenotazione.getPrezzo_totale());
             preparedStatement.setString(8, prenotazione.getValuta());
-            ResultSet rs = preparedStatement.executeQuery();
+            preparedStatement.executeUpdate();
+            ResultSet rs =preparedStatement.getGeneratedKeys();
             rs.next();
-            prenotazione.setID_prenotazione(rs.getInt(1));
+            prenotazione.setID_prenotazione(rs.getInt("id_prenotazione"));
         }catch (SQLException sqlException){
                     sqlException.printStackTrace();
         }finally {
@@ -67,7 +68,7 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
 
 
     public void update(int id, StatoPrenotazione statoPrenotazione){
-        String sql_update =  "SELECT * FROM public.prenotazioni SET stato_prenotazione=" + statoPrenotazione.getN() +
+        String sql_update =  "UPDATE public.prenotazioni SET stato_prenotazione=" + statoPrenotazione.getN() +
                 " WHERE id_prenotazione=" + id +" ;";
         update(sql_update);
     }
@@ -130,8 +131,8 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
     */
     private StatoPrenotazione trasformazione(int n){
         switch(n){
-            case 0 : return StatoPrenotazione.RISERVATA;
-            case 1 : return StatoPrenotazione.PAGATA;
+            case 1 : return StatoPrenotazione.RISERVATA;
+            case 0 : return StatoPrenotazione.PAGATA;
             case 2 : return StatoPrenotazione.CANCELLATA;
             default: return null;
         }
@@ -152,10 +153,11 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
     public Set<BeanPrenotazione> parseDataResult(TreeMap<String, HashMap<String, String>> arcano) {
         Set<BeanPrenotazione> resultSet = new HashSet<>();
 
+
         for (Map.Entry<String, HashMap<String, String>> firstEntry : arcano.entrySet()) {
 
             BeanPrenotazione beanPrenotazione = new BeanPrenotazione();
-            beanPrenotazione.setID_prenotazione(Integer.parseInt(arcano.firstKey()));
+            beanPrenotazione.setID_prenotazione(Integer.parseInt(firstEntry.getKey()));
 
             HashMap<String, String> others = firstEntry.getValue();
             for (Map.Entry<String, String> secondEntry : others.entrySet()) {

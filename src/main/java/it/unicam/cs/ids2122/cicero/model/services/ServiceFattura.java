@@ -3,11 +3,13 @@ package it.unicam.cs.ids2122.cicero.model.services;
 
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.TipoFattura;
+import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 
+import java.beans.Beans;
+import java.math.BigDecimal;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.TreeMap;
+import java.time.LocalDateTime;
+import java.util.*;
 
 
 public final class ServiceFattura extends AbstractService<BeanFattura> {
@@ -15,7 +17,7 @@ public final class ServiceFattura extends AbstractService<BeanFattura> {
     private static ServiceFattura  serviceFattura = null;
 
     private final String sql_insert = "INSERT INTO public.fatture( id_prenotazione, id_client_origine, id_client_destinatario, " +
-            "data_pagamento, importo, valuta, tipo_fattura, posti_pagati) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?);";
+            "data_pagamento, importo, valuta, tipo_fattura) VALUES ( ?, ?, ?, ?, ?, ?, ?);";
 
 
     private ServiceFattura(){
@@ -30,13 +32,13 @@ public final class ServiceFattura extends AbstractService<BeanFattura> {
 
     /**
      * "INSERT INTO public.fatture( id_prenotazione, id_client_origine, id_client_destinatario, " +
-     *             "data_pagamento, importo, valuta, stato_fattura, posti_pagati) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?);";
+     *             "data_pagamento, importo, valuta, stato_fattura) VALUES ( ?, ?, ?, ?, ?, ?, ?);";
      * @param fattura
      */
     public void insert(BeanFattura fattura){
         Connection connection = null;
         try{
-            connection.setAutoCommit(false);
+            connection = DBManager.getInstance().connect();
             PreparedStatement preparedStatement = connection.prepareStatement(sql_insert, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, fattura.getId_prenotazione());
             preparedStatement.setString(2, fattura.getId_client_origine());
@@ -44,10 +46,11 @@ public final class ServiceFattura extends AbstractService<BeanFattura> {
             preparedStatement.setObject(4, fattura.getData_pagamento());
             preparedStatement.setBigDecimal(5, fattura.getImporto());
             preparedStatement.setString(6,fattura.getValuta());
-            ResultSet resultSet = preparedStatement.executeQuery();
+            preparedStatement.setInt(7, fattura.getStatoPagamento().getTipo());
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
             resultSet.next();
             fattura.setId_fattura(resultSet.getInt(1));
-            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
@@ -62,7 +65,7 @@ public final class ServiceFattura extends AbstractService<BeanFattura> {
 
 
     private String colonne = "id_fattura, id_prenotazione, id_client_origine, id_client_destinatario, data_pagamento, " +
-            "importo, valuta, tipo_fattura, posti_pagati";
+            "importo, valuta, tipo_fattura";
 
     private String sql_select_base = "SELECT " + colonne + " FROM public.fatture";
 
@@ -74,7 +77,29 @@ public final class ServiceFattura extends AbstractService<BeanFattura> {
 
     @Override
     public Set<BeanFattura> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult) {
-        return null;
+        Set<BeanFattura> resultSet = new HashSet<>();
+
+        for (Map.Entry<String, HashMap<String, String>> firstEntry: dataResult.entrySet()) {
+            BeanFattura beanFattura = new BeanFattura();
+            beanFattura.setId_fattura(Integer.parseInt(firstEntry.getKey()));
+            for (Map.Entry<String,String> secondEntry: firstEntry.getValue().entrySet()) {
+                String key = secondEntry.getKey();
+                String val = secondEntry.getValue();
+                switch (key){
+                    case "id_prenotazione": beanFattura.setId_prenotazione(Integer.parseInt(val)); break;
+                    case "id_client_origine": beanFattura.setId_client_origine(val);break;
+                    case "id_client_destinatario": beanFattura.setId_client_destinatario(val);break;
+                    case "data_pagamento": beanFattura.setData_pagamento(LocalDateTime.parse(val.replace(' ', 'T')));break;
+                    case "importo": beanFattura.setImporto(new BigDecimal(val)); break;
+                    case "valuta": beanFattura.setValuta(val);break;
+                    case "tipo_fattura": beanFattura.setStatoPagamento(trasformazione(Integer.parseInt(val)));break;
+                    default: break;
+                }
+                resultSet.add(beanFattura);
+            }
+
+        }
+        return resultSet;
     }
 
     private TipoFattura trasformazione(int stato){

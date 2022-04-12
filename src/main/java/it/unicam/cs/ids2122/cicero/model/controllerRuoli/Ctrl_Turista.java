@@ -10,6 +10,7 @@ import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreInviti;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestorePagamenti;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestorePrenotazioni;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
@@ -17,6 +18,7 @@ import it.unicam.cs.ids2122.cicero.view.IView;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Set;
 import java.util.stream.Collectors;
 /**
  * Rappresenta un gestore radice un utente <code>Turista</code> che elabora le sue interazioni con il sistema.
@@ -95,6 +97,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             boolean accetta = view.fetchBool();
             if(accetta){
                 GestorePrenotazioni.getInstance((Turista) utente).crea_prenotazione(beanInvito);
+
                 view.message("prenotazione effettuata");
             }else {
                 view.message("cancellare invito? [y/n] ");
@@ -109,7 +112,11 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         if(beanInvito == null){
             beanInvito = seleziona_invito();
         }
-        GestoreInviti.getInstance((Turista) utente).rifiuta_invito(beanInvito);
+        if(beanInvito!=null){
+            GestoreInviti.getInstance((Turista) utente).rifiuta_invito(beanInvito);
+        }
+        view.message("nessun invito disponibile");
+
     }
 
     private void invitaEsperienza() {
@@ -128,7 +135,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                view.message("inserire il numero di posti");
                int posti_inseriti = view.fetchInt();
                if(posti_inseriti>0 && posti_inseriti<= posti){
-                   GestoreInviti.getInstance((Turista) utente).crea_invito(esperienza, mail_invitato, posti);
+                   GestoreInviti.getInstance((Turista) utente).crea_invito(esperienza, mail_invitato, posti_inseriti);
                    view.message("invio spedito");
                }
            }
@@ -163,7 +170,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                     boolean flag = view.fetchBool();
                     if (flag) {
                         view.message("confermata, creazione prenotazione...");
-                        GestorePrenotazioni.getInstance((Turista) utente).crea_prenotazione(esperienza, posti);
+                        GestorePrenotazioni.getInstance((Turista) utente).crea_prenotazione(esperienza, posti_scelti);
                     } else {
                         view.message("prenotazione annullata");
                         view.message("uscita");
@@ -183,14 +190,15 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         if(beanPrenotazione == null){
              beanPrenotazione = seleziona_prenotazione(StatoPrenotazione.RISERVATA);
         }
-            if (GestorePrenotazioni.getInstance((Turista) utente).getPrenotazioni().size() > 0){
+        if (beanPrenotazione!=null){
                 view.message(beanPrenotazione.toString());
                 view.message(" avviare il pagamento? [y/n] ");
                 if (view.fetchBool()) {
                     stub_mod_pagamento();
                     GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanPrenotazione);
+                    GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(beanPrenotazione, StatoPrenotazione.PAGATA);
                 }
-            }view.message("nessuna prenotazione presente");
+        }view.message("nessuna prenotazione presente");
     }
 
 
@@ -216,20 +224,27 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
 
     private void cancellaPrenotazione_riservata() {
         BeanPrenotazione ref = seleziona_prenotazione(StatoPrenotazione.RISERVATA);
+        if(ref==null){
+            view.message("nessuna prenotazione disponibile");
+        }else {
             view.message(ref.toString());
             view.message("confermare y/n");
             boolean flag = view.fetchBool();
             if (flag) {
-                GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(ref,StatoPrenotazione.CANCELLATA);
+                GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(ref, StatoPrenotazione.CANCELLATA);
                 view.message("ok!");
             } else {
                 view.message("la prenotazione non è stata cancellata");
                 view.message("uscita");
             }
+        }
     }
 
     private void cancellaPrenotazione_pagata(){
         BeanPrenotazione ref = seleziona_prenotazione(StatoPrenotazione.PAGATA);
+        if(ref==null){
+            view.message("nessuna prenotazione disponibile");
+        }else {
             view.message(ref.toString());
             view.message("confermare y/n");
             boolean flag = view.fetchBool();
@@ -240,6 +255,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                 view.message("la prenotazione non è stata cancellata");
                 view.message("uscita");
             }
+        }
     }
 
     private void impostaMenu() {
@@ -249,6 +265,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         menuItems.add("7) Gestisci Inviti");
         menuItems.add("8) Annulla Prenotazione riservata");
         menuItems.add("9) Annulla Prenotazione pagata");
+        menuItems.add("10) Richiedi Rimborso");
 
     }
 
@@ -256,11 +273,13 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         while(true){
             try {
                 view.message("=====PRENOTAZIONI DISPONIBILI===== STATO --> "+ statoPrenotazione);
-                GestorePrenotazioni.getInstance((Turista) utente).getPrenotazioni(statoPrenotazione);
-                view.message("=====SELEZIONA INDICE======");
-                return GestorePrenotazioni.getInstance((Turista) utente).getPrenotazioni().stream().collect(Collectors.toList()).get(view.fetchInt());
+               Set<BeanPrenotazione> view_p = GestorePrenotazioni.getInstance((Turista) utente).getPrenotazioni(statoPrenotazione);
+               if(view_p.isEmpty()) return null;
+                 view.message("=====SELEZIONA INDICE======");
+                return view_p.stream().peek(System.out::println).collect(Collectors.toList()).get(view.fetchInt());
             }catch (IndexOutOfBoundsException e){
                 e.printStackTrace();
+
             }
         }
     }
@@ -283,6 +302,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         while(true){
             try {
                 view.message("===== INVITI RICEVUTI=====");
+                if(GestoreInviti.getInstance((Turista) utente).getRicevuti().isEmpty()) return null;
                 GestoreInviti.getInstance((Turista) utente).getRicevuti().forEach(beanInvito -> view.message(beanInvito.toString()));
                 view.message("=====SELEZIONA INVITO=====");
                 return GestoreInviti.getInstance((Turista) utente).getRicevuti().stream().collect(Collectors.toList()).get(view.fetchInt());

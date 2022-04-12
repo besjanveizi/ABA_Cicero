@@ -4,6 +4,7 @@ package it.unicam.cs.ids2122.cicero.model.entities.bean;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public final class BeanFattura implements Serializable {
@@ -15,10 +16,11 @@ public final class BeanFattura implements Serializable {
     private String id_client_origine;
     private BigDecimal importo;
     private LocalDateTime data_pagamento;
-    private int posti_pagati;
     private String valuta;
 
-    public BeanFattura(){ }
+    public BeanFattura(){
+
+    }
 
     public TipoFattura getStatoPagamento() {
         return tipoFattura;
@@ -76,14 +78,6 @@ public final class BeanFattura implements Serializable {
         this.data_pagamento = data_pagamento;
     }
 
-    public int getPosti_pagati() {
-        return posti_pagati;
-    }
-
-    public void setPosti_pagati(int posti_pagati) {
-        this.posti_pagati = posti_pagati;
-    }
-
     public String getValuta() {
         return valuta;
     }
@@ -117,7 +111,6 @@ public final class BeanFattura implements Serializable {
                 ", id_client_origine='" + id_client_origine + '\'' +
                 ", importo=" + importo +
                 ", data_pagamento=" + data_pagamento +
-                ", posti_pagati=" + posti_pagati +
                 ", valuta='" + valuta + '\'' +
                 '}';
     }

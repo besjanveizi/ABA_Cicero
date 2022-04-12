@@ -5,6 +5,7 @@ import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Classe singleton che rappresenta una bacheca globale nella piattaforma cicero.
@@ -30,6 +31,7 @@ public class Bacheca implements IBacheca {
 
     @Override
     public Set<Esperienza> getAllEsperienze() {
+        esperienze = esperienze.stream().filter(Esperienza::isAvailable).collect(Collectors.toSet());
         return esperienze;
     }
 }

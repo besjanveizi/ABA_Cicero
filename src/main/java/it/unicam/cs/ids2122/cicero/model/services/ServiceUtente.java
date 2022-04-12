@@ -102,6 +102,7 @@ public class ServiceUtente extends AbstractService<IUtente> {
                                                                         utente.getEmail(), utente.getPassword(),
                                                                         utente.getType());
             Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
+            System.out.println(utenteAutenticato.toString());
         }
         else {
             logger.warning("Authentication error: couldn't log in.\n");
