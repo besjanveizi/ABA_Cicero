@@ -3,10 +3,11 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
+import it.unicam.cs.ids2122.cicero.model.entities.rimborso.RimborsoStatus;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceRimborso;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 
@@ -38,4 +39,8 @@ public final class GestoreRimborsi {
     }
 
 
+
+    public void crea_rimborso( BeanFattura beanFattura, String motivo) {
+        ServiceRimborso.getInstance().insertRichiestaRimborso(beanFattura.getId_fattura(), motivo, RimborsoStatus.PENDING);
+    }
 }

@@ -75,7 +75,8 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                 GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
                 GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanFattura);
             } else {
-                // TODO...continua?
+                String motivo = view.ask("inserire motivazione rimborso");
+                GestoreRimborsi.getInstance((Turista) utente).crea_rimborso(beanFattura,motivo);
             }
         }view.message("nessuna prenotazione pagata da rimborsare");
     }
