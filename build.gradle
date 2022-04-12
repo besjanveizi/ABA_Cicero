@@ -1,5 +1,8 @@
+
+
 plugins {
     id 'java'
+    id 'application'
 }
 
 sourceCompatibility = 11
@@ -22,4 +25,12 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+run {
+    standardInput = System.in
+}
+
+application {
+    mainClassName = 'it.unicam.cs.ids2122.cicero.Demo'
 }
