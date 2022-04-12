@@ -8,13 +8,11 @@ import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
 import it.unicam.cs.ids2122.cicero.model.gestori.*;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.Rimborso;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 import it.unicam.cs.ids2122.cicero.view.IView;
-
 
 import java.util.Optional;
 import java.util.Set;
@@ -164,7 +162,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
                 done=true;
             }
         }
-        view.message("Vuoi confermare la proposta del toponimo '"+nome+"' con descrizione '"+descrizione+"'?");
+        view.message("Vuoi confermare la definizione del toponimo '"+nome+"' con descrizione '"+descrizione+"'?");
         if(view.fetchBool()){
             gestoreAree.add(nome,descrizione);
             view.message("il toponimo '"+nome+"' è stato aggiunto alla collezione di tag della piattaforma.");
@@ -196,6 +194,10 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         while(true){
             GestoreSegnalazioni gestoreSegnalazioni= GestoreSegnalazioni.getInstance();
             Set<Segnalazione> segnalazioni=gestoreSegnalazioni.getSegnalazioni(s->s.getState().equals(SegnalazioneStatus.PENDING));
+            if(segnalazioni.isEmpty()){
+                view.message("Non sono presenti segnalazioni nella piattaforma.");
+                break;
+            }
             Set<String> viewSet=segnalazioni.stream().map(Segnalazione::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
             view.message("Selezionare una delle segnalazioni presenti nella piattaforma:",viewSet);
             Integer id =Integer.parseInt(view.fetchSingleChoice(viewSet));
@@ -218,6 +220,10 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         while(true){
             GestoreRimborso gestoreRimborso= GestoreRimborso.getInstance();
             Set<RichiestaRimborso> richieste=gestoreRimborso.getRichiesteRimborso(s->s.getState().equals(RimborsoStatus.PENDING));
+            if(richieste.isEmpty()){
+                view.message("Non sono presenti richieste di rimborso nella piattaforma.");
+                break;
+            }
             Set<String> viewSet=richieste.stream().map(RichiestaRimborso::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
             view.message("Selezionare una delle richieste di rimborso presenti nella piattaforma:",viewSet);
             Integer id =Integer.parseInt(view.fetchSingleChoice(viewSet));
@@ -226,7 +232,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la richiesta di rimborso\n2)Rifiutare la richiesta di rimborso",2)==1) {
                 gestoreRimborso.accettaRichiestaRimborso(richiesta);
                 view.message("Pratica di rimborso iniziata");
-
             }else{
                 gestoreRimborso.rifiutaRichiestaRimborso(richiesta);
                 view.message("Richiesta di rimborso rifiutata");

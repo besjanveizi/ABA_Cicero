@@ -136,7 +136,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
                     "Il numero max di riserva è stato impostato al valore minimo di default: 2");
         else maxRiserva = tempVal;
 
-        Set<Tag> chosenTags;
+        Set<Tag> chosenTags=new HashSet<>();
         while (true){
             chosenTags = impostaTags();
             if (chosenTags.isEmpty())

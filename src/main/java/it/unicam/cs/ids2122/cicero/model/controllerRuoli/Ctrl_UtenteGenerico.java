@@ -162,17 +162,20 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
     }
 
     private void showEsperienzeTrovate(Set<Esperienza> esperienze){
-        Set<String> esperienzeShort = esperienze.stream().map(Esperienza::toString).collect(Collectors.toSet());
-        view.message("Esperienze trovate:",esperienzeShort);
-        /*
-        view.message("Vuoi selezionare una specifica esperienza?");
-        if(view.fetchBool()){
-            while(true){
-                String nome=view.ask("Inserire il nome dell'esperienza di cui si vogliono visualizzare i dettagli: ");
-                //...
+        Set<String> esperienzeShort = esperienze.stream().map(Esperienza::shortToString).collect(Collectors.toSet());
+        if(esperienzeShort.isEmpty()){
+            view.message("Non sono state trovate esperienze che rientrano nei filtri imposti per la ricerca.");
+        }else{
+            view.message("Esperienze trovate:",esperienzeShort);
+            view.message("Vuoi selezionare una specifica esperienza?");
+            if(view.fetchBool()){
+                Set<String> viewSet=esperienze.stream().map(Esperienza::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
+                view.message("Selezionare l'ID dell'esperienza desiderata.",viewSet);
+                Integer chosenId=Integer.parseInt(view.fetchSingleChoice(viewSet));
+                Esperienza esperienza=esperienze.stream().filter(e->e.getId()==chosenId).findFirst().get();
+                view.message("Esperienza selezionata:\n"+esperienza.toString());
             }
         }
-         */
     }
 
     private void impostaMenu() {

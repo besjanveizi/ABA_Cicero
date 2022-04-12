@@ -1,5 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.entities.tag;
 
+import java.util.Objects;
+
 /**
  * Semplice implementazione di un {@code Tag}.
  */
@@ -49,5 +51,18 @@ public class SimpleTag implements Tag {
                 ", descrizione='" + descrizione + '\'' +
                 ", status=" + status +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimpleTag simpleTag = (SimpleTag) o;
+        return id == simpleTag.id && name.equals(simpleTag.name) && descrizione.equals(simpleTag.descrizione) && status == simpleTag.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, descrizione, status);
     }
 }

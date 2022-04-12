@@ -154,6 +154,7 @@ public class ServiceTag extends AbstractService<Tag> {
             int lastIndex = insert_query.length();
             insert_query = insert_query.substring(0, lastIndex-2);
             int genKey = getGeneratedKey(insert_query);
+            insert_query = "INSERT INTO " + table_name + " (" + pk_T + ", " + pk_E + ") VALUES ";
         }
 
         @Override
