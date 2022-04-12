@@ -21,6 +21,11 @@ public class Money {
         this.valuta = Currency.getInstance(currency);
     }
 
+    public Money(BigDecimal valore, Currency valuta) {
+        this.valore = valore;
+        this.valuta = valuta;
+    }
+
     public Currency getValuta() {
         return valuta;
     }
