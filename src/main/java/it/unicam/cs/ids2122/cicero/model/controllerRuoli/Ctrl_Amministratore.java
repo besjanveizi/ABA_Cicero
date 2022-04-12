@@ -8,7 +8,6 @@ import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
 import it.unicam.cs.ids2122.cicero.model.gestori.*;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
-import it.unicam.cs.ids2122.cicero.model.prenotazione.bean.Rimborso;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
