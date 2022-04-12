@@ -138,6 +138,9 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
         }
     }
 
+    public Set<BeanPrenotazione> getPrenotazioniOfEsperienza(int idEsperienza) {
+        return parseDataResult( getDataResult(sql_select_base + " WHERE id_esperienza=" + idEsperienza +";" ));
+    }
 
     public Set<BeanPrenotazione> sql_select(int id){
         return parseDataResult( getDataResult(sql_select_base + " WHERE uid_turista=" + id +";" ));

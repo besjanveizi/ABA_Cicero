@@ -1,10 +1,13 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
+import it.unicam.cs.ids2122.cicero.model.services.ServicePrenotazione;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
 
@@ -83,16 +86,16 @@ public class GestoreEsperienze {
         esperienze.add(e);
     }
 
-    /**
-     * Modifica lo stato dell'{@code Esperienza} corrispondente all'identificativo dato, nel nuovo stato dato.
-     * @param id identificativo dell'{@code Esperienza}.
-     * @param newStatus nuovo stato dell'{@code Esperienza}.
-     */
-    public void updateStatus(int id, EsperienzaStatus newStatus) {
-        // TODO:
-        //  -> cambia lo stato al database
-        //      ServiceEsperienza.changeState(id, newStatus);
-        //      getEsperienza(id).info().setStatus(newStatus);
+    public Set<BeanPrenotazione> getPrenotazioni(Esperienza e) {
+        return ServicePrenotazione.getInstance().getPrenotazioniOfEsperienza(e.getId());
     }
 
+    public void cancellaEsperienza(Esperienza e, Set<BeanPrenotazione> prenotazioni) {
+        serviceEsperienza.updateStatus(e.getId(), EsperienzaStatus.CANCELLATA);
+        for (BeanPrenotazione p : prenotazioni) {
+            if (p.getStatoPrenotazione() == StatoPrenotazione.PAGATA)
+                // TODO: rimborsa la prenotazione e annulla i biglietti
+            ServicePrenotazione.getInstance().update(p.getID_prenotazione(), StatoPrenotazione.CANCELLATA);
+        }
+    }
 }
