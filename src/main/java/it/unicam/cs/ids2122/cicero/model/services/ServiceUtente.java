@@ -115,12 +115,12 @@ public class ServiceUtente extends AbstractService<IUtente> {
      * @param email email dell'utente.
      * @param password password dell'utente.
      * @param uType {@link UtenteType} dell'utente da registrare.
+     * @return l'utente appena autenticato.
      */
-    public void signIn(String username, String email, String password, UtenteType uType) {
+    public UtenteAutenticato signIn(String username, String email, String password, UtenteType uType) {
         int uid = getGeneratedKey(MessageFormat.format(insert_query, "'"+username+"'", "'"+email+"'",
                                                                     "'"+password+"'", uType.getCode()));
-            UtenteAutenticato utenteAutenticato = new UtenteAutenticato(uid, username, email, password, uType);
-            Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
+            return new UtenteAutenticato(uid, username, email, password, uType);
     }
 
     @Override

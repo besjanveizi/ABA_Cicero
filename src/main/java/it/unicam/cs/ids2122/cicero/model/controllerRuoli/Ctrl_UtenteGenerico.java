@@ -36,6 +36,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         this.view = view;
         menuItems = new ArrayList<>();
         impostaMenu();
+
         gestoreRicerca=new GestoreRicerca();
     }
 
