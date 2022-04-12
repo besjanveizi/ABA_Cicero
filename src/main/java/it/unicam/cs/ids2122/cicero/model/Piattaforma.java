@@ -13,6 +13,7 @@ public class Piattaforma {
     private static Piattaforma instance;
     private static Ctrl_Utente ctrl_utente;
     private IView<String> cli_view;
+    private Logger logger;
 
     private Piattaforma()  {
         setupLogger();
@@ -56,7 +57,7 @@ public class Piattaforma {
     }
 
     private void setupLogger() {
-        Logger logger = Logger.getLogger(Piattaforma.class.getName());
+        logger = Logger.getLogger(Piattaforma.class.getName());
         logger.setUseParentHandlers(false);
         ConsoleHandler ch = new ConsoleHandler();
         ch.setLevel(Level.INFO);

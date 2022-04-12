@@ -5,6 +5,7 @@ import it.unicam.cs.ids2122.cicero.ruoli.*;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Singleton Service class per operazioni di persistenza riguardanti gli utenti.
@@ -50,7 +51,7 @@ public class ServiceUtente extends AbstractService<IUtente> {
      * @return un'{@code Optional} che descrive l'{@link IUtente} cercato,
      * altrimenti un {@code Optional} vuoto se la ricerca dello username nel database non ha avuto successo.
      */
-    private Optional<IUtente> fetchThroughUsername(String username) {
+    public Optional<IUtente> fetchThroughUsername(String username) {
         return parseDataResult(
                 getDataResult(select_base_query + " WHERE username = '" + username + "';"))
                 .stream().findFirst();
@@ -62,28 +63,10 @@ public class ServiceUtente extends AbstractService<IUtente> {
      * @return un'{@code Optional} che descrive l'{@link IUtente} cercato,
      * altrimenti un {@code Optional} vuoto se la ricerca dell'email nel database non ha avuto successo.
      */
-    private Optional<IUtente> fetchThroughEmail(String email) {
+    public Optional<IUtente> fetchThroughEmail(String email) {
         return parseDataResult(
                 getDataResult(select_base_query + " WHERE email = '" + email + "';"))
                 .stream().findFirst();
-    }
-
-    /**
-     * Controlla se l'email data &egrave gi&agrave stata registrata ad un profilo.
-     * @param email email ricercata.
-     * @return {@code true} se &egrave gi&agrave stata registrata, altrimenti false.
-     */
-    public boolean isAlreadySignedIn(String email) {
-        return fetchThroughEmail(email).isPresent();
-    }
-
-    /**
-     * COntrolla se l'username dato è gia stato registrato ad un profilo.
-     * @param username username ricercato.
-     * @return {@code true} se è gia stato registrato, altrimenti false.
-     */
-    public boolean isAlreadyTaken(String username) {
-        return fetchThroughUsername(username).isPresent();
     }
 
     /**
@@ -92,17 +75,15 @@ public class ServiceUtente extends AbstractService<IUtente> {
      * @param username username dell'{@code IUtente}.
      * @param password password dell'{@code IUtente}.
      */
-    public void login(String username, String password) throws PersistenceErrorException {
+    public UtenteAutenticato download(String username, String password) throws PersistenceErrorException {
         Set<IUtente> resultSet = parseDataResult(
                 getDataResult(select_base_query + " WHERE username = '" + username +
                                                         "' AND password = '" + password + "'"));
         if (!resultSet.isEmpty()) {
             IUtente utente = resultSet.stream().findFirst().get();
-            UtenteAutenticato utenteAutenticato = new UtenteAutenticato(utente.getUID(), utente.getUsername(),
+            return new UtenteAutenticato(utente.getUID(), utente.getUsername(),
                                                                         utente.getEmail(), utente.getPassword(),
                                                                         utente.getType());
-            Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
-            System.out.println(utenteAutenticato.toString());
         }
         else {
             logger.warning("Authentication error: couldn't log in.\n");
@@ -116,12 +97,13 @@ public class ServiceUtente extends AbstractService<IUtente> {
      * @param email email dell'utente.
      * @param password password dell'utente.
      * @param uType {@link UtenteType} dell'utente da registrare.
+     * @return l'utente appena autenticato.
      */
-    public void signIn(String username, String email, String password, UtenteType uType) {
+    public UtenteAutenticato upload(String username, String email, String password, UtenteType uType) {
         int uid = getGeneratedKey(MessageFormat.format(insert_query, "'"+username+"'", "'"+email+"'",
                                                                     "'"+password+"'", uType.getCode()));
-            UtenteAutenticato utenteAutenticato = new UtenteAutenticato(uid, username, email, password, uType);
-            Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
+        System.out.println(">>>>>>"+uid);
+        return new UtenteAutenticato(uid, username, email, password, uType);
     }
 
     @Override

@@ -18,7 +18,7 @@ public class ServiceSegnalazione extends AbstractService<Segnalazione>{
     private final String col_values = "VALUES ( {0} , {1} , {2} , {3} )";
     private final String select_base_query = "SELECT " + pk_name + ", " + col_names + " FROM " + table_name_segnalazioni;
     private final String insert_query = "INSERT INTO " + table_name_segnalazioni + " (" + col_names + ") " + col_values + ";";
-    private final String update_query = "UPDATE " + table_name_segnalazioni + " SET stato= {0} WHERE id_segnalazione= {1}";
+    private final String update_query = "UPDATE " + table_name_segnalazioni + " SET stato= {0} WHERE "+pk_name+"= {1}";
 
     private static ServiceSegnalazione instance = null;
 
@@ -62,7 +62,7 @@ public class ServiceSegnalazione extends AbstractService<Segnalazione>{
      * @param uid identificativo dell'utente.
      * @param descrizione stringa contenente il testo della segnalazioni.
      * @param stato stato della segnalazione.
-     * @return
+     * @return Segnalazione generata.
      */
     public Segnalazione insertSegnalazione(int id_esperienza, int uid, String descrizione, SegnalazioneStatus stato){
         int id = getGeneratedKey(MessageFormat.format(insert_query, id_esperienza, uid , "'"+descrizione+"'", stato.getCode()));

@@ -1,5 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
+import it.unicam.cs.ids2122.cicero.model.entities.rimborso.RichiestaRimborso;
+import it.unicam.cs.ids2122.cicero.model.entities.rimborso.RimborsoStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.segnalazione.Segnalazione;
 import it.unicam.cs.ids2122.cicero.model.entities.segnalazione.SegnalazioneStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
@@ -212,7 +214,24 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     }
 
     private void gestisciRimborsi(){
-        view.message("Area in fase di sviluppo.");
+        while(true){
+            GestoreRimborso gestoreRimborso= GestoreRimborso.getInstance();
+            Set<RichiestaRimborso> richieste=gestoreRimborso.getRichiesteRimborso(s->s.getState().equals(RimborsoStatus.PENDING));
+            Set<String> viewSet=richieste.stream().map(RichiestaRimborso::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
+            view.message("Selezionare una delle richieste di rimborso presenti nella piattaforma:",viewSet);
+            Integer id =Integer.parseInt(view.fetchSingleChoice(viewSet));
+            RichiestaRimborso richiesta= richieste.stream().filter(s->s.getId()==id).findFirst().get();
+            view.message("Richiesta di rimborso scelta:\nID:"+richiesta.getId()+"\nID della fattura:"+richiesta.getIdFattura()+"\nMotivazione richiesta:"+richiesta.getMotivoRichiesta());
+            if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la richiesta di rimborso\n2)Rifiutare la richiesta di rimborso",2)==1) {
+                gestoreRimborso.accettaRichiestaRimborso(richiesta);
+                view.message("Pratica di rimborso iniziata");
+
+            }else{
+                gestoreRimborso.rifiutaRichiestaRimborso(richiesta);
+                view.message("Richiesta di rimborso rifiutata");
+            }
+            if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Selezionare una nuova richiesta di rimborso da gestire\n2)Uscire",2)==2)break;
+        }
     }
 
     private void impostaMenu() {
