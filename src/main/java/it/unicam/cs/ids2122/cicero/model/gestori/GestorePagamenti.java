@@ -77,7 +77,7 @@ public final class GestorePagamenti {
      */
     public void crea_fattura(BeanFattura beanFattura){
          BeanFattura newBeanFattura = new BeanFattura();
-         newBeanFattura.setData_pagamento(LocalDateTime.now());
+         newBeanFattura.setData_pagamento(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
          newBeanFattura.setStatoPagamento(TipoFattura.RIMBORSO);
          newBeanFattura.setId_client_destinatario(beanFattura.getId_client_origine());
          newBeanFattura.setId_client_origine(beanFattura.getId_client_destinatario());

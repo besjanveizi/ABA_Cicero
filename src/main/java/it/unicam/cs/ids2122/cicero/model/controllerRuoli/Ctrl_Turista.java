@@ -1,16 +1,12 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.Bacheca;
-import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
-import it.unicam.cs.ids2122.cicero.model.gestori.GestoreInviti;
-import it.unicam.cs.ids2122.cicero.model.gestori.GestorePagamenti;
-import it.unicam.cs.ids2122.cicero.model.gestori.GestorePrenotazioni;
-import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
+import it.unicam.cs.ids2122.cicero.model.gestori.*;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
@@ -19,6 +15,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 /**
  * Rappresenta un gestore radice un utente <code>Turista</code> che elabora le sue interazioni con il sistema.
@@ -67,23 +65,19 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         if(beanPrenotazione== null) {
             beanPrenotazione = seleziona_prenotazione(StatoPrenotazione.PAGATA);
         }
-        view.message(" elaborazione richiesta di rimborso... ");
-            Esperienza iEsperienza = null;
-        final BeanPrenotazione finalBeanPrenotazione = beanPrenotazione;
-        BeanFattura beanFattura = GestorePagamenti.getInstance((Turista) utente).getEffettuati()
+        if(beanPrenotazione!=null) {
+            view.message(" elaborazione richiesta di rimborso... ");
+            final BeanPrenotazione finalBeanPrenotazione = beanPrenotazione;
+            BeanFattura beanFattura = GestorePagamenti.getInstance((Turista) utente).getEffettuati()
                     .stream()
-                    .filter(f-> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione()).findFirst().get();
-
-           if(iEsperienza.getStatus().equals(EsperienzaStatus.IDLE) || iEsperienza.getStatus().equals(EsperienzaStatus.VALIDA) ){
-               view.message("rimborso accettato");
-               GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
-               GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanFattura);
-           }else{
-               view.message("rimborso automatico rifiutato");
-               view.message("richiedere rimborso manuale?");
-               //...
-           }
-
+                    .filter(f -> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione()).findFirst().get();
+            if (GestoreRimborsi.getInstance((Turista) utente).rimborsa(beanPrenotazione)) {
+                GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
+                GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanFattura);
+            } else {
+                // TODO...continua?
+            }
+        }view.message("nessuna prenotazione pagata da rimborsare");
     }
 
 
@@ -275,8 +269,12 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                 view.message("=====PRENOTAZIONI DISPONIBILI===== STATO --> "+ statoPrenotazione);
                Set<BeanPrenotazione> view_p = GestorePrenotazioni.getInstance((Turista) utente).getPrenotazioni(statoPrenotazione);
                if(view_p.isEmpty()) return null;
-                 view.message("=====SELEZIONA INDICE======");
-                return view_p.stream().peek(System.out::println).collect(Collectors.toList()).get(view.fetchInt());
+               view.message("=====SELEZIONA INDICE======");
+                AtomicInteger contatore = new AtomicInteger(0);
+                return view_p
+                        .stream()
+                        .peek(beanPrenotazione -> view.message(contatore.getAndIncrement()+") "+ beanPrenotazione.toString()))
+                        .collect(Collectors.toList()).get(view.fetchInt());
             }catch (IndexOutOfBoundsException e){
                 e.printStackTrace();
 
@@ -289,9 +287,14 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         while(true){
             try {
                 view.message("=====ESPERIENZE DISPONIBILI=====");
-                Bacheca.getInstance().getAllEsperienze().stream().forEach(esperienza -> view.message(esperienza.toString()));
                 view.message("=====SELEZIONA INDICE=====");
-                return Bacheca.getInstance().getAllEsperienze().stream().collect(Collectors.toList()).get(view.fetchInt());
+                AtomicInteger contatore = new AtomicInteger(0);
+                return Bacheca.getInstance()
+                        .getAllEsperienze()
+                        .stream()
+                        .peek(esperienza -> view.message(contatore.getAndIncrement()+") " + esperienza.toString()))
+                        .collect(Collectors.toList())
+                        .get(view.fetchInt());
             }catch (IndexOutOfBoundsException e){
                 e.printStackTrace();
             }
@@ -303,9 +306,14 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             try {
                 view.message("===== INVITI RICEVUTI=====");
                 if(GestoreInviti.getInstance((Turista) utente).getRicevuti().isEmpty()) return null;
-                GestoreInviti.getInstance((Turista) utente).getRicevuti().forEach(beanInvito -> view.message(beanInvito.toString()));
                 view.message("=====SELEZIONA INVITO=====");
-                return GestoreInviti.getInstance((Turista) utente).getRicevuti().stream().collect(Collectors.toList()).get(view.fetchInt());
+                AtomicInteger contatore = new AtomicInteger(0);
+                return GestoreInviti.getInstance((Turista) utente)
+                        .getRicevuti()
+                        .stream()
+                        .peek(invito -> view.message(contatore.getAndIncrement()+") " + invito.toString()))
+                        .collect(Collectors.toList())
+                        .get(view.fetchInt());
             }catch (IndexOutOfBoundsException e){
                 e.printStackTrace();
             }
