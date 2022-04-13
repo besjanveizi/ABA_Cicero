@@ -1,10 +1,14 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.Piattaforma;
+import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Amministratore;
+import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Cicerone;
+import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Turista;
+import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Utente;
 import it.unicam.cs.ids2122.cicero.model.services.PersistenceErrorException;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceUtente;
-import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
-import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
+import it.unicam.cs.ids2122.cicero.ruoli.*;
+import it.unicam.cs.ids2122.cicero.view.IView;
 
 
 public class GestoreAutenticazione {
@@ -24,21 +28,40 @@ public class GestoreAutenticazione {
         return instance;
     }
 
-
     public boolean login(String username, String password) {
         boolean result = false;
         UtenteAutenticato utenteAutenticato;
         try {
             utenteAutenticato = serviceUtente.download(username, password);
-            Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
+            Ctrl_Utente ctrl_utente = getCtrl_utente(utenteAutenticato.getUID(), username, utenteAutenticato.getEmail(),
+                    password, utenteAutenticato.getType());
+            Piattaforma.getInstance().setCtrl_utente(ctrl_utente);
             result = true;
         } catch (PersistenceErrorException ignored) {}
         return result;
     }
 
     public void signUp(String username, String email, String password, UtenteType uType) {
-        UtenteAutenticato utenteAutenticato = serviceUtente.upload(username, email, password, uType);;
-        Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
+        UtenteAutenticato utente = serviceUtente.upload(username, email, password, uType);
+        int uid = utente.getUID();
+        Ctrl_Utente ctrl_utente = getCtrl_utente(uid, username, email, password, uType);
+        Piattaforma.getInstance().setCtrl_utente(ctrl_utente);
+    }
+
+    private Ctrl_Utente getCtrl_utente(int uid, String username, String email, String password, UtenteType uType) {
+        Ctrl_Utente ctrl_utente = null;
+        switch (uType) {
+            case ADMIN:
+                ctrl_utente = new Ctrl_Amministratore(new Amministratore(uid, username, email, password));
+                break;
+            case CICERONE:
+                ctrl_utente = new Ctrl_Cicerone(new Cicerone(uid, username, email, password));
+                break;
+            case TURISTA:
+                ctrl_utente = new Ctrl_Turista(new Turista(uid, username, email, password));
+                break;
+        }
+        return ctrl_utente;
     }
 
 

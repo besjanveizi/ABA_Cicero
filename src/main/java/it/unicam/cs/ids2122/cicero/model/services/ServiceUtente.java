@@ -102,7 +102,6 @@ public class ServiceUtente extends AbstractService<IUtente> {
     public UtenteAutenticato upload(String username, String email, String password, UtenteType uType) {
         int uid = getGeneratedKey(MessageFormat.format(insert_query, "'"+username+"'", "'"+email+"'",
                                                                     "'"+password+"'", uType.getCode()));
-        System.out.println(">>>>>>"+uid);
         return new UtenteAutenticato(uid, username, email, password, uType);
     }
 

@@ -24,19 +24,20 @@ import java.util.stream.Collectors;
  */
 public class Ctrl_UtenteGenerico implements Ctrl_Utente {
 
-    protected IView<String> view;
+    protected final IView<String> view;
     protected List<String> menuItems;
     private GestoreRicerca gestoreRicerca;
     private Set<Esperienza> lastRicerca;
     private Logger logger = Logger.getLogger(Piattaforma.class.getName());
     private GestoreAutenticazione gestoreAutenticazione;
 
-    public Ctrl_UtenteGenerico(IView<String> view) {
-        this.view = view;
+    public Ctrl_UtenteGenerico() {
+        this.view = Piattaforma.getInstance().getView();
         menuItems = new ArrayList<>();
         impostaMenu();
         gestoreAutenticazione = GestoreAutenticazione.getInstance();
-        gestoreRicerca=new GestoreRicerca();
+        gestoreRicerca = new GestoreRicerca();
+        lastRicerca = new HashSet<>();
     }
 
     @Override
@@ -129,13 +130,16 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
 
     protected void cercaEsperienze() {
         String filtroNome= view.ask("Inserire una stringa per filtrare il nome delle esperienze: ");
-        Set<Area> filtroAree = impostaAree();
-        Set<Tag> filtroTags = impostaTag();
+        Set<Area> filtroAree = impostaFiltroAree();
+        Set<Tag> filtroTags = impostaFiltroTag();
         lastRicerca = gestoreRicerca.ricerca(filtroNome,filtroTags,filtroAree);
         showEsperienzeTrovate(lastRicerca);
+        if (view.fetchChoice("\n\n1) Selezionare un'esperienza per vedere maggiori dettagli" +
+                "\n2) Torna al menu principale", 2) == 1)
+            view.message(selezionaEsperienza(lastRicerca).toString());
     }
 
-    private Set<Area> impostaAree(){
+    private Set<Area> impostaFiltroAree(){
         Set<Area> allAree = GestoreAree.getInstance().getAree();
         Set<String> viewSet = allAree.stream().map(Area::getToponimo).collect(Collectors.toSet());
         view.message("Seleziona i toponimi con cui filtrare la ricerca",viewSet);
@@ -149,7 +153,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         return chosenAree;
     }
 
-    private Set<Tag> impostaTag(){
+    private Set<Tag> impostaFiltroTag(){
         Set<Tag> tagsApprovati = GestoreTag.getInstance().getTags(e -> e.getState().equals(TagStatus.APPROVATO));
         Set<String> viewSet = tagsApprovati.stream().map(Tag::getName).collect(Collectors.toSet());
         view.message("Scegli i tag con cui filtrare la ricerca", viewSet);
@@ -166,16 +170,27 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         if(esperienzeShort.isEmpty()){
             view.message("Non sono state trovate esperienze che rientrano nei filtri imposti per la ricerca.");
         }else{
-            view.message("Esperienze trovate:",esperienzeShort);
-            view.message("Vuoi selezionare una specifica esperienza?");
-            if(view.fetchBool()){
-                Set<String> viewSet=esperienze.stream().map(Esperienza::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
-                view.message("Selezionare l'ID dell'esperienza desiderata.",viewSet);
-                Integer chosenId=Integer.parseInt(view.fetchSingleChoice(viewSet));
-                Esperienza esperienza=esperienze.stream().filter(e->e.getId()==chosenId).findFirst().get();
-                view.message("Esperienza selezionata:\n"+esperienza.toString());
-            }
+            view.message("Risultati della ricerca:", esperienzeShort);
         }
+    }
+
+    /**
+     * Permette la selezione di un'{@code Esperienza} da un insieme.
+     * @param esperienze {@code Set} di esperienze su cui effettuare la selezione.
+     * @return l'{@code Esperienza} selezionata.
+     */
+    protected Esperienza selezionaEsperienza(Set<Esperienza> esperienze) {
+        List<String> viewList = new ArrayList<>();
+        List<Integer> idList = new ArrayList<>();
+        int i = 1;
+        for (Esperienza e :esperienze) {
+            viewList.add(i++ + ") " + e.getName());
+            idList.add(e.getId());
+        }
+        view.message("Esperienze:", viewList);
+        int indice = view.fetchChoice("Scegli l'indice dell'esperienza", viewList.size());
+        int idEsperienza = idList.get(indice-1);
+        return esperienze.stream().filter(e -> e.getId() == idEsperienza).findFirst().get();
     }
 
     private void impostaMenu() {

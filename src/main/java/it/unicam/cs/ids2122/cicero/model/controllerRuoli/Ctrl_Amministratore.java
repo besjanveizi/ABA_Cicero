@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
  */
 public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
-    public Ctrl_Amministratore(IView<String> view, Amministratore amministratore) {
-        super(view, amministratore);
+    public Ctrl_Amministratore(Amministratore amministratore) {
+        super(amministratore);
         impostaMenu();
     }
 

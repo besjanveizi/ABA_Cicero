@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class GestoreEsperienze {
 
     private Set<Esperienza> esperienze;
-    private Cicerone cicerone;
+    private final Cicerone cicerone;
     private static GestoreEsperienze instance = null;
     private static ServiceEsperienza serviceEsperienza;
 

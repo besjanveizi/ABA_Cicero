@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
 
-    public Ctrl_Turista(IView<String> view, Turista turista) {
-        super(view, turista);
+    public Ctrl_Turista(Turista turista) {
+        super(turista);
         impostaMenu();
     }
 
