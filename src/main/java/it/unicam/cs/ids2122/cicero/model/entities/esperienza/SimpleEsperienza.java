@@ -219,8 +219,7 @@ public class SimpleEsperienza implements Esperienza {
 
     @Override
     public String toString() {
-        return "---INFORMAZIONI DELL'ESPERIENZA---" +
-                "\nId: '" + getId() +'\'' +
+        return "\n---INFORMAZIONI DELL'ESPERIENZA---" +
                 "\nNome: '" + getName() + '\'' +
                 "\nDescrizione: " + getDescrizione() +
                 "\nUsername cicerone: '" + getCiceroneCreatore().getUsername() + '\'' +
@@ -237,14 +236,8 @@ public class SimpleEsperienza implements Esperienza {
     }
     @Override
     public String shortToString(){
-        return "---INFORMAZIONI DELL'ESPERIENZA---" +
-                "\nId: '" + getId() +'\'' +
-                "\nNome: '" + getName() + '\'' +
+        return "\nNome: '" + getName() + '\'' +
                 "\nDescrizione: " + getDescrizione() +
-                "\nData d'inizio: " + getDataInizio() +
-                "\nData di conclusione: " + getDataFine() +
-                "\nCosto per posto: " + getCostoIndividuale().getValore() + " "
-                + getCostoIndividuale().getValuta().getSymbol() +
                 "\ntoponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
                 "\ntags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet());
     }

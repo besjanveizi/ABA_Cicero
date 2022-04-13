@@ -3,6 +3,7 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 import it.unicam.cs.ids2122.cicero.model.Bacheca;
 import it.unicam.cs.ids2122.cicero.model.IBacheca;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
 
@@ -25,25 +26,29 @@ public class GestoreRicerca {
      * @return Set di esperienze trovate
      */
     public Set<Esperienza> ricerca(String filtroNome, Set<Tag> filtroTags, Set<Area> filtroAree){
-        Bacheca bacheca = Bacheca.getInstance();
-        Set<Esperienza> allEsperienze = bacheca.getAllEsperienze();
-        Set<Esperienza> esperienzeFiltrate = new HashSet<>();
-        if(filtroNome.isEmpty() && filtroAree.isEmpty() && filtroTags.isEmpty())return allEsperienze;
-        if(!filtroNome.isEmpty()) esperienzeFiltrate.addAll(filterByNome(allEsperienze,filtroNome));
-        if(!filtroTags.isEmpty()) esperienzeFiltrate.addAll(filterByTags(allEsperienze,filtroTags));
-        if(!filtroAree.isEmpty()) esperienzeFiltrate.addAll(filterByToponimi(allEsperienze,filtroAree));
-        return esperienzeFiltrate;
+        IBacheca bacheca = Bacheca.getInstance();
+        Set<Esperienza> allEsperienze = bacheca.getEsperienze(e-> e.getStatus()== EsperienzaStatus.IDLE || e.getStatus()== EsperienzaStatus.VALIDA);
+
+        if(filtroNome.isEmpty() && filtroAree.isEmpty() && filtroTags.isEmpty()) return allEsperienze;
+
+        if(!filtroNome.isEmpty())
+            allEsperienze.removeAll(filterByNome(allEsperienze, filtroNome));
+        if(!filtroTags.isEmpty())
+            allEsperienze.removeAll(filterByTags(allEsperienze, filtroTags));
+        if(!filtroAree.isEmpty())
+            allEsperienze.removeAll(filterByToponimi(allEsperienze,filtroAree));
+        return allEsperienze;
     }
 
     private Set<Esperienza> filterByNome(Set<Esperienza> esperienze, String filtroNome){
-        return esperienze.stream().filter(e -> e.getName().contains(filtroNome)).collect(Collectors.toSet());
+        return esperienze.stream().filter(e -> !e.getName().contains(filtroNome)).collect(Collectors.toSet());
     }
 
     private Set<Esperienza> filterByTags(Set<Esperienza> esperienze, Set<Tag> filtroTags){
-            return esperienze.stream().filter(e -> e.getTags().stream().anyMatch(filtroTags::contains)).collect(Collectors.toSet());
+            return esperienze.stream().filter(e -> e.getTags().stream().noneMatch(filtroTags::contains)).collect(Collectors.toSet());
     }
 
     private Set<Esperienza> filterByToponimi(Set<Esperienza> esperienze, Set<Area> filtroAree){
-        return esperienze.stream().filter(e -> e.getAree().stream().anyMatch(filtroAree::contains)).collect(Collectors.toSet());
+        return esperienze.stream().filter(e -> e.getAree().stream().noneMatch(filtroAree::contains)).collect(Collectors.toSet());
     }
 }

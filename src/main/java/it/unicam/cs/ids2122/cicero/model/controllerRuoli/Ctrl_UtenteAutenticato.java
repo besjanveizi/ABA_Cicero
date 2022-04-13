@@ -2,7 +2,6 @@ package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
-import it.unicam.cs.ids2122.cicero.view.IView;
 
 /**
  * Rappresenta un gestore radice per un utente autenticato
@@ -11,8 +10,8 @@ public class Ctrl_UtenteAutenticato extends Ctrl_UtenteGenerico implements Ctrl_
 
     protected UtenteAutenticato utente;
 
-    public Ctrl_UtenteAutenticato(IView<String> view, UtenteAutenticato utente) {
-        super(view);
+    public Ctrl_UtenteAutenticato(UtenteAutenticato utente) {
+        super();
         this.utente = utente;
         impostaMenu();
     }
@@ -50,10 +49,6 @@ public class Ctrl_UtenteAutenticato extends Ctrl_UtenteGenerico implements Ctrl_
         // rimpiazza "1) Log in" con "1) Log out" nei menuItems
         menuItems.remove(0);
         menuItems.add(0, "1) Log out");
-    }
-
-    public UtenteAutenticato getLoggedUser() {
-        return utente;
     }
 
 }

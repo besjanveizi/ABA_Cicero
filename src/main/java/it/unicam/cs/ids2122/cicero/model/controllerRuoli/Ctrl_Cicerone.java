@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
  */
 public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
-    private GestorePercorso gestorePercorso;
-    private GestoreEsperienze gestoreEsperienze;
-    private Cicerone cicerone;
+    private final GestorePercorso gestorePercorso;
+    private final GestoreEsperienze gestoreEsperienze;
+    private final Cicerone cicerone;
 
-    public Ctrl_Cicerone(IView<String> view, Cicerone cicerone) {
-        super(view, cicerone);
+    public Ctrl_Cicerone(Cicerone cicerone) {
+        super(cicerone);
         this.cicerone = cicerone;
         impostaMenu();
         gestoreEsperienze = GestoreEsperienze.getInstance(cicerone);
@@ -60,7 +60,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
             view.message("Non ci sono esperienze da cancellare");
         }
         else {
-            Esperienza e = scegliEsperienza(esperienze);
+            Esperienza e = selezionaEsperienza(esperienze);
             Set<BeanPrenotazione> prenotazioni = gestoreEsperienze.getPrenotazioni(e);
             if (!prenotazioni.isEmpty()) {
                 view.message("La cancellazione dell'esperienza comporterà la cancellazione automatica " +
@@ -74,20 +74,6 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
                     gestoreEsperienze.cancellaEsperienza(e, prenotazioni);
             }
         }
-    }
-
-    private Esperienza scegliEsperienza(Set<Esperienza> esperienze) {
-        List<String> viewList = new ArrayList<>();
-        List<Integer> idList = new ArrayList<>();
-        int i = 1;
-        for (Esperienza e :esperienze) {
-            viewList.add(i++ + ") " + e.getName());
-            idList.add(e.getId());
-        }
-        view.message("Esperienze:", viewList);
-        int indice = view.fetchChoice("Scegli l'indice dell'esperienza da cancellare", viewList.size());
-        int idEsperienza = idList.get(indice-1);
-        return esperienze.stream().filter(e -> e.getId() == idEsperienza).findFirst().get();
     }
 
     private void proponiTag() {
@@ -177,7 +163,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
                     "Il numero max di riserva è stato impostato al valore minimo di default: 2");
         else maxRiserva = tempVal;
 
-        Set<Tag> chosenTags=new HashSet<>();
+        Set<Tag> chosenTags;
         while (true){
             chosenTags = impostaTags();
             if (chosenTags.isEmpty())
@@ -189,8 +175,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
         boolean accetta = view.fetchBool();
 
         if (accetta) {
-            GestoreEsperienze.getInstance(cicerone)
-                    .add(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso,
+            gestoreEsperienze.add(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso,
                             costoIndividuale, maxRiserva, chosenTags);
             view.message("La creazione dell'esperienza è avvenuta con successo");
         } else {

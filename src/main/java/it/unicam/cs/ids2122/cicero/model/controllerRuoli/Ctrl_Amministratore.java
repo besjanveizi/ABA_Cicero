@@ -14,7 +14,6 @@ import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
-import it.unicam.cs.ids2122.cicero.view.IView;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -25,8 +24,8 @@ import java.util.stream.Collectors;
  */
 public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
-    public Ctrl_Amministratore(IView<String> view, Amministratore amministratore) {
-        super(view, amministratore);
+    public Ctrl_Amministratore(Amministratore amministratore) {
+        super(amministratore);
         impostaMenu();
     }
 
@@ -65,7 +64,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             Set<String> viewSet=proposti.stream().map(Tag::getName).collect(Collectors.toSet());
             if(proposti.isEmpty()){
                 view.message("Attualmente non ci sono Tag proposti nella piattaforma.");
-                return;
+                break;
             }
             view.message("Selezionare il tag che si vuole gestire:",viewSet);
             String nomeTag=view.fetchSingleChoice(viewSet);

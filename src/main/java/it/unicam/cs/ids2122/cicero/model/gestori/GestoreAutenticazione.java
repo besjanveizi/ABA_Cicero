@@ -1,10 +1,13 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.Piattaforma;
+import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Amministratore;
+import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Cicerone;
+import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Turista;
+import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Utente;
 import it.unicam.cs.ids2122.cicero.model.services.PersistenceErrorException;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceUtente;
-import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
-import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
+import it.unicam.cs.ids2122.cicero.ruoli.*;
 
 
 public class GestoreAutenticazione {
@@ -24,23 +27,21 @@ public class GestoreAutenticazione {
         return instance;
     }
 
-
     public boolean login(String username, String password) {
         boolean result = false;
         UtenteAutenticato utenteAutenticato;
         try {
-            utenteAutenticato = serviceUtente.download(username, password);
-            Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
+            Ctrl_Utente ctrl_utente = serviceUtente.selectUtente(username, password);
+            Piattaforma.getInstance().setCtrl_utente(ctrl_utente);
             result = true;
         } catch (PersistenceErrorException ignored) {}
         return result;
     }
 
     public void signUp(String username, String email, String password, UtenteType uType) {
-        UtenteAutenticato utenteAutenticato = serviceUtente.upload(username, email, password, uType);;
-        Piattaforma.getInstance().setCtrl_utente(utenteAutenticato);
+        Ctrl_Utente ctrl_utente = serviceUtente.upload(username, email, password, uType);
+        Piattaforma.getInstance().setCtrl_utente(ctrl_utente);
     }
-
 
     /**
      * Controlla se l'email data &egrave gi&agrave stata registrata ad un profilo.

@@ -5,6 +5,7 @@ import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -17,10 +18,7 @@ public class Bacheca implements IBacheca {
 
     private Bacheca() {
         esperienze = new HashSet<>();
-        esperienze.addAll(ServiceEsperienza.getInstance().download());
-        // TODO: aggiorna il set esperienze
-        //  esperienze = select(DBTable.ESPERIENZE)
-        //  -> seleziona tutte le esperienze memorizzate nella tabella "esperienze" e restituisce un set degli oggetti
+        updateEsperienze();
     }
 
     public static Bacheca getInstance(){
@@ -30,8 +28,17 @@ public class Bacheca implements IBacheca {
     }
 
     @Override
-    public Set<Esperienza> getAllEsperienze() {
-        esperienze = esperienze.stream().filter(Esperienza::isAvailable).collect(Collectors.toSet());
-        return esperienze;
+    public Set<Esperienza> getEsperienze(Predicate<Esperienza> predicate) {
+        return esperienze.stream().filter(predicate).collect(Collectors.toSet());
+    }
+
+    @Override
+    public void updateEsperienze() {
+        esperienze.addAll(ServiceEsperienza.getInstance().download());
+    }
+
+    @Override
+    public void add(Esperienza e) {
+        esperienze.add(e);
     }
 }
