@@ -11,13 +11,21 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
+/**
+ * Accede al DB per inserire e creare una Fattura.
+ * Non ici sono metodi per la modifica. Ogni fattura è sempre una nuova fattura.
+ * */
 public final class ServiceFattura extends AbstractService<BeanFattura> {
 
     private static ServiceFattura  serviceFattura = null;
 
     private final String sql_insert = "INSERT INTO public.fatture( id_prenotazione, id_client_origine, id_client_destinatario, " +
             "data_pagamento, importo, valuta, tipo_fattura) VALUES ( ?, ?, ?, ?, ?, ?, ?);";
+
+    private String colonne = "id_fattura, id_prenotazione, id_client_origine, id_client_destinatario, data_pagamento, " +
+            "importo, valuta, tipo_fattura";
+
+    private String sql_select_base = "SELECT " + colonne + " FROM public.fatture";
 
 
     private ServiceFattura(){
@@ -63,17 +71,20 @@ public final class ServiceFattura extends AbstractService<BeanFattura> {
     }
 
 
-
-    private String colonne = "id_fattura, id_prenotazione, id_client_origine, id_client_destinatario, data_pagamento, " +
-            "importo, valuta, tipo_fattura";
-
-    private String sql_select_base = "SELECT " + colonne + " FROM public.fatture";
-
-
+    /**
+     * Recupera un insieme di fatture.
+     * @param id_fattura
+     * @return
+     */
     public Set<BeanFattura> sql_select(int id_fattura){
         return parseDataResult( getDataResult(sql_select_base +  " WHERE id_fattura=" +id_fattura+ " ;"));
     }
 
+    /**
+     * Recupera un insieme di fatture.
+     * @param id_client
+     * @return
+     */
     public Set<BeanFattura> sql_select(String id_client){
         return parseDataResult( getDataResult(sql_select_base +  " WHERE id_client_origine=" + "'" + id_client + "'" +
                 " OR id_client_destinatario=" + "'" + id_client + "';"));

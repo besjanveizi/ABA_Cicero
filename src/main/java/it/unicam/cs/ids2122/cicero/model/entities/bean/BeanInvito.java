@@ -8,15 +8,49 @@ import java.util.Objects;
 
 public final class BeanInvito implements Serializable {
 
+    /**
+     * id generato dal DB
+     */
     private int id_invito;
+
+    /**
+     * id autore dell' invito
+     */
     private int id_mittente;
+
+    /**
+     * l' esperienza collegata
+     */
     private int id_esperienza;
+
+    /**
+     * l' invitato
+     */
     private String email_destinatario;
+
+    /**
+     * data creazione dell' invito.
+     */
     private LocalDateTime data_creazione;
+
+    /**
+     * data per cui l' invito non è più valido.
+     */
     private LocalDateTime data_scadenza_riserva;
+
+    /**
+     * i posti per l' invito.
+     */
     private int posti_riservati;
 
+    /**
+     * costo dell' invito
+     */
     private BigDecimal importo;
+
+    /**
+     * valuta dell'importo
+     */
     private String valuta;
 
     public BeanInvito (){}

@@ -32,6 +32,9 @@ public final class GestorePagamenti {
         }
     }
 
+    /**
+     * Carica i pagamenti, ricevuti ed effettuati.
+     */
     private void carica() {
 
     Set<BeanFattura> tot = ServiceFattura.getInstance().sql_select(utente_corrente.getID_Client());
@@ -88,13 +91,15 @@ public final class GestorePagamenti {
     }
 
     /**
-     * CREA una fattura di tipo LIQUIDAZIONE
+     * CREA una fattura di tipo LIQUIDAZIONE.
+     *
      * @param beanFattura
      * @param destinatario
      */
     public void crea_fattura(BeanFattura beanFattura, IUtente destinatario){
 
     }
+
 
     public Set<BeanFattura> getRicevuti() {
         return ricevuti;

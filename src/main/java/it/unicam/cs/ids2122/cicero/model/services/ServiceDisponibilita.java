@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeMap;
 
+/**
+ * Accede al DB per valutare la disponibilità di un esperienza.
+ */
 public final class ServiceDisponibilita  {
 
     private static ServiceDisponibilita serviceDisponibilita = null;
@@ -25,7 +28,7 @@ public final class ServiceDisponibilita  {
     private String sql_select = "SELECT posti_disponibili FROM public.esperienze WHERE id_esperienza=? ";
 
     /**
-     *
+     *Modifica esclusivamente i posti di un' esperienza.
      * @param posti da inserire
      * @param id_esperienza id dell' esperienza da modificare
      */
@@ -48,7 +51,11 @@ public final class ServiceDisponibilita  {
         }
     }
 
-
+    /**
+     * Recupera i posti disponibili di un esperienza.
+     * @param id_esperienza
+     * @return i posti disponibili di un esperienza.
+     */
     public int select(int id_esperienza){
         Connection connection = null;
         int posti_disponibili = -1;

@@ -17,9 +17,14 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
             " posti_prenotati, data_prenotazione, data_scadenza_riserva, costo_totale, valuta)" +
             "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?);";
 
-    private final String sql_select = "SELECT * FROM public.prenotazioni";
-
     private final String delete = "DELETE FROM public.prenotazione";
+
+    private final String colonne =
+            "id_prenotazione, id_esperienza, uid_turista, " +
+                    "stato_prenotazione, posti_prenotati, data_prenotazione, data_scadenza_riserva, costo_totale, valuta";
+
+    private final String sql_select_base = "select " + colonne + " FROM public.prenotazioni ";
+
 
     ServicePrenotazione(){}
 
@@ -66,7 +71,11 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
     }
 
 
-
+    /**
+     * Modifica lo stato.
+     * @param id prenotazione
+     * @param statoPrenotazione il nuovo stato
+     */
     public void update(int id, StatoPrenotazione statoPrenotazione){
         String sql_update =  "UPDATE public.prenotazioni SET stato_prenotazione=" + statoPrenotazione.getN() +
                 " WHERE id_prenotazione=" + id +" ;";
@@ -74,8 +83,10 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
     }
 
 
-
-
+    /**
+     * Conn al DB per uun update.
+     * @param sql
+     */
     public void update(String sql){
         Connection connection = null;
         try{
@@ -94,17 +105,28 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
     }
 
 
-
+    /**
+     * Overload delezione per id.
+     * @param id
+     */
     public void delete(int id){
         String s = delete.concat("where id_prenotazione=" + id + ";");
         delete(s);
     }
 
+    /**
+     * Overload delezione per tutte le esperienze con un determinato stato. (CANCELLATA)
+     * @param statoPrenotazione
+     */
     public void delete(StatoPrenotazione statoPrenotazione){
         String s = delete.concat("where stato_prenotazione=" + statoPrenotazione.getN()+";");
         delete(s);
     }
 
+    /**
+     * Connessione al DB per l' eliminazione.
+     * @param sql
+     */
     public void delete(String sql){
         Connection connection = null;
         try{
@@ -146,16 +168,9 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
         return parseDataResult( getDataResult(sql_select_base + " WHERE uid_turista=" + id +";" ));
     }
 
-    private final String colonne =
-            "id_prenotazione, id_esperienza, uid_turista, " +
-                    "stato_prenotazione, posti_prenotati, data_prenotazione, data_scadenza_riserva, costo_totale, valuta";
-
-    private final String sql_select_base = "select " + colonne + " FROM public.prenotazioni ";
-
     @Override
     public Set<BeanPrenotazione> parseDataResult(TreeMap<String, HashMap<String, String>> arcano) {
         Set<BeanPrenotazione> resultSet = new HashSet<>();
-
 
         for (Map.Entry<String, HashMap<String, String>> firstEntry : arcano.entrySet()) {
 

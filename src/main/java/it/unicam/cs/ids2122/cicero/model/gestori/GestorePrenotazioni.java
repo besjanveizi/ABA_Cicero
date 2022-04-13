@@ -121,11 +121,20 @@ public final class GestorePrenotazioni {
         return prenotazioni;
     }
 
+    /**
+     * Filtra le prenotazioni run-time.
+     * @param filtro lo stato ricercato.
+     * @return
+     */
     public Set<BeanPrenotazione> getPrenotazioni(StatoPrenotazione filtro){
         return prenotazioni.stream().filter(beanPrenotazione -> beanPrenotazione.getStatoPrenotazione().getN()==filtro.getN()).collect(Collectors.toSet());
     }
 
-
+    /**
+     * Filtra le prenotazioni per un predicato qualsiasi.
+     * @param predicate filtro
+     * @return
+     */
     public BeanPrenotazione getPrenotazione(Predicate<BeanPrenotazione> predicate){
         return prenotazioni.stream().filter(predicate).findFirst().get();
     }

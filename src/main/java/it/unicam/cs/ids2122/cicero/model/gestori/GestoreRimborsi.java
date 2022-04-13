@@ -51,6 +51,11 @@ public final class GestoreRimborsi {
     }
 
 
+    /**
+     * Verifica se il rimborso può avvenire automaticamente.
+     * @param beanPrenotazione
+     * @return
+     */
     public boolean rimborsa(BeanPrenotazione beanPrenotazione){
         Esperienza esperienza = ServiceEsperienza.getInstance().getEsperienza(beanPrenotazione.getID_esperienza());
         if(esperienza.getStatus().equals(EsperienzaStatus.IDLE) || esperienza.getStatus().equals(EsperienzaStatus.VALIDA) ){
@@ -60,7 +65,11 @@ public final class GestoreRimborsi {
         }
     }
 
-
+    /**
+     * Crea un rimborso nel DB
+     * @param beanFattura
+     * @param motivo
+     */
     public void crea_rimborso( BeanFattura beanFattura, String motivo) {
         ServiceRimborso.getInstance().insertRichiestaRimborso(beanFattura.getId_fattura(), motivo, RimborsoStatus.PENDING);
     }
@@ -83,12 +92,21 @@ public final class GestoreRimborsi {
         changeStatus(richiesta,RimborsoStatus.RIFIUTATA);
     }
 
+    /**
+     * Modifica lo stato di un rimborso.
+     * @param richiesta
+     * @param stato
+     */
     private void changeStatus(RichiestaRimborso richiesta, RimborsoStatus stato){
         ServiceRimborso serviceRimborso=ServiceRimborso.getInstance();
         serviceRimborso.updateRichiestaRimborsoStatus(richiesta,stato);
     }
 
-
+    /**
+     * Recupera un specifico insieme, filtrato.
+     * @param p
+     * @return
+     */
     public Set<RichiestaRimborso> getRimborsi(Predicate<RichiestaRimborso> p){
         return  rimborsi.stream().filter(p).collect(Collectors.toSet());
     }

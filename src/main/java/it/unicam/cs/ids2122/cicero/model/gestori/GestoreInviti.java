@@ -66,7 +66,10 @@ public final class GestoreInviti {
         this.ricevuti.remove(beanInvito);
     }
 
-
+    /**
+     * Recupera gli inviti ricevuti.
+     * @return
+     */
     public Set<BeanInvito> getRicevuti() {
         return ricevuti;
     }

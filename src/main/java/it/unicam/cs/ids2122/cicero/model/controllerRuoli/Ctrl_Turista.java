@@ -61,7 +61,17 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
     }
 
 
+    /**
+     * Realizza il caso d 'uso in collegato alla richiesta rimborso.
+     * Se non è automatico, chiede la motivazione ed inserisce/crea una nuova richiesta di rimborso.
+     * Se è automatico, quindi idoneo, modifica lo stato della prenotazione e crea una nuova fattura,
+     * per simulare l' avvenuto rimborso.
+     *
+     * @param beanPrenotazione può essere null se l' accesso al metodo è diretto.
+     */
     private void richiediRimborso(BeanPrenotazione beanPrenotazione){
+        view.message("gestisci rimborsi");
+
         if(beanPrenotazione== null) {
             beanPrenotazione = seleziona_prenotazione(StatoPrenotazione.PAGATA);
         }
@@ -81,9 +91,13 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         }view.message("nessuna prenotazione pagata da rimborsare");
     }
 
-
+    /**
+     * Realizza i casi d' uso accetta/rifiuto invito.
+     * In caso di accettazione si genera una nova prenotazione.
+     * In caso di rifiuto l' invito viene eliminato.
+     */
     private void gestisciInvitiRicevuti() {
-        view.message("accetta invito ");
+        view.message("gestisci inviti ");
 
         BeanInvito beanInvito = seleziona_invito();
 
@@ -92,7 +106,6 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             boolean accetta = view.fetchBool();
             if(accetta){
                 GestorePrenotazioni.getInstance((Turista) utente).crea_prenotazione(beanInvito);
-
                 view.message("prenotazione effettuata");
             }else {
                 view.message("cancellare invito? [y/n] ");
@@ -103,17 +116,18 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         }
     }
 
+    /**
+     * Chiama il gestore per l' eliminazione dell' invito.
+     * @param beanInvito da eliminare
+     */
     private void cancellaInvito(BeanInvito beanInvito) {
-        if(beanInvito == null){
-            beanInvito = seleziona_invito();
-        }
-        if(beanInvito!=null){
             GestoreInviti.getInstance((Turista) utente).rifiuta_invito(beanInvito);
-        }
-        view.message("nessun invito disponibile");
-
     }
 
+    /**
+     * realizza il caso d'uso, invita per un esperienza.
+     * L'invito modifica la disponibilità di un esperienza.
+     */
     private void invitaEsperienza() {
        view.message("invita");
 
@@ -138,7 +152,9 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
 
     }
 
-
+    /**
+     * Realizza il caso d' uso prenota esperienza.
+     */
     private void prenotaEsperienza() {
          Esperienza esperienza = seleziona_esperienza();
             if (esperienza != null) {
@@ -156,7 +172,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                         view.message("inserire posti da riservare");
                         posti_scelti = view.fetchInt();
                         if (posti_scelti > 0 && posti_scelti <= posti) break;
-                        else view.message("riprova");
+                        else view.message("riprova, valore non valido");
                     }
 
                     view.message("costo totale: " + esperienza.getCostoIndividuale().op_multi(String.valueOf(posti_scelti)));
@@ -172,7 +188,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                         return;
                     }
 
-                    view.message("pagare la prenotazione? [Y/N] ");
+                    view.message("pagare la prenotazione? [y/n] ");
                     if(view.fetchBool())
                     {
                         pagaPrenotazione(GestorePrenotazioni.getInstance((Turista) utente).getPrenotazione(bean-> bean.getID_prenotazione()==id));
@@ -182,6 +198,11 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         }
     }
 
+    /**
+     * Permette il pagamento di una prenotazione. (RISERVATA)
+     *
+     * @param beanPrenotazione può essere null se l'accesso è diretto.
+     */
     private void pagaPrenotazione(BeanPrenotazione beanPrenotazione){
         if(beanPrenotazione == null){
              beanPrenotazione = seleziona_prenotazione(StatoPrenotazione.RISERVATA);
@@ -197,7 +218,9 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         }view.message("nessuna prenotazione presente");
     }
 
-
+    /**
+     * Simula il pagamento via paypal e via iban.
+     */
     private void stub_mod_pagamento(){
         view.message("scegli modalità di pagamento");
         view.message("1) pay pal");
@@ -218,6 +241,9 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
 
     }
 
+    /**
+     * Permette di annullare una prenotazione, non pagata.
+     */
     private void cancellaPrenotazione_riservata() {
         BeanPrenotazione ref = seleziona_prenotazione(StatoPrenotazione.RISERVATA);
         if(ref==null){
@@ -236,6 +262,10 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         }
     }
 
+    /**
+     * Permette di annullare una prenotazione, pagata.
+     * Richiama il metodo richiediRimborso()
+     */
     private void cancellaPrenotazione_pagata(){
         BeanPrenotazione ref = seleziona_prenotazione(StatoPrenotazione.PAGATA);
         if(ref==null){
@@ -265,6 +295,11 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
 
     }
 
+    /**
+     * Enumera e mostra le possibili scelte.
+     * @param statoPrenotazione
+     * @return la scelta
+     */
     private BeanPrenotazione seleziona_prenotazione(StatoPrenotazione statoPrenotazione) {
         while(true){
             try {
@@ -284,7 +319,10 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         }
     }
 
-
+    /**
+     * Enumera e mostra le possibili scelte.
+     * @return la scelta
+     */
     private Esperienza seleziona_esperienza() {
         while(true){
             try {
@@ -303,6 +341,10 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         }
     }
 
+    /**
+     * Enumera e mostra le possibili scelte.
+     * @return la scelta
+     */
     private BeanInvito seleziona_invito() {
         while(true){
             try {

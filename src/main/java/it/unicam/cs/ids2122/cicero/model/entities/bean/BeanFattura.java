@@ -7,16 +7,51 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-public final class BeanFattura implements Serializable {
+/**
+ * Simil bean per le fatture.
+ */
+public final class BeanFattura  {
 
+    /**
+     * tipo di fattura
+     */
     private TipoFattura tipoFattura;
+
+    /**
+     * identificativo, generato dal DB
+     */
     private int id_fattura;
+
+    /**
+     * identificativo della relativa prenotazione.
+     */
     private int id_prenotazione;
+
+    /**
+     * indirizzo del client destinatario, per la transazione
+     */
     private String id_client_destinatario;
+
+    /**
+     * indirizzo client origine, per la transazione.
+     */
     private String id_client_origine;
+
+    /**
+     * importo totale da pagare
+     */
     private BigDecimal importo;
+
+    /**
+     * data di pagamento
+     */
     private LocalDateTime data_pagamento;
+
+    /**
+     * Valuta dell' importo.
+     */
     private String valuta;
+
 
     public BeanFattura(){
 
@@ -104,7 +139,7 @@ public final class BeanFattura implements Serializable {
     @Override
     public String toString() {
         return "BeanFattura{" +
-                "statoPagamento=" + tipoFattura +
+                "tipoFattura=" + tipoFattura +
                 ", id_fattura=" + id_fattura +
                 ", id_prenotazione=" + id_prenotazione +
                 ", id_client_destinatario='" + id_client_destinatario + '\'' +
