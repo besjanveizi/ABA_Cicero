@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class GestorePrenotazioni {
@@ -58,7 +59,7 @@ public final class GestorePrenotazioni {
      * @param propEsperienza
      * @param posti_prenotati
      */
-    public void crea_prenotazione(Esperienza propEsperienza, int posti_prenotati){
+    public int crea_prenotazione(Esperienza propEsperienza, int posti_prenotati){
         BeanPrenotazione beanPrenotazione = new BeanPrenotazione(
                 propEsperienza.getDataInizio(),
                 propEsperienza.getMaxRiserva(), posti_prenotati,
@@ -74,6 +75,7 @@ public final class GestorePrenotazioni {
         propEsperienza.cambiaPostiDisponibili('-', posti_prenotati);
 
         ServiceDisponibilita.getInstance().update(propEsperienza.getPostiDisponibili(), propEsperienza.getId() );
+        return beanPrenotazione.getID_prenotazione() ;
     }
 
     /**
@@ -119,15 +121,25 @@ public final class GestorePrenotazioni {
         return prenotazioni;
     }
 
+    /**
+     * Filtra le prenotazioni run-time.
+     * @param filtro lo stato ricercato.
+     * @return
+     */
     public Set<BeanPrenotazione> getPrenotazioni(StatoPrenotazione filtro){
         return prenotazioni.stream().filter(beanPrenotazione -> beanPrenotazione.getStatoPrenotazione().getN()==filtro.getN()).collect(Collectors.toSet());
     }
 
-
-    public BeanPrenotazione getPrenotazione(int id){
-        return Sets.filter( prenotazioni,beanPrenotazione -> beanPrenotazione.getID_prenotazione() == id ||
-                                                             beanPrenotazione.getID_esperienza() == id ||
-                                                             beanPrenotazione.getID_turista() == id).iterator().next();
+    /**
+     * Filtra le prenotazioni per un predicato qualsiasi.
+     * @param predicate filtro
+     * @return
+     */
+    public BeanPrenotazione getPrenotazione(Predicate<BeanPrenotazione> predicate){
+        return prenotazioni.stream().filter(predicate).findFirst().get();
     }
+
+
+
 
 }

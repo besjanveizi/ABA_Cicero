@@ -8,10 +8,18 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * Accede al DB per eliminare, creare e recuperare uno o più inviti.
+ */
 public final class ServiceInvito extends AbstractService<BeanInvito> {
 
     private final String  sql_insert = "INSERT INTO public.inviti( uid_mittente, id_esperienza, email_destinatario, data_creazione," +
             " data_scadenza_riserva, posti_riservati, costo_totale , valuta) VALUES ( ?, ?, ?, ?, ?, ? , ? , ?);";
+
+    private final String colonne =
+            "id_invito, uid_mittente, id_esperienza, email_destinatario, data_creazione, data_scadenza_riserva, posti_riservati, costo_totale, valuta";
+
+    private final String sql_select_base = "SELECT " + colonne + " FROM public.inviti ";
 
     private static ServiceInvito serviceInvito = null;
 
@@ -57,8 +65,10 @@ public final class ServiceInvito extends AbstractService<BeanInvito> {
     }
 
 
-
-
+    /**
+     * Elimina l' invito dal DB
+     * @param id_invito da eliminare
+     */
     public void delete(int id_invito) {
         String query = "delete from public.inviti where id_invito="+id_invito+";";
         Connection connection = null;
@@ -77,15 +87,15 @@ public final class ServiceInvito extends AbstractService<BeanInvito> {
         }
     }
 
-
+    /**
+     * Recupera un insieme di inviti, rispettivamente dell'utente autenticato.
+     * @param email
+     * @return
+     */
     public Set<BeanInvito> select(String email){
         return parseDataResult( getDataResult(sql_select_base + " WHERE email_destinatario=" + "'"+email+"'"+";" ));
     }
 
-    private final String colonne =
-            "id_invito, uid_mittente, id_esperienza, email_destinatario, data_creazione, data_scadenza_riserva, posti_riservati, costo_totale, valuta";
-
-    private final String sql_select_base = "SELECT " + colonne + " FROM public.inviti ";
 
     @Override
     public Set<BeanInvito> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult) {
