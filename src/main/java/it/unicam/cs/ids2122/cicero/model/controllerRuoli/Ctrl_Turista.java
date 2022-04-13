@@ -290,7 +290,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                 view.message("=====SELEZIONA INDICE=====");
                 AtomicInteger contatore = new AtomicInteger(0);
                 return Bacheca.getInstance()
-                        .getAllEsperienze()
+                        .getEsperienze(Esperienza::isAvailable)
                         .stream()
                         .peek(esperienza -> view.message(contatore.getAndIncrement()+") " + esperienza.toString()))
                         .collect(Collectors.toList())

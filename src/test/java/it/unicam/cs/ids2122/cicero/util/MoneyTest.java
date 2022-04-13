@@ -12,7 +12,7 @@ class MoneyTest {
     private static Money m;
     @BeforeAll
     static void setUp() {
-        m =  new Money(new BigDecimal("435.78"));
+        m =  new Money(new BigDecimal("435.80"));
     }
 
     @Test
@@ -22,11 +22,22 @@ class MoneyTest {
 
     @Test
     void shouldBe_sameValue() {
-        assertEquals(m.getValore(), new BigDecimal("435.78"));
+        assertEquals(m.getValore(), new BigDecimal("435.80"));
     }
 
     @Test
-    void testToString() {
-        assertEquals(m.toString(), "435.78€");
+    void testToString_singleDecimal() {
+        assertEquals(m.toString(), "435.80€");
+    }
+
+    @Test
+    void testToString_doubleDecimal() {
+        assertEquals(new Money(new BigDecimal("435.08")).toString(), "435.08€");
+    }
+
+    @Test
+    void op_multi() {
+        assertEquals(m.op_multi("4").toString(), "1743.20");
+        assertEquals(new Money(new BigDecimal("435.08")).op_multi("4").toString(), "1740.32");
     }
 }

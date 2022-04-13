@@ -30,6 +30,7 @@ public class Piattaforma {
 
     private Piattaforma()  {
         DBManager.getInstance().testConnection();
+        Bacheca.getInstance();
     }
 
     public static Piattaforma getInstance() {

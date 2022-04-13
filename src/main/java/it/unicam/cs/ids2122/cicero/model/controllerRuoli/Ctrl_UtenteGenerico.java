@@ -133,7 +133,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         Set<Area> filtroAree = impostaFiltroAree();
         Set<Tag> filtroTags = impostaFiltroTag();
         lastRicerca = gestoreRicerca.ricerca(filtroNome,filtroTags,filtroAree);
-        showEsperienzeTrovate(lastRicerca);
+        showEsperienze(lastRicerca);
         if (view.fetchChoice("\n\n1) Selezionare un'esperienza per vedere maggiori dettagli" +
                 "\n2) Torna al menu principale", 2) == 1)
             view.message(selezionaEsperienza(lastRicerca).toString());
@@ -165,12 +165,13 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         return chosenTags;
     }
 
-    private void showEsperienzeTrovate(Set<Esperienza> esperienze){
-        Set<String> esperienzeShort = esperienze.stream().map(Esperienza::shortToString).collect(Collectors.toSet());
-        if(esperienzeShort.isEmpty()){
+    private void showEsperienze(Set<Esperienza> esperienze){
+        if(esperienze.isEmpty()){
             view.message("Non sono state trovate esperienze che rientrano nei filtri imposti per la ricerca.");
-        }else{
-            view.message("Risultati della ricerca:", esperienzeShort);
+        } else {
+            view.message("Risultati della ricerca:", esperienze.stream()
+                                                                        .map(Esperienza::shortToString)
+                                                                        .collect(Collectors.toSet()));
         }
     }
 

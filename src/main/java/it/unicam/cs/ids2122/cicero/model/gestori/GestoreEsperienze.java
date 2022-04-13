@@ -1,5 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
+import it.unicam.cs.ids2122.cicero.model.Bacheca;
+import it.unicam.cs.ids2122.cicero.model.IBacheca;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
@@ -25,6 +27,7 @@ public class GestoreEsperienze {
     private final Cicerone cicerone;
     private static GestoreEsperienze instance = null;
     private static ServiceEsperienza serviceEsperienza;
+    private static IBacheca bacheca;
 
     /**
      * Crea un gestore delle esperienze per il dato <code>Cicerone</code>.
@@ -33,6 +36,7 @@ public class GestoreEsperienze {
     private GestoreEsperienze(Cicerone cicerone) {
         this.cicerone = cicerone;
         serviceEsperienza = ServiceEsperienza.getInstance();
+        bacheca = Bacheca.getInstance();
         updateEsperienze();
     }
 
@@ -43,17 +47,9 @@ public class GestoreEsperienze {
 
     private void updateEsperienze() {
         esperienze = new HashSet<>();
-        Set<Esperienza> temp = serviceEsperienza.download(cicerone.getUID());
+        Set<Esperienza> temp = bacheca.getEsperienze(e -> e.getCiceroneCreatore().equals(cicerone));
+        //Set<Esperienza> temp = serviceEsperienza.download(cicerone.getUID());
         esperienze.addAll(temp);
-    }
-
-    /**
-     * Restituisce l'esperienza cui l'identificativo è quello dato.
-     * @param id identificativo dell'esperienza che si cerca.
-     * @return l'esperienza con l'id dato oppure null se non trovata.
-     */
-    public Esperienza getEsperienza(int id){
-        return esperienze.stream().filter((e) -> e.getId()==id).findFirst().orElseThrow(NullPointerException::new);
     }
 
     /**
@@ -83,7 +79,8 @@ public class GestoreEsperienze {
         Esperienza e =
                 serviceEsperienza.upload(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso,
                 costoIndividuale, maxRiserva, chosenTags);
-        esperienze.add(e);
+        bacheca.add(e);
+        updateEsperienze();
     }
 
     public Set<BeanPrenotazione> getPrenotazioni(Esperienza e) {

@@ -141,6 +141,6 @@ public class CLIView implements IView<String> {
             if (cents >= 0 && cents <= 99) break;
             else message("Errore: devi inserire un valore tra 0 e 99");
         }
-        return new Money(new BigDecimal(euro+"."+cents));
+        return new Money(new BigDecimal(euro+"."+(cents < 10 ? "0"+cents : cents)));
     }
 }

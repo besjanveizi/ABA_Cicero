@@ -8,7 +8,6 @@ import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Utente;
 import it.unicam.cs.ids2122.cicero.model.services.PersistenceErrorException;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.*;
-import it.unicam.cs.ids2122.cicero.view.IView;
 
 
 public class GestoreAutenticazione {
@@ -32,9 +31,7 @@ public class GestoreAutenticazione {
         boolean result = false;
         UtenteAutenticato utenteAutenticato;
         try {
-            utenteAutenticato = serviceUtente.download(username, password);
-            Ctrl_Utente ctrl_utente = getCtrl_utente(utenteAutenticato.getUID(), username, utenteAutenticato.getEmail(),
-                    password, utenteAutenticato.getType());
+            Ctrl_Utente ctrl_utente = serviceUtente.selectUtente(username, password);
             Piattaforma.getInstance().setCtrl_utente(ctrl_utente);
             result = true;
         } catch (PersistenceErrorException ignored) {}
@@ -42,28 +39,9 @@ public class GestoreAutenticazione {
     }
 
     public void signUp(String username, String email, String password, UtenteType uType) {
-        UtenteAutenticato utente = serviceUtente.upload(username, email, password, uType);
-        int uid = utente.getUID();
-        Ctrl_Utente ctrl_utente = getCtrl_utente(uid, username, email, password, uType);
+        Ctrl_Utente ctrl_utente = serviceUtente.upload(username, email, password, uType);
         Piattaforma.getInstance().setCtrl_utente(ctrl_utente);
     }
-
-    private Ctrl_Utente getCtrl_utente(int uid, String username, String email, String password, UtenteType uType) {
-        Ctrl_Utente ctrl_utente = null;
-        switch (uType) {
-            case ADMIN:
-                ctrl_utente = new Ctrl_Amministratore(new Amministratore(uid, username, email, password));
-                break;
-            case CICERONE:
-                ctrl_utente = new Ctrl_Cicerone(new Cicerone(uid, username, email, password));
-                break;
-            case TURISTA:
-                ctrl_utente = new Ctrl_Turista(new Turista(uid, username, email, password));
-                break;
-        }
-        return ctrl_utente;
-    }
-
 
     /**
      * Controlla se l'email data &egrave gi&agrave stata registrata ad un profilo.
