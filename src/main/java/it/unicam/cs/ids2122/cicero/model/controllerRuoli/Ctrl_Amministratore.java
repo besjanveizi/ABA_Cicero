@@ -1,5 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.rimborso.RichiestaRimborso;
 import it.unicam.cs.ids2122.cicero.model.entities.rimborso.RimborsoStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.segnalazione.Segnalazione;
@@ -11,9 +12,11 @@ import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
+import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 import it.unicam.cs.ids2122.cicero.view.IView;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -218,8 +221,8 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void gestisciRimborsi(){
         while(true){
-            GestoreRimborso gestoreRimborso= GestoreRimborso.getInstance();
-            Set<RichiestaRimborso> richieste=gestoreRimborso.getRichiesteRimborso(s->s.getState().equals(RimborsoStatus.PENDING));
+            GestoreRimborsi gestoreRimborso= GestoreRimborsi.getInstance(utente);
+            Set<RichiestaRimborso> richieste=gestoreRimborso.getRimborsi(r -> r.getState().equals(RimborsoStatus.PENDING));
             if(richieste.isEmpty()){
                 view.message("Non sono presenti richieste di rimborso nella piattaforma.");
                 break;
@@ -230,10 +233,13 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             RichiestaRimborso richiesta= richieste.stream().filter(s->s.getId()==id).findFirst().get();
             view.message("Richiesta di rimborso scelta:\nID:"+richiesta.getId()+"\nID della fattura:"+richiesta.getIdFattura()+"\nMotivazione richiesta:"+richiesta.getMotivoRichiesta());
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la richiesta di rimborso\n2)Rifiutare la richiesta di rimborso",2)==1) {
-                gestoreRimborso.accettaRichiestaRimborso(richiesta);
+
+                BeanFattura beanFattura = GestoreRimborsi.getInstance(utente).accettaRichiestaRimborso(richiesta);
+                GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanFattura);
+
                 view.message("Pratica di rimborso iniziata");
             }else{
-                gestoreRimborso.rifiutaRichiestaRimborso(richiesta);
+               GestoreRimborsi.getInstance((Turista) utente).rifiutaRichiestaRimborso(richiesta);
                 view.message("Richiesta di rimborso rifiutata");
             }
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Selezionare una nuova richiesta di rimborso da gestire\n2)Uscire",2)==2)break;

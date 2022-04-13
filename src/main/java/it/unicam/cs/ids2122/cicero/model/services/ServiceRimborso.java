@@ -47,6 +47,14 @@ public class ServiceRimborso extends AbstractService<RichiestaRimborso>{
     }
 
     /**
+     * Recupera tutte le richieste di rimborso di una determinata esperienza.
+     * @param uid identificativo utente
+     * @return Set di richieste di rimborso relative all'esperienza specificata.
+     */
+    public Set<RichiestaRimborso> getRichiesteRimborsoUtente(int uid){
+        return parseDataResult(getDataResult(select_base_query + " WHERE id_esperienza = " + uid + ";"));
+    }
+    /**
      * Recupera tutte le richieste di rimborso con un determinato stato.
      * @param stato stato associato alle richieste di rimborso da ottenere.
      * @return Set di richieste di rimborso.

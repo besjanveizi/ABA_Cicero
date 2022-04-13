@@ -161,20 +161,21 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
 
                     view.message("costo totale: " + esperienza.getCostoIndividuale().op_multi(String.valueOf(posti_scelti)));
                     view.message("confermare prenotazione [y/n]");
-
+                    int id;
                     boolean flag = view.fetchBool();
                     if (flag) {
                         view.message("confermata, creazione prenotazione...");
-                        GestorePrenotazioni.getInstance((Turista) utente).crea_prenotazione(esperienza, posti_scelti);
+                        id = GestorePrenotazioni.getInstance((Turista) utente).crea_prenotazione(esperienza, posti_scelti);
                     } else {
                         view.message("prenotazione annullata");
                         view.message("uscita");
+                        return;
                     }
 
                     view.message("pagare la prenotazione? [Y/N] ");
                     if(view.fetchBool())
-                    {   BeanPrenotazione b = GestorePrenotazioni.getInstance((Turista) utente).getPrenotazione(esperienza.getId());
-                        pagaPrenotazione(b);
+                    {
+                        pagaPrenotazione(GestorePrenotazioni.getInstance((Turista) utente).getPrenotazione(bean-> bean.getID_prenotazione()==id));
                         view.message("pagamento riuscito, arrivederci e grazie");
                     }
                 }

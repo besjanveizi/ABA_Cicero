@@ -70,6 +70,10 @@ public final class ServiceFattura extends AbstractService<BeanFattura> {
     private String sql_select_base = "SELECT " + colonne + " FROM public.fatture";
 
 
+    public Set<BeanFattura> sql_select(int id_fattura){
+        return parseDataResult( getDataResult(sql_select_base +  " WHERE id_fattura=" +id_fattura+ " ;"));
+    }
+
     public Set<BeanFattura> sql_select(String id_client){
         return parseDataResult( getDataResult(sql_select_base +  " WHERE id_client_origine=" + "'" + id_client + "'" +
                 " OR id_client_destinatario=" + "'" + id_client + "';"));
