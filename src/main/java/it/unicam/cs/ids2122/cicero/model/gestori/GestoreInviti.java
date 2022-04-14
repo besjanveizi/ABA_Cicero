@@ -4,9 +4,8 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceDisponibilita;
-import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceInvito;
-import it.unicam.cs.ids2122.cicero.ruoli.Turista;
+import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 
 import java.util.Set;
 
@@ -14,11 +13,11 @@ public final class GestoreInviti {
 
     private static GestoreInviti sinGestorePagamento= null;
 
-    private Turista utente_corrente;
+    private final IUtente utente_corrente;
 
    private Set<BeanInvito> ricevuti;
 
-    private GestoreInviti(Turista corrente){
+    private GestoreInviti(IUtente corrente){
         this.utente_corrente = corrente;
             carica();
     }
@@ -27,7 +26,7 @@ public final class GestoreInviti {
         ricevuti = ServiceInvito.getInstance().select(utente_corrente.getEmail());
     }
 
-    public  static GestoreInviti getInstance(Turista iUtente)  {
+    public  static GestoreInviti getInstance(IUtente iUtente)  {
         if(sinGestorePagamento == null){
            sinGestorePagamento = new GestoreInviti(iUtente);
         }return sinGestorePagamento;
@@ -55,8 +54,7 @@ public final class GestoreInviti {
     /**
      * Ripristina  i posti disponibili dell esperienza una volta rifiutato l'invito.
      * Cancella l' invito dal db.
-     *
-     * @param beanInvito
+     * @param beanInvito invito da rifiutare
      */
     public void rifiuta_invito(BeanInvito beanInvito) {
         ServiceInvito.getInstance().delete(beanInvito.getId_invito());
@@ -68,7 +66,7 @@ public final class GestoreInviti {
 
     /**
      * Recupera gli inviti ricevuti.
-     * @return
+     * @return {@code Set} degli inviti.
      */
     public Set<BeanInvito> getRicevuti() {
         return ricevuti;

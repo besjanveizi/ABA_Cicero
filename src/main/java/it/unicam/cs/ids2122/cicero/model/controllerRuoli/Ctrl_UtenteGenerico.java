@@ -49,6 +49,11 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         } while (switchMenu(scelta));
     }
 
+    /**
+     * Permette di scegliere le voci del men&ugrave dell'utente.
+     * @param scelta voce scelta.
+     * @return {@code true} se bisogna uscire dal ciclo di scelta della voce del men&ugrave, {@code false} altrimenti.
+     */
     protected boolean switchMenu(int scelta) {
         boolean loop = true;
         switch (scelta) {
@@ -123,12 +128,15 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         gestoreAutenticazione.signUp(username, email, password, utype);
     }
 
+    /**
+     * Permette di terminare l'applicazione
+     */
     protected void exit() {
         view.message("Arrivederci!");
         System.exit(0);
     }
 
-    private final void cercaEsperienze() {
+    private void cercaEsperienze() {
         String filtroNome= view.ask("Inserire una stringa per filtrare il nome delle esperienze: ");
         Set<Area> filtroAree = impostaFiltroAree();
         Set<Tag> filtroTags = impostaFiltroTag();
@@ -139,6 +147,13 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
             view.message(selezionaEsperienza(lastRicerca).toString());
     }
 
+    /**
+     * Esegue la ricerca delle esperienze nella piattaforma a seconda dei filtri impostati.
+     * @param filtroNome filtro sul nome da impostare nella ricerca.
+     * @param filtroAree filtro sulle aree da impostare nella ricerca.
+     * @param filtroTags filtro sui tag da impostare nella ricerca.
+     * @return {@code Set} di esperienze risultante dalla ricerca effettuata.
+     */
     protected Set<Esperienza> setRicerca(String filtroNome, Set<Area> filtroAree, Set<Tag> filtroTags) {
         return gestoreRicerca.ricerca(filtroNome, filtroTags, filtroAree);
     }
@@ -195,7 +210,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         view.message("Esperienze:", viewList);
         int indice = view.fetchChoice("Scegli l'indice dell'esperienza", viewList.size());
         int idEsperienza = idList.get(indice-1);
-        return esperienze.stream().filter(e -> e.getId() == idEsperienza).findFirst().get();
+        return esperienze.stream().filter(e -> e.getId() == idEsperienza).findFirst().orElseThrow();
     }
 
     private void impostaMenu() {

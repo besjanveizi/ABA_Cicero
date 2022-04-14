@@ -9,15 +9,17 @@ package it.unicam.cs.ids2122.cicero.model.entities.bean;
  */
 public enum StatoPrenotazione {
 
-    PAGATA(0),RISERVATA(1),CANCELLATA(2);
+    RISERVATA(0),
+    CANCELLATA(1),
+    PAGATA(2);
 
-    private int n;
+    private final int code;
 
-    StatoPrenotazione(int n){
-        this.n = n;
+    StatoPrenotazione(int code){
+        this.code = code;
     }
 
-    public int getN() {
-        return n;
+    public int getCode() {
+        return code;
     }
 }

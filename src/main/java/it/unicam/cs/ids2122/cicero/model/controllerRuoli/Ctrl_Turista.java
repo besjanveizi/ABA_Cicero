@@ -1,6 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.Bacheca;
+import it.unicam.cs.ids2122.cicero.model.IBacheca;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
@@ -13,7 +14,6 @@ import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 /**
@@ -21,19 +21,21 @@ import java.util.stream.Collectors;
  */
 public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
-    private GestorePrenotazioni gestorePrenotazioni;
-    private GestoreInviti gestoreInviti;
-    private GestoreFatture gestoreFatture;
-    private GestoreRimborsi gestoreRimborsi;
+    private final GestorePrenotazioni gestorePrenotazioni;
+    private final GestoreInviti gestoreInviti;
+    private final GestoreFatture gestoreFatture;
+    private final GestoreRimborsi gestoreRimborsi;
+    private final IBacheca bacheca;
 
 
     public Ctrl_Turista(Turista turista) {
         super(turista);
         impostaMenu();
-        gestoreFatture = GestoreFatture.getInstance((Turista) utente);
-        gestorePrenotazioni =GestorePrenotazioni.getInstance((Turista) utente);
+        bacheca = Bacheca.getInstance();
+        gestoreFatture = GestoreFatture.getInstance(utente);
+        gestorePrenotazioni = GestorePrenotazioni.getInstance(utente);
         gestoreRimborsi = GestoreRimborsi.getInstance(utente);
-        gestoreInviti = GestoreInviti.getInstance((Turista) utente);
+        gestoreInviti = GestoreInviti.getInstance(utente);
     }
 
     @Override
@@ -98,7 +100,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             final BeanPrenotazione finalBeanPrenotazione = beanPrenotazione;
             BeanFattura beanFattura = gestoreFatture.getEffettuati()
                     .stream()
-                    .filter(f -> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione()).findFirst().get();
+                    .filter(f -> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione()).findFirst().orElseThrow();
             if (gestoreRimborsi.rimborsa(beanPrenotazione)) {
                 view.message("rimborso automatico");
                 gestorePrenotazioni.modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
@@ -178,7 +180,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
      * Realizza il caso d' uso prenota esperienza.
      */
     private void prenotaEsperienza() {
-         Esperienza esperienza = seleziona_esperienza();
+         Esperienza esperienza = selezionaEsperienza(bacheca.getEsperienze(Esperienza::isAvailable));
 
             if (esperienza != null) {
                 int posti = esperienza.getPostiDisponibili();
@@ -190,7 +192,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
 
                 }else {
 
-                    int posti_scelti = 0;
+                    int posti_scelti;
                     while (true) {
                         view.message("inserire posti da riservare");
                         posti_scelti = view.fetchInt();
@@ -306,15 +308,6 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         }
     }
 
-    private void impostaMenu() {
-        menuItems.add("4) Prenota Esperienza");
-        menuItems.add("5) Paga Prenotazione");
-        menuItems.add("6) Invita ad una Esperienza");
-        menuItems.add("7) Gestisci Inviti");
-        menuItems.add("8) Cancella Prenotazione");
-        menuItems.add("9) Richiedi Rimborso");
-    }
-
     /**
      * Enumera e mostra le possibili scelte.
      * @return la scelta
@@ -381,15 +374,23 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                         .collect(Collectors.toList())
                         .get(view.fetchInt());
             }catch (IndexOutOfBoundsException e){
-                flag =exit_selezione() ? false:true;
+                flag = !exit_selezione();
             }
         }return null;
     }
 
-
     private boolean exit_selezione(){
         view.message("uscire dalla selezione? [y/n]");
         return view.fetchBool();
+    }
+
+    private void impostaMenu() {
+        menuItems.add("4) Prenota Esperienza");
+        menuItems.add("5) Paga Prenotazione");
+        menuItems.add("6) Invita ad una Esperienza");
+        menuItems.add("7) Gestisci Inviti");
+        menuItems.add("8) Cancella Prenotazione");
+        menuItems.add("9) Richiedi Rimborso");
     }
 
 

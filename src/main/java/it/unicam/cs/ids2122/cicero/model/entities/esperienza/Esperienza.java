@@ -144,6 +144,13 @@ public interface Esperienza {
 
     /**
      * Restituisce informazioni basilari dell'esperienza sotto forma di stringa.
+     * @return {@code String} delle informazioni.
      */
     String shortToString();
+
+    /**
+     * Riporta tutte le informazioni dettagliate, incluse quelle del percorso associato.
+     * @return {@code String} delle informazioni.
+     */
+    String longToString();
 }

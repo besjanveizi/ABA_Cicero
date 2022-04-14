@@ -15,7 +15,6 @@ import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
-import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 
 import java.util.Optional;
@@ -33,7 +32,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     private final GestoreSegnalazioni gestoreSegnalazioni;
     private final ServiceEsperienza serviceEsperienza;
     private final GestoreRimborsi gestoreRimborso;
-    private GestoreEsperienze gestoreEsperienze;
+    private final GestoreEsperienze gestoreEsperienze;
 
     public Ctrl_Amministratore(Amministratore amministratore) {
         super(amministratore);
@@ -197,7 +196,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             Set<String> viewSet=utenti.stream().map(IUtente::getUsername).collect(Collectors.toSet());
             view.message("Selezionare uno degli utenti registrati nella piattaforma:",viewSet);
             String nomeUtente=view.fetchSingleChoice(viewSet);
-            IUtente utenteScelto=utenti.stream().filter(u->u.getUsername().equals(nomeUtente)).findFirst().get();
+            IUtente utenteScelto=utenti.stream().filter(u->u.getUsername().equals(nomeUtente)).findFirst().orElseThrow();
             view.message("Utente scelto: \nusername:"+utenteScelto.getUsername()+"\nID:"+utenteScelto.getUID()+"\nTipo:"+utenteScelto.getType()+"\nEmail:"+utenteScelto.getEmail()+"\nProcedere con l'eliminazione dell'utente selezionato?");
             if(view.fetchBool()){
                 gestoreUtenti.deleteUtente(utenteScelto.getUID());
@@ -218,8 +217,8 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             }
             Set<String> viewSet=segnalazioni.stream().map(Segnalazione::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
             view.message("Selezionare una delle segnalazioni presenti nella piattaforma:",viewSet);
-            Integer id =Integer.parseInt(view.fetchSingleChoice(viewSet));
-            Segnalazione segnalazione= segnalazioni.stream().filter(s->s.getId()==id).findFirst().get();
+            int id = Integer.parseInt(view.fetchSingleChoice(viewSet));
+            Segnalazione segnalazione= segnalazioni.stream().filter(s->s.getId()==id).findFirst().orElseThrow();
             view.message("Segnalazione scelta:\nID:"+segnalazione.getId()+"\nID esperienza:"+segnalazione.getEsperienzaId()+"\nId utente:"+segnalazione.getUId()+"\nDescrizione:"+segnalazione.getDescrizione());
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la segnalazione e cancellare l'esperienza associata\n2)Rifiutare la segnalazione",2)==1) {
                 gestoreSegnalazioni.accettaSegnalazione(segnalazione);
@@ -242,8 +241,8 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             }
             Set<String> viewSet=richieste.stream().map(RichiestaRimborso::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
             view.message("Selezionare una delle richieste di rimborso presenti nella piattaforma:",viewSet);
-            Integer id =Integer.parseInt(view.fetchSingleChoice(viewSet));
-            RichiestaRimborso richiesta= richieste.stream().filter(s->s.getId()==id).findFirst().get();
+            int id = Integer.parseInt(view.fetchSingleChoice(viewSet));
+            RichiestaRimborso richiesta= richieste.stream().filter(s->s.getId()==id).findFirst().orElseThrow();
             view.message("Richiesta di rimborso scelta:\nID:"+richiesta.getId()+"\nID della fattura:"+richiesta.getIdFattura()+"\nMotivazione richiesta:"+richiesta.getMotivoRichiesta());
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la richiesta di rimborso\n2)Rifiutare la richiesta di rimborso",2)==1) {
                 BeanFattura beanFattura = gestoreRimborso.accettaRichiestaRimborso(richiesta);

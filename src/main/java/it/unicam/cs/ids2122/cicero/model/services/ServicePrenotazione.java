@@ -49,7 +49,7 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
             PreparedStatement preparedStatement = connection.prepareStatement(sql_insert, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, prenotazione.getID_esperienza());
             preparedStatement.setInt( 2, prenotazione.getID_turista());
-            preparedStatement.setInt(3, prenotazione.getStatoPrenotazione().getN());
+            preparedStatement.setInt(3, prenotazione.getStatoPrenotazione().getCode());
             preparedStatement.setInt(4, prenotazione.getPosti());
             preparedStatement.setObject(5, prenotazione.getData_prenotazione());
             preparedStatement.setObject(6, prenotazione.getScadenza());
@@ -77,7 +77,7 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
      * @param statoPrenotazione il nuovo stato
      */
     public void update(int id, StatoPrenotazione statoPrenotazione){
-        String sql_update =  "UPDATE public.prenotazioni SET stato_prenotazione=" + statoPrenotazione.getN() +
+        String sql_update =  "UPDATE public.prenotazioni SET stato_prenotazione=" + statoPrenotazione.getCode() +
                 " WHERE id_prenotazione=" + id +" ;";
         update(sql_update);
     }
@@ -119,7 +119,7 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
      * @param statoPrenotazione
      */
     public void delete(StatoPrenotazione statoPrenotazione){
-        String s = delete.concat("where stato_prenotazione=" + statoPrenotazione.getN()+";");
+        String s = delete.concat("where stato_prenotazione=" + statoPrenotazione.getCode()+";");
         delete(s);
     }
 

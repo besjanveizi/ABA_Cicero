@@ -242,4 +242,9 @@ public class SimpleEsperienza implements Esperienza {
                 "\nToponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
                 "\nTags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet());
     }
+
+    @Override
+    public String longToString() {
+        return this + percorso.toString();
+    }
 }
