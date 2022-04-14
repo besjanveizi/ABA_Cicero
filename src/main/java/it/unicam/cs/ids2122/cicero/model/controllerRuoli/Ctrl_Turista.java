@@ -61,13 +61,13 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
 
         BeanPrenotazione b = seleziona_prenotazione();
 
-        if(b.getStatoPrenotazione().equals(StatoPrenotazione.PAGATA)){
+        if(b!= null && b.getStatoPrenotazione().equals(StatoPrenotazione.PAGATA)){
             cancellaPrenotazione_pagata(b);
         }
-        if(b.getStatoPrenotazione().equals(StatoPrenotazione.RISERVATA)){
+        if(b!=null && b.getStatoPrenotazione().equals(StatoPrenotazione.RISERVATA)){
             cancellaPrenotazione_riservata(b);
         }
-        if(b.getStatoPrenotazione().equals(StatoPrenotazione.CANCELLATA)){
+        if(b!=null && b.getStatoPrenotazione().equals(StatoPrenotazione.CANCELLATA)){
             view.message("prenotazione già cancellata");
         }
     }
