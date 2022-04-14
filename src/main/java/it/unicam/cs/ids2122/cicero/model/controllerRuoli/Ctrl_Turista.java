@@ -179,6 +179,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
      */
     private void prenotaEsperienza() {
          Esperienza esperienza = seleziona_esperienza();
+
             if (esperienza != null) {
                 int posti = esperienza.getPostiDisponibili();
                 view.message("posti attualmente disponibili: " + posti);
@@ -217,7 +218,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                         view.message("pagamento riuscito, arrivederci e grazie");
                     }
                 }
-        }
+        }view.message("esperienza non selezionata");
     }
 
     /**
@@ -312,7 +313,6 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         menuItems.add("7) Gestisci Inviti");
         menuItems.add("8) Cancella Prenotazione");
         menuItems.add("9) Richiedi Rimborso");
-
     }
 
     /**
@@ -320,22 +320,22 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
      * @return la scelta
      */
     private BeanPrenotazione seleziona_prenotazione() {
-        while(true){
+        boolean flag = true;
+        if(gestorePrenotazioni.getPrenotazioni().isEmpty()) return null;
+        while(flag){
             try {
                 view.message("=====PRENOTAZIONI DISPONIBILI=====");
-               Set<BeanPrenotazione> view_p =gestorePrenotazioni.getPrenotazioni();
-               if(view_p.isEmpty()) return null;
                 view.message("=====SELEZIONA INDICE======");
                 AtomicInteger contatore = new AtomicInteger(0);
-                return view_p
+                return  gestorePrenotazioni.getPrenotazioni()
                         .stream()
                         .peek(beanPrenotazione -> view.message(contatore.getAndIncrement()+") "+ beanPrenotazione.toString()))
                         .collect(Collectors.toList()).get(view.fetchInt());
             }catch (IndexOutOfBoundsException e){
-                e.printStackTrace();
-
+                flag =exit_selezione() ? false:true;
             }
         }
+        return null;
     }
 
     /**
@@ -343,7 +343,8 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
      * @return la scelta
      */
     private Esperienza seleziona_esperienza() {
-        while(true){
+        boolean flag = true;
+        while(flag){
             try {
                 view.message("=====ESPERIENZE DISPONIBILI=====");
                 view.message("=====SELEZIONA INDICE=====");
@@ -351,13 +352,14 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                 return Bacheca.getInstance()
                         .getEsperienze(Esperienza::isAvailable)
                         .stream()
-                        .peek(esperienza -> view.message(contatore.getAndIncrement()+") " + esperienza.toString()))
+                        .peek(esperienza -> view.message(contatore.getAndIncrement()+") " + esperienza.shortToString()))
                         .collect(Collectors.toList())
                         .get(view.fetchInt());
             }catch (IndexOutOfBoundsException e){
-                e.printStackTrace();
+                flag =exit_selezione() ? false:true;
             }
         }
+        return null;
     }
 
     /**
@@ -365,10 +367,11 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
      * @return la scelta
      */
     private BeanInvito seleziona_invito() {
-        while(true){
+        if(gestoreInviti.getRicevuti().isEmpty()) return null;
+        boolean flag = true;
+        while(flag){
             try {
                 view.message("===== INVITI RICEVUTI=====");
-                if(gestoreInviti.getRicevuti().isEmpty()) return null;
                 view.message("=====SELEZIONA INVITO=====");
                 AtomicInteger contatore = new AtomicInteger(0);
                 return gestoreInviti
@@ -378,11 +381,16 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                         .collect(Collectors.toList())
                         .get(view.fetchInt());
             }catch (IndexOutOfBoundsException e){
-                e.printStackTrace();
+                flag =exit_selezione() ? false:true;
             }
-        }
+        }return null;
     }
 
+
+    private boolean exit_selezione(){
+        view.message("uscire dalla selezione? [y/n]");
+        return view.fetchBool();
+    }
 
 
 }

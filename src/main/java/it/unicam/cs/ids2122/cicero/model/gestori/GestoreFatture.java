@@ -31,9 +31,6 @@ public final class GestoreFatture {
         if(utente_corrente.getType().equals(UtenteType.TURISTA)) {
             carica();
         }
-        if(utente_corrente!=null) {
-            carica();
-        }
     }
 
     /**
