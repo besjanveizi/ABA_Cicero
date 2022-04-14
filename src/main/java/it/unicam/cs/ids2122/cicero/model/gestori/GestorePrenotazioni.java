@@ -107,7 +107,6 @@ public final class GestorePrenotazioni {
     public void modifica_stato(BeanPrenotazione beanPrenotazione, StatoPrenotazione nuovo_stato){
         ServicePrenotazione.getInstance().update(beanPrenotazione.getID_prenotazione(), nuovo_stato);
         beanPrenotazione.setStatoPrenotazione(nuovo_stato);
-
         if(nuovo_stato.equals(StatoPrenotazione.CANCELLATA)){
             int posti = ServiceDisponibilita.getInstance().select(beanPrenotazione.getID_esperienza());
             posti = posti + beanPrenotazione.getPosti();
@@ -115,31 +114,11 @@ public final class GestorePrenotazioni {
         }
     }
 
-    public void cancellaPrenotazione(BeanPrenotazione prenotazione) {
-        if (prenotazione.getStatoPrenotazione() == StatoPrenotazione.PAGATA) {
-            // ottieni la fattura_pagamento di prenotazione
-            // effettua pagamento del rimborso usando i dati della fattura_pagamento: ritorna l'oggetto new_pagamento
-            // se new_pagamento è stato autorizzato
-                // crea fattura_rimborso con i dati di new_pagamento e inseriscila nel database
-                // annulla i biglietti della prenotazione
-            // notifica amministratore dell'errore sul pagamento del rimborso (return;)
-        }
-        // modifica lo stato della prenotazione a CANCELLATA
-        // modifica la disponibilità dell'esperienza associata alla prenotazione (posti_disponibili += posti_prenotati)
-    }
 
     public Set<BeanPrenotazione> getPrenotazioni() {
         return prenotazioni;
     }
 
-    /**
-     * Filtra le prenotazioni run-time.
-     * @param filtro lo stato ricercato.
-     * @return
-     */
-    public Set<BeanPrenotazione> getPrenotazioni(StatoPrenotazione filtro){
-        return prenotazioni.stream().filter(beanPrenotazione -> beanPrenotazione.getStatoPrenotazione().getN()==filtro.getN()).collect(Collectors.toSet());
-    }
 
     /**
      * Filtra le prenotazioni per un predicato qualsiasi.

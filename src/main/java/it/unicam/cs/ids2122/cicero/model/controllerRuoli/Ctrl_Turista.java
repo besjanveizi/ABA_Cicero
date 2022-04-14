@@ -46,18 +46,30 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                 gestisciInvitiRicevuti();
                 break;
             case 8:
-                cancellaPrenotazione_riservata();
+                cancellaPrenotazione();
                 break;
             case 9:
-                cancellaPrenotazione_pagata();
-                break;
-            case 10:
                 richiediRimborso(null);
                 break;
             default:
                 loop = super.switchMenu(scelta);
         }
         return loop;
+    }
+
+    private void cancellaPrenotazione() {
+
+        BeanPrenotazione b = seleziona_prenotazione();
+
+        if(b.getStatoPrenotazione().equals(StatoPrenotazione.PAGATA)){
+            cancellaPrenotazione_pagata(b);
+        }
+        if(b.getStatoPrenotazione().equals(StatoPrenotazione.RISERVATA)){
+            cancellaPrenotazione_riservata(b);
+        }
+        if(b.getStatoPrenotazione().equals(StatoPrenotazione.CANCELLATA)){
+            view.message("prenotazione già cancellata");
+        }
     }
 
 
@@ -71,24 +83,27 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
      */
     private void richiediRimborso(BeanPrenotazione beanPrenotazione){
         view.message("gestisci rimborsi");
-
         if(beanPrenotazione== null) {
-            beanPrenotazione = seleziona_prenotazione(StatoPrenotazione.PAGATA);
+            beanPrenotazione = seleziona_prenotazione();
         }
-        if(beanPrenotazione!=null) {
+        if(beanPrenotazione!=null && beanPrenotazione.getStatoPrenotazione().equals(StatoPrenotazione.PAGATA)) {
             view.message(" elaborazione richiesta di rimborso... ");
             final BeanPrenotazione finalBeanPrenotazione = beanPrenotazione;
             BeanFattura beanFattura = GestorePagamenti.getInstance((Turista) utente).getEffettuati()
                     .stream()
                     .filter(f -> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione()).findFirst().get();
             if (GestoreRimborsi.getInstance((Turista) utente).rimborsa(beanPrenotazione)) {
+                view.message("rimborso automatico");
                 GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
                 GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanFattura);
-            } else {
-                String motivo = view.ask("inserire motivazione rimborso");
-                GestoreRimborsi.getInstance((Turista) utente).crea_rimborso(beanFattura,motivo);
+            }else{
+                if(GestoreRimborsi.getInstance(utente).richiedi_rimborso(beanPrenotazione)){
+                    view.message("possibile richiesta rimborso");
+                    String motivo = view.ask("inserire motivazione rimborso");
+                    GestoreRimborsi.getInstance((Turista) utente).crea_rimborso(beanFattura,motivo);
+                }
             }
-        }view.message("nessuna prenotazione pagata da rimborsare");
+        }view.message("nessuna prenotazione pagata da rimborsare o pagamento rimborsabile disponibile");
     }
 
     /**
@@ -205,9 +220,9 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
      */
     private void pagaPrenotazione(BeanPrenotazione beanPrenotazione){
         if(beanPrenotazione == null){
-             beanPrenotazione = seleziona_prenotazione(StatoPrenotazione.RISERVATA);
+             beanPrenotazione = seleziona_prenotazione();
         }
-        if (beanPrenotazione!=null){
+        if (beanPrenotazione!=null && beanPrenotazione.getStatoPrenotazione().equals(StatoPrenotazione.RISERVATA)){
                 view.message(beanPrenotazione.toString());
                 view.message(" avviare il pagamento? [y/n] ");
                 if (view.fetchBool()) {
@@ -215,7 +230,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                     GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanPrenotazione);
                     GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(beanPrenotazione, StatoPrenotazione.PAGATA);
                 }
-        }view.message("nessuna prenotazione presente");
+        }view.message("nessuna prenotazione presente, errore di selezione");
     }
 
     /**
@@ -244,8 +259,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
     /**
      * Permette di annullare una prenotazione, non pagata.
      */
-    private void cancellaPrenotazione_riservata() {
-        BeanPrenotazione ref = seleziona_prenotazione(StatoPrenotazione.RISERVATA);
+    private void cancellaPrenotazione_riservata(BeanPrenotazione ref) {
         if(ref==null){
             view.message("nessuna prenotazione disponibile");
         }else {
@@ -266,8 +280,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
      * Permette di annullare una prenotazione, pagata.
      * Richiama il metodo richiediRimborso()
      */
-    private void cancellaPrenotazione_pagata(){
-        BeanPrenotazione ref = seleziona_prenotazione(StatoPrenotazione.PAGATA);
+    private void cancellaPrenotazione_pagata(BeanPrenotazione ref){
         if(ref==null){
             view.message("nessuna prenotazione disponibile");
         }else {
@@ -289,22 +302,20 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         menuItems.add("5) Paga Prenotazione");
         menuItems.add("6) Invita ad una Esperienza");
         menuItems.add("7) Gestisci Inviti");
-        menuItems.add("8) Annulla Prenotazione riservata");
-        menuItems.add("9) Annulla Prenotazione pagata");
-        menuItems.add("10) Richiedi Rimborso");
+        menuItems.add("8) Cancella Prenotazione");
+        menuItems.add("9) Richiedi Rimborso");
 
     }
 
     /**
      * Enumera e mostra le possibili scelte.
-     * @param statoPrenotazione
      * @return la scelta
      */
-    private BeanPrenotazione seleziona_prenotazione(StatoPrenotazione statoPrenotazione) {
+    private BeanPrenotazione seleziona_prenotazione() {
         while(true){
             try {
-                view.message("=====PRENOTAZIONI DISPONIBILI===== STATO --> "+ statoPrenotazione);
-               Set<BeanPrenotazione> view_p = GestorePrenotazioni.getInstance((Turista) utente).getPrenotazioni(statoPrenotazione);
+                view.message("=====PRENOTAZIONI DISPONIBILI=====");
+               Set<BeanPrenotazione> view_p = GestorePrenotazioni.getInstance((Turista) utente).getPrenotazioni();
                if(view_p.isEmpty()) return null;
                view.message("=====SELEZIONA INDICE======");
                 AtomicInteger contatore = new AtomicInteger(0);

@@ -64,6 +64,21 @@ public final class GestoreRimborsi {
             return false;
         }
     }
+    /**
+     * Verifica se il rimborso può avvenire automaticamente.
+     * @param beanPrenotazione
+     * @return
+     */
+    public boolean richiedi_rimborso(BeanPrenotazione beanPrenotazione){
+        Esperienza esperienza = ServiceEsperienza.getInstance().getEsperienza(beanPrenotazione.getID_esperienza());
+        if(esperienza.getStatus().equals(EsperienzaStatus.CONCLUSA) ){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
 
     /**
      * Crea un rimborso nel DB
