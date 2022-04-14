@@ -38,9 +38,6 @@ public final class GestoreRimborsi {
         if(iUtente.getType().equals(UtenteType.ADMIN)){
             rimborsi = ServiceRimborso.getInstance().getRichiesteRimborso();
         }
-        else {
-            rimborsi = ServiceRimborso.getInstance().getRichiesteRimborsoUtente(iUtente.getUID());
-        }
     }
 
 
@@ -64,8 +61,9 @@ public final class GestoreRimborsi {
             return false;
         }
     }
+
     /**
-     * Verifica se il rimborso può avvenire automaticamente.
+     * Verifica se il rimborso può avvenire tramite richiesta
      * @param beanPrenotazione
      * @return
      */
@@ -77,8 +75,6 @@ public final class GestoreRimborsi {
             return false;
         }
     }
-
-
 
     /**
      * Crea un rimborso nel DB
