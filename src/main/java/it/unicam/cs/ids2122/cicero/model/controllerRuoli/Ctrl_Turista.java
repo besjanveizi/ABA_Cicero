@@ -8,7 +8,6 @@ import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.gestori.*;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
-import it.unicam.cs.ids2122.cicero.view.IView;
 
 
 import java.awt.*;
@@ -16,17 +15,25 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 /**
  * Rappresenta un gestore radice un utente <code>Turista</code> che elabora le sue interazioni con il sistema.
  */
 public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
+    private GestorePrenotazioni gestorePrenotazioni;
+    private GestoreInviti gestoreInviti;
+    private GestoreFatture gestoreFatture;
+    private GestoreRimborsi gestoreRimborsi;
+
 
     public Ctrl_Turista(Turista turista) {
         super(turista);
         impostaMenu();
+        gestoreFatture = GestoreFatture.getInstance((Turista) utente);
+        gestorePrenotazioni =GestorePrenotazioni.getInstance((Turista) utente);
+        gestoreRimborsi = GestoreRimborsi.getInstance(utente);
+        gestoreInviti = GestoreInviti.getInstance((Turista) utente);
     }
 
     @Override
@@ -89,18 +96,18 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         if(beanPrenotazione!=null && beanPrenotazione.getStatoPrenotazione().equals(StatoPrenotazione.PAGATA)) {
             view.message(" elaborazione richiesta di rimborso... ");
             final BeanPrenotazione finalBeanPrenotazione = beanPrenotazione;
-            BeanFattura beanFattura = GestorePagamenti.getInstance((Turista) utente).getEffettuati()
+            BeanFattura beanFattura = gestoreFatture.getEffettuati()
                     .stream()
                     .filter(f -> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione()).findFirst().get();
-            if (GestoreRimborsi.getInstance((Turista) utente).rimborsa(beanPrenotazione)) {
+            if (gestoreRimborsi.rimborsa(beanPrenotazione)) {
                 view.message("rimborso automatico");
-                GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
-                GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanFattura);
+                gestorePrenotazioni.modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
+                gestoreFatture.crea_fattura(beanFattura);
             }else{
-                if(GestoreRimborsi.getInstance(utente).richiedi_rimborso(beanPrenotazione)){
+                if(gestoreRimborsi.richiedi_rimborso(beanPrenotazione)){
                     view.message("possibile richiesta rimborso");
                     String motivo = view.ask("inserire motivazione rimborso");
-                    GestoreRimborsi.getInstance((Turista) utente).crea_rimborso(beanFattura,motivo);
+                    gestoreRimborsi.crea_rimborso(beanFattura,motivo);
                 }
             }
         }view.message("nessuna prenotazione pagata da rimborsare o pagamento rimborsabile disponibile");
@@ -120,7 +127,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             view.message("accetta invito? [y/n] ");
             boolean accetta = view.fetchBool();
             if(accetta){
-                GestorePrenotazioni.getInstance((Turista) utente).crea_prenotazione(beanInvito);
+                gestorePrenotazioni.crea_prenotazione(beanInvito);
                 view.message("prenotazione effettuata");
             }else {
                 view.message("cancellare invito? [y/n] ");
@@ -136,7 +143,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
      * @param beanInvito da eliminare
      */
     private void cancellaInvito(BeanInvito beanInvito) {
-            GestoreInviti.getInstance((Turista) utente).rifiuta_invito(beanInvito);
+          gestoreInviti.rifiuta_invito(beanInvito);
     }
 
     /**
@@ -159,7 +166,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                view.message("inserire il numero di posti");
                int posti_inseriti = view.fetchInt();
                if(posti_inseriti>0 && posti_inseriti<= posti){
-                   GestoreInviti.getInstance((Turista) utente).crea_invito(esperienza, mail_invitato, posti_inseriti);
+                   gestoreInviti.crea_invito(esperienza, mail_invitato, posti_inseriti);
                    view.message("invio spedito");
                }
            }
@@ -196,7 +203,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                     boolean flag = view.fetchBool();
                     if (flag) {
                         view.message("confermata, creazione prenotazione...");
-                        id = GestorePrenotazioni.getInstance((Turista) utente).crea_prenotazione(esperienza, posti_scelti);
+                        id = gestorePrenotazioni.crea_prenotazione(esperienza, posti_scelti);
                     } else {
                         view.message("prenotazione annullata");
                         view.message("uscita");
@@ -206,7 +213,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                     view.message("pagare la prenotazione? [y/n] ");
                     if(view.fetchBool())
                     {
-                        pagaPrenotazione(GestorePrenotazioni.getInstance((Turista) utente).getPrenotazione(bean-> bean.getID_prenotazione()==id));
+                        pagaPrenotazione(gestorePrenotazioni.getPrenotazione(bean-> bean.getID_prenotazione()==id));
                         view.message("pagamento riuscito, arrivederci e grazie");
                     }
                 }
@@ -227,8 +234,8 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
                 view.message(" avviare il pagamento? [y/n] ");
                 if (view.fetchBool()) {
                     stub_mod_pagamento();
-                    GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanPrenotazione);
-                    GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(beanPrenotazione, StatoPrenotazione.PAGATA);
+                    gestoreFatture.crea_fattura(beanPrenotazione);
+                    gestorePrenotazioni.modifica_stato(beanPrenotazione, StatoPrenotazione.PAGATA);
                 }
         }view.message("nessuna prenotazione presente, errore di selezione");
     }
@@ -268,7 +275,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             view.message("confermare y/n");
             boolean flag = view.fetchBool();
             if (flag) {
-                GestorePrenotazioni.getInstance((Turista) utente).modifica_stato(ref, StatoPrenotazione.CANCELLATA);
+                gestorePrenotazioni.modifica_stato(ref, StatoPrenotazione.CANCELLATA);
                 view.message("ok!");
             } else {
                 view.message("la prenotazione non è stata cancellata");
@@ -316,9 +323,9 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         while(true){
             try {
                 view.message("=====PRENOTAZIONI DISPONIBILI=====");
-               Set<BeanPrenotazione> view_p = GestorePrenotazioni.getInstance((Turista) utente).getPrenotazioni();
+               Set<BeanPrenotazione> view_p =gestorePrenotazioni.getPrenotazioni();
                if(view_p.isEmpty()) return null;
-               view.message("=====SELEZIONA INDICE======");
+                view.message("=====SELEZIONA INDICE======");
                 AtomicInteger contatore = new AtomicInteger(0);
                 return view_p
                         .stream()
@@ -361,10 +368,10 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         while(true){
             try {
                 view.message("===== INVITI RICEVUTI=====");
-                if(GestoreInviti.getInstance((Turista) utente).getRicevuti().isEmpty()) return null;
+                if(gestoreInviti.getRicevuti().isEmpty()) return null;
                 view.message("=====SELEZIONA INVITO=====");
                 AtomicInteger contatore = new AtomicInteger(0);
-                return GestoreInviti.getInstance((Turista) utente)
+                return gestoreInviti
                         .getRicevuti()
                         .stream()
                         .peek(invito -> view.message(contatore.getAndIncrement()+") " + invito.toString()))

@@ -16,16 +16,16 @@ import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class GestorePagamenti {
+public final class GestoreFatture {
 
-    private static GestorePagamenti gestorePagamenti = null;
+    private static GestoreFatture gestorePagamenti = null;
 
     private Turista utente_corrente;
 
     private Set<BeanFattura> ricevuti;
     private Set<BeanFattura> effettuati;
 
-    private GestorePagamenti(Turista iUtente) {
+    private GestoreFatture(Turista iUtente) {
         this.utente_corrente = iUtente;
         if(utente_corrente!=null) {
             carica();
@@ -49,9 +49,9 @@ public final class GestorePagamenti {
              .collect(Collectors.toSet());
     }
 
-    public static GestorePagamenti getInstance(Turista iUtente){
+    public static GestoreFatture getInstance(Turista iUtente){
         if(gestorePagamenti == null) {
-            gestorePagamenti = new GestorePagamenti(iUtente);
+            gestorePagamenti = new GestoreFatture(iUtente);
         }return gestorePagamenti;
     }
 
