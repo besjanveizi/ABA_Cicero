@@ -4,6 +4,7 @@ import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceTag;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -15,8 +16,10 @@ public class GestoreTag {
 
     private static GestoreTag instance = null;
     private Set<Tag> allTags;
+    private final ServiceTag service;
 
-    private GestoreTag(){
+    private GestoreTag() {
+        service = ServiceTag.getInstance();
         updateTags();
     }
 
@@ -29,8 +32,8 @@ public class GestoreTag {
     }
 
     private void updateTags() {
-        ServiceTag service= ServiceTag.getInstance();
-        allTags=service.getTags();
+        allTags = new HashSet<>();
+        allTags = service.getTags();
     }
 
     /**
@@ -47,8 +50,7 @@ public class GestoreTag {
      * @param tagName nome
      * @param tagDescription descrizione
      */
-    public void add(String tagName, String tagDescription) {
-        ServiceTag service= ServiceTag.getInstance();
+    public void proponi(String tagName, String tagDescription) {
         service.insertTag(tagName,tagDescription,TagStatus.PROPOSTO);
         updateTags();
     }
@@ -59,7 +61,7 @@ public class GestoreTag {
      * @param tagDescription descrizione
      * @param tagStatus stato
      */
-    public void add(String tagName, String tagDescription, TagStatus tagStatus) {
+    public void definisci(String tagName, String tagDescription, TagStatus tagStatus) {
         ServiceTag service= ServiceTag.getInstance();
         allTags.add(service.insertTag(tagName,tagDescription,tagStatus));
     }

@@ -1,6 +1,5 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
-import com.google.common.collect.Sets;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
@@ -116,6 +115,18 @@ public final class GestorePrenotazioni {
         }
     }
 
+    public void cancellaPrenotazione(BeanPrenotazione prenotazione) {
+        if (prenotazione.getStatoPrenotazione() == StatoPrenotazione.PAGATA) {
+            // ottieni la fattura_pagamento di prenotazione
+            // effettua pagamento del rimborso usando i dati della fattura_pagamento: ritorna l'oggetto new_pagamento
+            // se new_pagamento è stato autorizzato
+                // crea fattura_rimborso con i dati di new_pagamento e inseriscila nel database
+                // annulla i biglietti della prenotazione
+            // notifica amministratore dell'errore sul pagamento del rimborso (return;)
+        }
+        // modifica lo stato della prenotazione a CANCELLATA
+        // modifica la disponibilità dell'esperienza associata alla prenotazione (posti_disponibili += posti_prenotati)
+    }
 
     public Set<BeanPrenotazione> getPrenotazioni() {
         return prenotazioni;

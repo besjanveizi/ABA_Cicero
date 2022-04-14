@@ -15,7 +15,6 @@ import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,9 +23,22 @@ import java.util.stream.Collectors;
  */
 public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
+    private final GestoreTag gestoreTag;
+    private final GestoreAree gestoreAree;
+    private final GestoreUtenti gestoreUtenti;
+    private final GestoreSegnalazioni gestoreSegnalazioni;
+    private final ServiceEsperienza serviceEsperienza;
+    private final GestoreRimborsi gestoreRimborso;
+
     public Ctrl_Amministratore(Amministratore amministratore) {
         super(amministratore);
         impostaMenu();
+        gestoreTag = GestoreTag.getInstance();
+        gestoreAree = GestoreAree.getInstance();
+        gestoreUtenti = GestoreUtenti.getInstance();
+        gestoreSegnalazioni = GestoreSegnalazioni.getInstance();
+        serviceEsperienza = ServiceEsperienza.getInstance();
+        gestoreRimborso = GestoreRimborsi.getInstance(utente);
     }
 
     @Override
@@ -59,7 +71,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void gestisciTagProposti() {
         while(true){
-            GestoreTag gestoreTag= GestoreTag.getInstance();
             Set<Tag> proposti = gestoreTag.getTags(e -> e.getState().equals(TagStatus.PROPOSTO));
             Set<String> viewSet=proposti.stream().map(Tag::getName).collect(Collectors.toSet());
             if(proposti.isEmpty()){
@@ -76,7 +87,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void approvaTag(Tag t){
         view.message("Tag "+t.getName()+" selezionato, descrizione: "+t.getDescrizione()+"."+"\nVuoi approvare il tag?");
-        GestoreTag gestoreTag= GestoreTag.getInstance();
         if(view.fetchBool()){
             gestoreTag.changeStatus(t,TagStatus.APPROVATO);
         }else{
@@ -85,7 +95,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     }
 
     private void definisciTag() {
-        GestoreTag gestoreTag= GestoreTag.getInstance();
         Set<Tag> allTags = gestoreTag.getTags(t->true);
         boolean done=false,annulla=false;
         String nome="";
@@ -120,7 +129,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         }
         view.message("Vuoi confermare la definizione del tag "+nome+" con descrizione "+descrizione+"?");
         if(view.fetchBool()){
-            gestoreTag.add(nome,descrizione,TagStatus.APPROVATO);
+            gestoreTag.definisci(nome,descrizione,TagStatus.APPROVATO);
             view.message("il tag "+nome+" è stato aggiunto alla collezione di tag della piattaforma.");
         }else{
             annullaDefinizione("tag");
@@ -131,7 +140,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     }
 
     private void definisciArea() {
-        GestoreAree gestoreAree=GestoreAree.getInstance();
         Set<Area> allAree=gestoreAree.getAree();
         boolean done=false, annulla=false;
         String nome="";
@@ -175,7 +183,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void gestisciUtenti(){
         while(true){
-            GestoreUtenti gestoreUtenti=GestoreUtenti.getInstance();
             Set<IUtente> utenti=gestoreUtenti.getUtenti(u->u.getType().equals(UtenteType.CICERONE)||u.getType().equals(UtenteType.TURISTA));
             Set<String> viewSet=utenti.stream().map(IUtente::getUsername).collect(Collectors.toSet());
             view.message("Selezionare uno degli utenti registrati nella piattaforma:",viewSet);
@@ -194,7 +201,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void gestisciSegnalazioni(){
         while(true){
-            GestoreSegnalazioni gestoreSegnalazioni= GestoreSegnalazioni.getInstance();
             Set<Segnalazione> segnalazioni=gestoreSegnalazioni.getSegnalazioni(s->s.getState().equals(SegnalazioneStatus.PENDING));
             if(segnalazioni.isEmpty()){
                 view.message("Non sono presenti segnalazioni nella piattaforma.");
@@ -208,7 +214,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la segnalazione e cancellare l'esperienza associata\n2)Rifiutare la segnalazione",2)==1) {
                 gestoreSegnalazioni.accettaSegnalazione(segnalazione);
                 view.message("Pratica di cancellazione esperienza iniziata");
-                ServiceEsperienza serviceEsperienza=ServiceEsperienza.getInstance();
                 serviceEsperienza.remove(segnalazione.getEsperienzaId());
             }else{
                 gestoreSegnalazioni.rifiutaSegnalazione(segnalazione);
@@ -220,7 +225,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void gestisciRimborsi(){
         while(true){
-            GestoreRimborsi gestoreRimborso= GestoreRimborsi.getInstance(utente);
             Set<RichiestaRimborso> richieste=gestoreRimborso.getRimborsi(r -> r.getState().equals(RimborsoStatus.PENDING));
             if(richieste.isEmpty()){
                 view.message("Non sono presenti richieste di rimborso nella piattaforma.");
@@ -233,7 +237,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             view.message("Richiesta di rimborso scelta:\nID:"+richiesta.getId()+"\nID della fattura:"+richiesta.getIdFattura()+"\nMotivazione richiesta:"+richiesta.getMotivoRichiesta());
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la richiesta di rimborso\n2)Rifiutare la richiesta di rimborso",2)==1) {
 
-                BeanFattura beanFattura = GestoreRimborsi.getInstance(utente).accettaRichiestaRimborso(richiesta);
+                BeanFattura beanFattura = gestoreRimborso.accettaRichiestaRimborso(richiesta);
                 GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanFattura);
 
                 view.message("Pratica di rimborso iniziata");

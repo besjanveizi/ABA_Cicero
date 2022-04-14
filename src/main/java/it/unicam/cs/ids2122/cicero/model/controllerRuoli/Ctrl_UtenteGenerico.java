@@ -26,10 +26,10 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
 
     protected final IView<String> view;
     protected List<String> menuItems;
-    private GestoreRicerca gestoreRicerca;
+    private final GestoreRicerca gestoreRicerca;
     private Set<Esperienza> lastRicerca;
-    private Logger logger = Logger.getLogger(Piattaforma.class.getName());
-    private GestoreAutenticazione gestoreAutenticazione;
+    private final Logger logger = Logger.getLogger(Piattaforma.class.getName());
+    private final GestoreAutenticazione gestoreAutenticazione;
 
     public Ctrl_UtenteGenerico() {
         this.view = Piattaforma.getInstance().getView();
@@ -73,7 +73,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         do {
             view.message("\n--AUTENTICAZIONE--\nScegli una delle due operazioni:");
             int choice = view.fetchChoice("1) LogIn\n2) SignIn\n3) Torna al menù principale", 3);
-            if (choice == 2) signIn();
+            if (choice == 2) signUp();
             else if (choice == 3) return;
             else {
                 view.message("\n--LOGIN--");
@@ -84,7 +84,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         } while (true);
     }
 
-    private void signIn() {
+    private void signUp() {
         String email;
         boolean backtrack = false;
         view.message("\n--REGISTRAZIONE--");

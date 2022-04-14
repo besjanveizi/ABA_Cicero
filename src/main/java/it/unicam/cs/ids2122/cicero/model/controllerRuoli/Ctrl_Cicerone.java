@@ -11,7 +11,6 @@ import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
-import it.unicam.cs.ids2122.cicero.view.IView;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -25,12 +24,14 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     private final GestorePercorso gestorePercorso;
     private final GestoreEsperienze gestoreEsperienze;
     private final Cicerone cicerone;
+    private final GestoreTag gestoreTag;
 
     public Ctrl_Cicerone(Cicerone cicerone) {
         super(cicerone);
         this.cicerone = cicerone;
         impostaMenu();
         gestoreEsperienze = GestoreEsperienze.getInstance(cicerone);
+        gestoreTag = GestoreTag.getInstance();
         gestorePercorso = new GestorePercorso(view);
     }
 
@@ -77,7 +78,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     }
 
     private void proponiTag() {
-        Set<Tag> allTags = GestoreTag.getInstance().getTags(p -> true);
+        Set<Tag> allTags = gestoreTag.getTags(p -> true);
         String newTagName = "";
         boolean annulla = false;
         while (!annulla) {
@@ -105,7 +106,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
             }
             view.message("Confermare la proposta del tag? [Y,n]");
             if (view.fetchBool()) {
-                GestoreTag.getInstance().add(newTagName, descrizioneTag);
+                gestoreTag.proponi(newTagName, descrizioneTag);
                 view.message("Il tag è stato proposto");
             }
             else view.message("Proposta del tag annullata");
@@ -186,7 +187,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     }
 
     private Set<Tag> impostaTags() {
-        Set<Tag> tagsApprovati = GestoreTag.getInstance().getTags(e -> e.getState().equals(TagStatus.APPROVATO));
+        Set<Tag> tagsApprovati = gestoreTag.getTags(e -> e.getState().equals(TagStatus.APPROVATO));
         Set<String> viewSet = tagsApprovati.stream().map(Tag::getName).collect(Collectors.toSet());
         view.message("Scegli i tag da associare all'esperienza", viewSet);
         Set<String> viewSubSet = view.fetchSubSet(viewSet);

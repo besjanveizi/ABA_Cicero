@@ -47,9 +47,7 @@ public class GestoreEsperienze {
 
     private void updateEsperienze() {
         esperienze = new HashSet<>();
-        Set<Esperienza> temp = bacheca.getEsperienze(e -> e.getCiceroneCreatore().equals(cicerone));
-        //Set<Esperienza> temp = serviceEsperienza.download(cicerone.getUID());
-        esperienze.addAll(temp);
+        esperienze.addAll(bacheca.getEsperienze(e -> e.getCiceroneCreatore().equals(cicerone)));
     }
 
     /**

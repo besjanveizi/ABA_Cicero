@@ -7,7 +7,6 @@ import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.territorio.Area;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
