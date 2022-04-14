@@ -93,7 +93,7 @@ public final class GestoreRimborsi {
      */
     public BeanFattura accettaRichiestaRimborso(RichiestaRimborso richiesta){
        changeStatus(richiesta,RimborsoStatus.ACCETTATA);
-       return ServiceFattura.getInstance().sql_select(richiesta.getId()).iterator().next();
+       return ServiceFattura.getInstance().sql_select(richiesta.getIdFattura()).iterator().next();
     }
 
     /**
@@ -112,6 +112,7 @@ public final class GestoreRimborsi {
     private void changeStatus(RichiestaRimborso richiesta, RimborsoStatus stato){
         ServiceRimborso serviceRimborso=ServiceRimborso.getInstance();
         serviceRimborso.updateRichiestaRimborsoStatus(richiesta,stato);
+        carica();
     }
 
     /**

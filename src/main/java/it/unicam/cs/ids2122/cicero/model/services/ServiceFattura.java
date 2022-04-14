@@ -20,7 +20,7 @@ public final class ServiceFattura extends AbstractService<BeanFattura> {
     private static ServiceFattura  serviceFattura = null;
 
     private final String sql_insert = "INSERT INTO public.fatture( id_prenotazione, id_client_origine, id_client_destinatario, " +
-            "data_pagamento, importo, valuta, tipo_fattura) VALUES ( ?, ?, ?, ?, ?, ?, ?);";
+            "data_pagamento, importo, valuta, tipo_fattura) VALUES ( ?, ?, ?, ?, ?, ?, ? );";
 
     private String colonne = "id_fattura, id_prenotazione, id_client_origine, id_client_destinatario, data_pagamento, " +
             "importo, valuta, tipo_fattura";

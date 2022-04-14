@@ -247,10 +247,10 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             view.message("Richiesta di rimborso scelta:\nID:"+richiesta.getId()+"\nID della fattura:"+richiesta.getIdFattura()+"\nMotivazione richiesta:"+richiesta.getMotivoRichiesta());
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la richiesta di rimborso\n2)Rifiutare la richiesta di rimborso",2)==1) {
                 BeanFattura beanFattura = gestoreRimborso.accettaRichiestaRimborso(richiesta);
-                GestoreFatture.getInstance((Turista) utente).crea_fattura(beanFattura);
+                GestoreFatture.getInstance( utente).crea_fattura(beanFattura);
                 view.message("Pratica di rimborso iniziata");
             }else{
-               GestoreRimborsi.getInstance((Turista) utente).rifiutaRichiestaRimborso(richiesta);
+               GestoreRimborsi.getInstance( utente).rifiutaRichiestaRimborso(richiesta);
                 view.message("Richiesta di rimborso rifiutata");
             }
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Selezionare una nuova richiesta di rimborso da gestire\n2)Uscire",2)==2)break;
