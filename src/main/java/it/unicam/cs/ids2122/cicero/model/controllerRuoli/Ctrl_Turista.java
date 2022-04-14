@@ -252,6 +252,7 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             case 2: view.message("IBAN");
                     view.ask("inserire iban");
                     break;
+            default:break;
         }
 
     }
