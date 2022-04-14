@@ -46,7 +46,7 @@ public class ServiceRimborso extends AbstractService<RichiestaRimborso>{
      * @return Richiesta di rimborso generata
      */
     public RichiestaRimborso insertRichiestaRimborso(int id_fattura, String motivoRichiesta, RimborsoStatus stato){
-        int id= getGeneratedKey(MessageFormat.format(insert_query,id_fattura,"'"+motivoRichiesta+"'",stato));
+        int id= getGeneratedKey(MessageFormat.format(insert_query,id_fattura,"'"+motivoRichiesta+"'",stato.getCode()));
         return new SimpleRichiestaRimborso(id,id_fattura,motivoRichiesta,stato);
     }
 

@@ -10,6 +10,7 @@ import it.unicam.cs.ids2122.cicero.model.services.ServicePrenotazione;
 import it.unicam.cs.ids2122.cicero.persistence.SystemConstraints;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
+import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -20,14 +21,14 @@ public final class GestoreFatture {
 
     private static GestoreFatture gestorePagamenti = null;
 
-    private Turista utente_corrente;
+    private IUtente utente_corrente;
 
     private Set<BeanFattura> ricevuti;
     private Set<BeanFattura> effettuati;
 
-    private GestoreFatture(Turista iUtente) {
+    private GestoreFatture(IUtente iUtente) {
         this.utente_corrente = iUtente;
-        if(utente_corrente!=null) {
+        if(utente_corrente.getType().equals(UtenteType.TURISTA)) {
             carica();
         }
     }
@@ -49,7 +50,7 @@ public final class GestoreFatture {
              .collect(Collectors.toSet());
     }
 
-    public static GestoreFatture getInstance(Turista iUtente){
+    public static GestoreFatture getInstance(IUtente iUtente){
         if(gestorePagamenti == null) {
             gestorePagamenti = new GestoreFatture(iUtente);
         }return gestorePagamenti;
@@ -71,7 +72,7 @@ public final class GestoreFatture {
         beanFattura.setId_client_destinatario(SystemConstraints.ID_SYSTEM);
         ServiceFattura.getInstance().insert(beanFattura);
         effettuati.add(beanFattura);
-        ServicePrenotazione.getInstance().update(beanPrenotazione.getID_prenotazione(),StatoPrenotazione.PAGATA);
+        //ServicePrenotazione.getInstance().update(beanPrenotazione.getID_prenotazione(),StatoPrenotazione.PAGATA);
     }
 
     /**
