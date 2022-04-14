@@ -1,6 +1,9 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.rimborso.RichiestaRimborso;
 import it.unicam.cs.ids2122.cicero.model.entities.rimborso.RimborsoStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.segnalazione.Segnalazione;
@@ -26,19 +29,23 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     private final GestoreTag gestoreTag;
     private final GestoreAree gestoreAree;
     private final GestoreUtenti gestoreUtenti;
+    private final GestoreRicerca gestoreRicerca;
     private final GestoreSegnalazioni gestoreSegnalazioni;
     private final ServiceEsperienza serviceEsperienza;
     private final GestoreRimborsi gestoreRimborso;
+    private GestoreEsperienze gestoreEsperienze;
 
     public Ctrl_Amministratore(Amministratore amministratore) {
         super(amministratore);
         impostaMenu();
         gestoreTag = GestoreTag.getInstance();
         gestoreAree = GestoreAree.getInstance();
+        gestoreEsperienze = GestoreEsperienze.getInstance(amministratore);
         gestoreUtenti = GestoreUtenti.getInstance();
         gestoreSegnalazioni = GestoreSegnalazioni.getInstance();
         serviceEsperienza = ServiceEsperienza.getInstance();
         gestoreRimborso = GestoreRimborsi.getInstance(utente);
+        gestoreRicerca = new GestoreRicerca();
     }
 
     @Override
@@ -62,6 +69,9 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
                 break;
             case 9:
                 gestisciRimborsi();
+                break;
+            case 10:
+                cancellaEsperienza();
                 break;
             default:
                 loop = super.switchMenu(scelta);
@@ -247,6 +257,37 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         }
     }
 
+    private void cancellaEsperienza() {
+        Set<Esperienza> esperienze = gestoreEsperienze
+                .getAllEsperienze(e-> e.getStatus()== EsperienzaStatus.IDLE || e.getStatus()== EsperienzaStatus.VALIDA);
+        if (esperienze.isEmpty()){
+            view.message("Non ci sono esperienze da cancellare");
+        }
+        else {
+            Esperienza e = selezionaEsperienza(esperienze);
+            view.message(e.toString());
+            Set<BeanPrenotazione> prenotazioni = gestoreEsperienze.getPrenotazioni(e);
+            if (!prenotazioni.isEmpty()) {
+                view.message("\nLa cancellazione dell'esperienza comporterà la cancellazione automatica " +
+                        "(e rimborso se previsto) di " + prenotazioni.size() + " prenotazioni associate.\n");
+            }
+            int scelta = view.fetchChoice("1) Prosegui con la cancellazione\n2) Torna al menu principale",
+                    2);
+            if (scelta == 2) {
+                view.message("L'esperienza non è stata cancellata");
+            }
+            else {
+                gestoreEsperienze.cancellaEsperienza(e, prenotazioni);
+                view.message("L'esperienza + " + e.getName() + " è stata cancellata");
+            }
+        }
+    }
+
+    @Override
+    protected Set<Esperienza> setRicerca(String filtroNome, Set<Area> filtroAree, Set<Tag> filtroTags) {
+        return gestoreRicerca.ricerca_avanzata(filtroNome, filtroTags, filtroAree);
+    }
+
     private void impostaMenu() {
         menuItems.add("4) Definisci Nuova Area");
         menuItems.add("5) Definisci Nuovo Tag");
@@ -254,6 +295,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         menuItems.add("7) Gestisci utenti");
         menuItems.add("8) Gestisci segnalazioni");
         menuItems.add("9) Gestisci rimborsi");
+        menuItems.add("10) Cancella Esperienza");
     }
 }
 

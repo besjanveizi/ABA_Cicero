@@ -2,15 +2,18 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.Bacheca;
 import it.unicam.cs.ids2122.cicero.model.IBacheca;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
-import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
-import it.unicam.cs.ids2122.cicero.model.services.ServicePrenotazione;
+import it.unicam.cs.ids2122.cicero.model.services.*;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
+import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
+import it.unicam.cs.ids2122.cicero.ruoli.Turista;
+import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 import it.unicam.cs.ids2122.cicero.util.Money;
 
 import java.time.LocalDateTime;
@@ -24,30 +27,33 @@ import java.util.stream.Collectors;
 public class GestoreEsperienze {
 
     private Set<Esperienza> esperienze;
-    private final Cicerone cicerone;
+    private final IUtente utente;
     private static GestoreEsperienze instance = null;
     private static ServiceEsperienza serviceEsperienza;
     private static IBacheca bacheca;
 
     /**
      * Crea un gestore delle esperienze per il dato <code>Cicerone</code>.
-     * @param cicerone <code>Cicerone</code> a cui il gestore si riferisce.
+     * @param utente <code>Cicerone</code> a cui il gestore si riferisce.
      */
-    private GestoreEsperienze(Cicerone cicerone) {
-        this.cicerone = cicerone;
+    private GestoreEsperienze(IUtente utente) {
+        this.utente = utente;
         serviceEsperienza = ServiceEsperienza.getInstance();
         bacheca = Bacheca.getInstance();
         updateEsperienze();
     }
 
-    public static GestoreEsperienze getInstance(Cicerone cicerone) {
-        if (instance == null) instance = new GestoreEsperienze(cicerone);
+    public static GestoreEsperienze getInstance(IUtente utente) {
+        if (instance == null) instance = new GestoreEsperienze(utente);
         return instance;
     }
 
     private void updateEsperienze() {
         esperienze = new HashSet<>();
-        esperienze.addAll(bacheca.getEsperienze(e -> e.getCiceroneCreatore().equals(cicerone)));
+        if (utente.getType() == UtenteType.CICERONE){
+            esperienze.addAll(bacheca.getEsperienze(e -> e.getCiceroneCreatore().equals(utente)));
+        }
+        else esperienze.addAll(bacheca.getEsperienze(e -> true));
     }
 
     /**
@@ -61,7 +67,7 @@ public class GestoreEsperienze {
     /**
      * Aggiunge un'{@code Esperienza} tra quelle create dal {@code Cicerone}.
      * @param nomeE nome dell'esperienza.
-     * @param cicerone
+     * @param utente
      * @param descrizioneE
      * @param dI
      * @param dF
@@ -72,10 +78,10 @@ public class GestoreEsperienze {
      * @param maxRiserva
      * @param chosenTags
      */
-    public void add(String nomeE, Cicerone cicerone, String descrizioneE, LocalDateTime dI, LocalDateTime dF, int minP,
+    public void add(String nomeE, Cicerone utente, String descrizioneE, LocalDateTime dI, LocalDateTime dF, int minP,
                     int maxP, Percorso percorso, Money costoIndividuale, int maxRiserva, Set<Tag> chosenTags) {
         Esperienza e =
-                serviceEsperienza.upload(nomeE, cicerone, descrizioneE, dI, dF, minP, maxP, percorso,
+                serviceEsperienza.upload(nomeE, utente, descrizioneE, dI, dF, minP, maxP, percorso,
                 costoIndividuale, maxRiserva, chosenTags);
         bacheca.add(e);
         updateEsperienze();
@@ -88,9 +94,20 @@ public class GestoreEsperienze {
     public void cancellaEsperienza(Esperienza e, Set<BeanPrenotazione> prenotazioni) {
         serviceEsperienza.updateStatus(e.getId(), EsperienzaStatus.CANCELLATA);
         for (BeanPrenotazione p : prenotazioni) {
-            if (p.getStatoPrenotazione() == StatoPrenotazione.PAGATA)
-                // TODO: rimborsa la prenotazione e annulla i biglietti
-            ServicePrenotazione.getInstance().update(p.getID_prenotazione(), StatoPrenotazione.CANCELLATA);
+            if (p.getStatoPrenotazione() == StatoPrenotazione.CANCELLATA) continue;
+            IUtente turista = ServiceUtente.getInstance().getUser(p.getID_turista()).get();
+            if (p.getStatoPrenotazione() == StatoPrenotazione.PAGATA) {
+                // TODO: rimborsa il pagamento della prenotazione al turista
+                BeanFattura fattura =
+                        ServiceFattura.getInstance().sql_select(turista.getID_Client())
+                                .stream()
+                                .filter(f -> f.getId_client_origine().equals(turista.getID_Client()) &&
+                                        f.getId_prenotazione() == p.getID_prenotazione())
+                                .findFirst()
+                                .get();
+                GestoreFatture.getInstance(turista).crea_fattura(fattura);
+            }
+            GestorePrenotazioni.getInstance(turista).modifica_stato(p, StatoPrenotazione.CANCELLATA);
         }
     }
 }

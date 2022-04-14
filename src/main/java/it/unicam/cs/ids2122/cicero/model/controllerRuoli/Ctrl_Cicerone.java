@@ -1,6 +1,8 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.TipoFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreEsperienze;
@@ -9,10 +11,12 @@ import it.unicam.cs.ids2122.cicero.model.entities.esperienza.percorso.Percorso;
 import it.unicam.cs.ids2122.cicero.model.gestori.GestoreTag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.Tag;
 import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceFattura;
 import it.unicam.cs.ids2122.cicero.ruoli.Cicerone;
 import it.unicam.cs.ids2122.cicero.util.Money;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,17 +66,20 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
         }
         else {
             Esperienza e = selezionaEsperienza(esperienze);
+            view.message(e.toString());
             Set<BeanPrenotazione> prenotazioni = gestoreEsperienze.getPrenotazioni(e);
             if (!prenotazioni.isEmpty()) {
-                view.message("La cancellazione dell'esperienza comporterà la cancellazione automatica " +
+                view.message("\nLa cancellazione dell'esperienza comporterà la cancellazione automatica " +
                         "(e rimborso se previsto) di " + prenotazioni.size() + " prenotazioni associate.\n");
-                int scelta = view.fetchChoice("1) Prosegui con la cancellazione\n2) Torna al menu principale",
-                        2);
-                if (scelta == 2) {
-                    view.message("L'esperienza non è stata cancellata");
-                }
-                else
-                    gestoreEsperienze.cancellaEsperienza(e, prenotazioni);
+            }
+            int scelta = view.fetchChoice("1) Prosegui con la cancellazione\n2) Torna al menu principale",
+                    2);
+            if (scelta == 2) {
+                view.message("L'esperienza non è stata cancellata");
+            }
+            else {
+                gestoreEsperienze.cancellaEsperienza(e, prenotazioni);
+                view.message("L'esperienza + " + e.getName() + " è stata cancellata");
             }
         }
     }
@@ -201,6 +208,6 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
     private void impostaMenu() {
         menuItems.add("4) Crea Esperienza");
         menuItems.add("5) Proponi nuovo Tag");
-        //menuItems.add("6) Cancella Esperienza");
+        menuItems.add("6) Cancella Esperienza");
     }
 }

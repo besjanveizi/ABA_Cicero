@@ -7,6 +7,7 @@ import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceDisponibilita;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceInvito;
 import it.unicam.cs.ids2122.cicero.model.services.ServicePrenotazione;
+import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 
 import java.sql.SQLException;
@@ -22,7 +23,7 @@ public final class GestorePrenotazioni {
 
     private static GestorePrenotazioni gestorePrenotazioni = null;
 
-    private Turista utente_corrente;
+    private IUtente utente_corrente;
 
     /**
      * lista delle prenotazioni effettuale riferite all' utente corrente
@@ -31,13 +32,13 @@ public final class GestorePrenotazioni {
 
 
 
-    private GestorePrenotazioni(Turista iUtente) {
+    private GestorePrenotazioni(IUtente iUtente) {
         utente_corrente = iUtente;
         prenotazioni = new HashSet<>();
         carica();
     }
 
-    public static GestorePrenotazioni getInstance(Turista iUtente)  {
+    public static GestorePrenotazioni getInstance(IUtente iUtente)  {
         if(gestorePrenotazioni ==null){
             gestorePrenotazioni = new GestorePrenotazioni(iUtente);
         }
@@ -111,6 +112,7 @@ public final class GestorePrenotazioni {
             int posti = ServiceDisponibilita.getInstance().select(beanPrenotazione.getID_esperienza());
             posti = posti + beanPrenotazione.getPosti();
             ServiceDisponibilita.getInstance().update(posti, beanPrenotazione.getID_esperienza());
+            // TODO : annulla i biglietti
         }
     }
 

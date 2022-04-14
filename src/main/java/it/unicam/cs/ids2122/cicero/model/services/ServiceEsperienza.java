@@ -177,7 +177,7 @@ public class ServiceEsperienza extends AbstractService<Esperienza> {
      * @param newStatus nuovo stato dell'{@code Esperienza}.
      */
     public void updateStatus(int id, EsperienzaStatus newStatus) {
-        getGeneratedKey("UPDATE public.esperienze SET stato =" + newStatus +
+        getGeneratedKey("UPDATE public.esperienze SET stato =" + newStatus.getCode() +
                 " WHERE id_esperienza=" + id +" ;");
     }
 }
