@@ -82,7 +82,8 @@ public final class GestoreRimborsi {
      * @param motivo
      */
     public void crea_rimborso( BeanFattura beanFattura, String motivo) {
-        ServiceRimborso.getInstance().insertRichiestaRimborso(beanFattura.getId_fattura(), motivo, RimborsoStatus.PENDING);
+        RichiestaRimborso r = ServiceRimborso.getInstance().insertRichiestaRimborso(beanFattura.getId_fattura(), motivo, RimborsoStatus.PENDING);
+        rimborsi.add(r);
     }
 
 

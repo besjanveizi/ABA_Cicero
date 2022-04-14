@@ -20,12 +20,12 @@ public final class GestoreFatture {
 
     private static GestoreFatture gestorePagamenti = null;
 
-    private Turista utente_corrente;
+    private IUtente utente_corrente;
 
     private Set<BeanFattura> ricevuti;
     private Set<BeanFattura> effettuati;
 
-    private GestoreFatture(Turista iUtente) {
+    private GestoreFatture(IUtente iUtente) {
         this.utente_corrente = iUtente;
         if(utente_corrente!=null) {
             carica();
@@ -49,7 +49,7 @@ public final class GestoreFatture {
              .collect(Collectors.toSet());
     }
 
-    public static GestoreFatture getInstance(Turista iUtente){
+    public static GestoreFatture getInstance(IUtente iUtente){
         if(gestorePagamenti == null) {
             gestorePagamenti = new GestoreFatture(iUtente);
         }return gestorePagamenti;

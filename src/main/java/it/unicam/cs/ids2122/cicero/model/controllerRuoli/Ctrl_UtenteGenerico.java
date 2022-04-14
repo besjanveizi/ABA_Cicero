@@ -128,15 +128,19 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         System.exit(0);
     }
 
-    protected void cercaEsperienze() {
+    private final void cercaEsperienze() {
         String filtroNome= view.ask("Inserire una stringa per filtrare il nome delle esperienze: ");
         Set<Area> filtroAree = impostaFiltroAree();
         Set<Tag> filtroTags = impostaFiltroTag();
-        lastRicerca = gestoreRicerca.ricerca(filtroNome,filtroTags,filtroAree);
+        lastRicerca = setRicerca(filtroNome, filtroAree, filtroTags);
         showEsperienze(lastRicerca);
         if (view.fetchChoice("\n\n1) Selezionare un'esperienza per vedere maggiori dettagli" +
                 "\n2) Torna al menu principale", 2) == 1)
             view.message(selezionaEsperienza(lastRicerca).toString());
+    }
+
+    protected Set<Esperienza> setRicerca(String filtroNome, Set<Area> filtroAree, Set<Tag> filtroTags) {
+        return gestoreRicerca.ricerca(filtroNome, filtroTags, filtroAree);
     }
 
     private Set<Area> impostaFiltroAree(){

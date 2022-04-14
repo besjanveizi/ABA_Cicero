@@ -27,7 +27,16 @@ public class GestoreRicerca {
     public Set<Esperienza> ricerca(String filtroNome, Set<Tag> filtroTags, Set<Area> filtroAree){
         IBacheca bacheca = Bacheca.getInstance();
         Set<Esperienza> allEsperienze = bacheca.getEsperienze(e-> e.getStatus()== EsperienzaStatus.IDLE || e.getStatus()== EsperienzaStatus.VALIDA);
+        return applyFiltri(filtroNome, filtroTags, filtroAree, allEsperienze);
+    }
 
+    public Set<Esperienza> ricerca_avanzata(String filtroNome, Set<Tag> filtroTags, Set<Area> filtroAree){
+        IBacheca bacheca = Bacheca.getInstance();
+        Set<Esperienza> allEsperienze = bacheca.getEsperienze(e -> true);
+        return applyFiltri(filtroNome, filtroTags, filtroAree, allEsperienze);
+    }
+
+    private Set<Esperienza> applyFiltri(String filtroNome, Set<Tag> filtroTags, Set<Area> filtroAree, Set<Esperienza> allEsperienze) {
         if(filtroNome.isEmpty() && filtroAree.isEmpty() && filtroTags.isEmpty()) return allEsperienze;
 
         if(!filtroNome.isEmpty())
@@ -35,7 +44,7 @@ public class GestoreRicerca {
         if(!filtroTags.isEmpty())
             allEsperienze.removeAll(filterByTags(allEsperienze, filtroTags));
         if(!filtroAree.isEmpty())
-            allEsperienze.removeAll(filterByToponimi(allEsperienze,filtroAree));
+            allEsperienze.removeAll(filterByToponimi(allEsperienze, filtroAree));
         return allEsperienze;
     }
 
