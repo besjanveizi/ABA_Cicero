@@ -26,10 +26,10 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
 
     protected final IView<String> view;
     protected List<String> menuItems;
-    private GestoreRicerca gestoreRicerca;
+    private final GestoreRicerca gestoreRicerca;
     private Set<Esperienza> lastRicerca;
-    private Logger logger = Logger.getLogger(Piattaforma.class.getName());
-    private GestoreAutenticazione gestoreAutenticazione;
+    private final Logger logger = Logger.getLogger(Piattaforma.class.getName());
+    private final GestoreAutenticazione gestoreAutenticazione;
 
     public Ctrl_UtenteGenerico() {
         this.view = Piattaforma.getInstance().getView();
@@ -49,6 +49,11 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         } while (switchMenu(scelta));
     }
 
+    /**
+     * Permette di scegliere le voci del men&ugrave dell'utente.
+     * @param scelta voce scelta.
+     * @return {@code true} se bisogna uscire dal ciclo di scelta della voce del men&ugrave, {@code false} altrimenti.
+     */
     protected boolean switchMenu(int scelta) {
         boolean loop = true;
         switch (scelta) {
@@ -73,18 +78,22 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         do {
             view.message("\n--AUTENTICAZIONE--\nScegli una delle due operazioni:");
             int choice = view.fetchChoice("1) LogIn\n2) SignIn\n3) Torna al menù principale", 3);
-            if (choice == 2) signIn();
+            if (choice == 2) {
+                boolean reAuthenticate = signUp();
+                if (!reAuthenticate) return;
+            }
             else if (choice == 3) return;
             else {
                 view.message("\n--LOGIN--");
                 String username = view.ask("Inserisci lo username:");
                 String password = view.ask("Inserisci la password:");
+                logger.info("\tcontrollo delle credenziali.. ");
                 if (gestoreAutenticazione.login(username, password)) break;
             }
         } while (true);
     }
 
-    private void signIn() {
+    private boolean signUp() {
         String email;
         boolean backtrack = false;
         view.message("\n--REGISTRAZIONE--");
@@ -93,50 +102,72 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
             if (!gestoreAutenticazione.isAlreadySignedIn(email))
                 break;
             else {
-                logger.info("L'email è già registrata ad un profilo nel sistema.");
+                logger.info("L'email è già registrata ad un profilo nel sistema.\n");
                 view.message("Vuoi tornare all'autenticazione? [Y,n]");
                 backtrack = view.fetchBool();
             }
         } while (!backtrack);
-        if (backtrack) return;
+        if (backtrack) return true;
         String username;
         do {
             username = view.ask("Scegli lo username: ");
             if (!gestoreAutenticazione.isAlreadyTaken(username))
                 break;
             else {
-                logger.info("Lo username scelto è già registrato ad un profilo nel sistema con un'altra email.");
+                logger.info("Lo username scelto è già registrato ad un profilo nel sistema con un'altra email.\n");
                 view.message("Vuoi tornare all'autenticazione? [Y,n]");
                 backtrack = view.fetchBool();
             }
         } while (!backtrack);
-        if (backtrack) return;
+        if (backtrack) return true;
         String password;
         while (true) {
             password = view.ask("Inserisci la password: ");
             if (view.ask("Reinserisci la password: ").equals(password)) break;
             else logger.info("Le due password inserite non coincidono: bisogna reinserirle");
         }
-        UtenteType utype = UtenteType.fetchUtype(
+        UtenteType uType = UtenteType.fetchUtype(
                 view.fetchChoice("Scegli il tipo di utente:\n1) Cicerone;\n2) Turista;", 2));
 
-        gestoreAutenticazione.signUp(username, email, password, utype);
+        gestoreAutenticazione.signUp(username, email, password, uType);
+        return false;
     }
 
+    /**
+     * Permette di terminare l'applicazione
+     */
     protected void exit() {
         view.message("Arrivederci!");
         System.exit(0);
     }
 
-    protected void cercaEsperienze() {
+    private void cercaEsperienze() {
         String filtroNome= view.ask("Inserire una stringa per filtrare il nome delle esperienze: ");
         Set<Area> filtroAree = impostaFiltroAree();
         Set<Tag> filtroTags = impostaFiltroTag();
-        lastRicerca = gestoreRicerca.ricerca(filtroNome,filtroTags,filtroAree);
-        showEsperienze(lastRicerca);
-        if (view.fetchChoice("\n\n1) Selezionare un'esperienza per vedere maggiori dettagli" +
-                "\n2) Torna al menu principale", 2) == 1)
-            view.message(selezionaEsperienza(lastRicerca).toString());
+        lastRicerca = setRicerca(filtroNome, filtroAree, filtroTags);
+        if(lastRicerca.isEmpty()){
+            view.message("Non sono state trovate esperienze che rientrano nei filtri imposti per la ricerca.");
+        } else {
+            view.message("Risultati della ricerca:", lastRicerca.stream()
+                    .map(Esperienza::shortToString)
+                    .collect(Collectors.toSet()));
+            if (view.fetchChoice("\n\n1) Selezionare un'esperienza per vedere maggiori dettagli" +
+                    "\n2) Torna al menu principale", 2) == 1) {
+                view.message(selezionaEsperienza(lastRicerca).longToString());
+            }
+        }
+    }
+
+    /**
+     * Esegue la ricerca delle esperienze nella piattaforma a seconda dei filtri impostati.
+     * @param filtroNome filtro sul nome da impostare nella ricerca.
+     * @param filtroAree filtro sulle aree da impostare nella ricerca.
+     * @param filtroTags filtro sui tag da impostare nella ricerca.
+     * @return {@code Set} di esperienze risultante dalla ricerca effettuata.
+     */
+    protected Set<Esperienza> setRicerca(String filtroNome, Set<Area> filtroAree, Set<Tag> filtroTags) {
+        return gestoreRicerca.ricerca(filtroNome, filtroTags, filtroAree);
     }
 
     private Set<Area> impostaFiltroAree(){
@@ -165,22 +196,15 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         return chosenTags;
     }
 
-    private void showEsperienze(Set<Esperienza> esperienze){
-        if(esperienze.isEmpty()){
-            view.message("Non sono state trovate esperienze che rientrano nei filtri imposti per la ricerca.");
-        } else {
-            view.message("Risultati della ricerca:", esperienze.stream()
-                                                                        .map(Esperienza::shortToString)
-                                                                        .collect(Collectors.toSet()));
-        }
-    }
-
     /**
      * Permette la selezione di un'{@code Esperienza} da un insieme.
      * @param esperienze {@code Set} di esperienze su cui effettuare la selezione.
-     * @return l'{@code Esperienza} selezionata.
+     * @return l'{@code Esperienza} selezionata, {@code null} se non ci sono esperienze da selezionare nel {@code Set}.
      */
     protected Esperienza selezionaEsperienza(Set<Esperienza> esperienze) {
+        if (esperienze.isEmpty()) {
+            return null;
+        }
         List<String> viewList = new ArrayList<>();
         List<Integer> idList = new ArrayList<>();
         int i = 1;
@@ -191,7 +215,7 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         view.message("Esperienze:", viewList);
         int indice = view.fetchChoice("Scegli l'indice dell'esperienza", viewList.size());
         int idEsperienza = idList.get(indice-1);
-        return esperienze.stream().filter(e -> e.getId() == idEsperienza).findFirst().get();
+        return esperienze.stream().filter(e -> e.getId() == idEsperienza).findFirst().orElseThrow();
     }
 
     private void impostaMenu() {

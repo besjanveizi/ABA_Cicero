@@ -14,15 +14,14 @@ public interface SystemConstraints {
 
     String ID_SYSTEM = id_client_generator("sistema");
 
-
     static String id_client_generator(String mail){
         byte[] bytes = mail.getBytes();
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             bytes = messageDigest.digest(bytes);
-            StringBuffer stringBuffer = new StringBuffer();
-            for (int i = 0; i < bytes.length ; i++) {
-                stringBuffer.append(Integer.toHexString(0xff & bytes[i]));
+            StringBuilder stringBuffer = new StringBuilder();
+            for (byte aByte : bytes) {
+                stringBuffer.append(Integer.toHexString(0xff & aByte));
             }
             return stringBuffer.toString();
         } catch (NoSuchAlgorithmException e) {

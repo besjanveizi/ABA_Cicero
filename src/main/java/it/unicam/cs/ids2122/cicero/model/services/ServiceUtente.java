@@ -1,10 +1,9 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
-import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Amministratore;
-import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Cicerone;
-import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Turista;
-import it.unicam.cs.ids2122.cicero.model.controllerRuoli.Ctrl_Utente;
-import it.unicam.cs.ids2122.cicero.ruoli.*;
+
+import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
+import it.unicam.cs.ids2122.cicero.ruoli.UtenteAutenticato;
+import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -77,35 +76,18 @@ public class ServiceUtente extends AbstractService<IUtente> {
      * @param username username dell'{@code IUtente}.
      * @param password password dell'{@code IUtente}.
      */
-    public Ctrl_Utente selectUtente(String username, String password) throws PersistenceErrorException {
+    public IUtente selectUtente(String username, String password) throws PersistenceErrorException {
         Set<IUtente> resultSet = parseDataResult(
                 getDataResult(select_base_query + " WHERE username = '" + username +
                                                         "' AND password = '" + password + "'"));
         if (!resultSet.isEmpty()) {
-            IUtente utente = resultSet.stream().findFirst().get();
-            return getCtrl_utente(utente.getUID(), username, utente.getEmail(),
-                    password, utente.getType());
+            logger.warning("authentication success!");
+            return resultSet.stream().findFirst().get();
         }
         else {
-            logger.warning("Authentication error: couldn't log in.\n");
+            logger.warning("authentication error: couldn't log in.");
             throw new PersistenceErrorException();
         }
-    }
-
-    private Ctrl_Utente getCtrl_utente(int uid, String username, String email, String password, UtenteType uType) {
-        Ctrl_Utente ctrl_utente = null;
-        switch (uType) {
-            case ADMIN:
-                ctrl_utente = new Ctrl_Amministratore(new Amministratore(uid, username, email, password));
-                break;
-            case CICERONE:
-                ctrl_utente = new Ctrl_Cicerone(new Cicerone(uid, username, email, password));
-                break;
-            case TURISTA:
-                ctrl_utente = new Ctrl_Turista(new Turista(uid, username, email, password));
-                break;
-        }
-        return ctrl_utente;
     }
 
     /**
@@ -116,10 +98,10 @@ public class ServiceUtente extends AbstractService<IUtente> {
      * @param uType {@link UtenteType} dell'utente da registrare.
      * @return l'utente appena autenticato.
      */
-    public Ctrl_Utente upload(String username, String email, String password, UtenteType uType) {
+    public IUtente upload(String username, String email, String password, UtenteType uType) {
         int uid = getGeneratedKey(MessageFormat.format(insert_query, "'"+username+"'", "'"+email+"'",
                                                                     "'"+password+"'", uType.getCode()));
-        return getCtrl_utente(uid, username, email, password, uType);
+        return new UtenteAutenticato(uid, username, email, password, uType);
     }
 
     @Override

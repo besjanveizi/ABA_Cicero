@@ -1,6 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.services;
 
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.persistence.DBManager;
 
 import java.math.BigDecimal;
@@ -97,6 +98,10 @@ public final class ServiceInvito extends AbstractService<BeanInvito> {
     }
 
 
+    public Set<BeanInvito> download(Esperienza e) {
+        return parseDataResult(getDataResult(sql_select_base + " WHERE id_esperienza=" + e.getId()));
+    }
+
     @Override
     public Set<BeanInvito> parseDataResult(TreeMap<String, HashMap<String, String>> dataResult) {
         Set<BeanInvito> resultSet = new HashSet<>();
@@ -134,5 +139,4 @@ public final class ServiceInvito extends AbstractService<BeanInvito> {
         }
         return resultSet;
     }
-
 }

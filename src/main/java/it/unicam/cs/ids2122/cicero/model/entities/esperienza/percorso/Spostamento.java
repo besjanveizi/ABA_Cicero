@@ -44,9 +44,9 @@ public class Spostamento {
 
     @Override
     public String toString() {
-        return "\nSpostamento n. "+ indice_spostamento +
+        return " Spostamento n. "+ indice_spostamento +
                 "\n\tTappa di partenza:" + partenza.toString() +
                 "\n\tTappa di destinazione:" + destinazione.toString() +
-                "\n\tinformazioni dello spostamento:'" + info + '\'';
+                "\n\tinformazioni dello spostamento:'" + info + '\'' + "\n";
     }
 }

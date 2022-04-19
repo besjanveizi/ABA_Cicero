@@ -4,20 +4,29 @@ package it.unicam.cs.ids2122.cicero.model.entities.bean;
 /**
  *  enumerazione per i diversi stati in cui può trovarsi una
  *  <code>{@link BeanPrenotazione}</code>
- *  RISERVATA -> PAGATA
- *  RISERVATA -> CANCELLATA
  */
 public enum StatoPrenotazione {
 
-    PAGATA(0),RISERVATA(1),CANCELLATA(2);
+    RISERVATA(0),
+    CANCELLATA(1),
+    PAGATA(2);
 
-    private int n;
+    private final int code;
 
-    StatoPrenotazione(int n){
-        this.n = n;
+    StatoPrenotazione(int code){
+        this.code = code;
     }
 
-    public int getN() {
-        return n;
+    public static StatoPrenotazione fetchStatus(int pCode) {
+        switch(pCode){
+            case 0 : return StatoPrenotazione.RISERVATA;
+            case 1 : return StatoPrenotazione.CANCELLATA;
+            case 2 : return StatoPrenotazione.PAGATA;
+            default: return null;
+        }
+    }
+
+    public int getCode() {
+        return code;
     }
 }

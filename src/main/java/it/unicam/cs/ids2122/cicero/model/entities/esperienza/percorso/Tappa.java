@@ -54,8 +54,8 @@ public class Tappa {
     @Override
     public String toString() {
         return "\n\t\ttoponimo: " + getToponimo() +
-                "\n\t\tinfo ulteriori: " + info
-                +listAttivita.stream()
+                "\n\t\tinfo ulteriori: " + info + "\n" +
+                listAttivita.stream()
                 .map(Attivita::toString)
                 .collect(Collectors.toList());
     }

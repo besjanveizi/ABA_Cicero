@@ -6,6 +6,7 @@ import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -15,9 +16,11 @@ public class Bacheca implements IBacheca {
 
     private static Bacheca instance = null;
     private Set<Esperienza> esperienze;
+    private Logger logger;
 
     private Bacheca() {
         esperienze = new HashSet<>();
+        logger = Logger.getLogger(Piattaforma.class.getName());
         updateEsperienze();
     }
 
@@ -34,7 +37,9 @@ public class Bacheca implements IBacheca {
 
     @Override
     public void updateEsperienze() {
+        logger.info("\taggiornamento delle esperienze in corso.. ");
         esperienze.addAll(ServiceEsperienza.getInstance().download());
+        logger.info("esperienze aggiornate.");
     }
 
     @Override

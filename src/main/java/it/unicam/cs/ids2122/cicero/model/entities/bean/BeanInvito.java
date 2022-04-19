@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Currency;
 import java.util.Objects;
 
 public final class BeanInvito implements Serializable {
@@ -56,8 +57,8 @@ public final class BeanInvito implements Serializable {
     public BeanInvito (){}
 
     public BeanInvito(LocalDateTime data_inizio, int maxGiorniRiserva){
-        this.data_creazione = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
-        this.data_scadenza_riserva = data_creazione.plus(maxGiorniRiserva,ChronoUnit.DAYS).truncatedTo(ChronoUnit.HOURS);
+        this.data_creazione = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        this.data_scadenza_riserva = data_creazione.plus(maxGiorniRiserva,ChronoUnit.DAYS).truncatedTo(ChronoUnit.SECONDS);
         if(data_scadenza_riserva.isAfter(data_inizio)){
             data_scadenza_riserva = data_inizio;
         }
@@ -150,16 +151,22 @@ public final class BeanInvito implements Serializable {
 
     @Override
     public String toString() {
-        return "BeanInvito{" +
-                "id_invito=" + id_invito +
-                ", id_mittente=" + id_mittente +
-                ", id_esperienza=" + id_esperienza +
-                ", email_destinatario='" + email_destinatario + '\'' +
-                ", data_creazione=" + data_creazione +
-                ", data_scadenza_riserva=" + data_scadenza_riserva +
-                ", posti_riservati=" + posti_riservati +
-                ", importo=" + importo +
-                ", valuta='" + valuta + '\'' +
-                '}';
+        return "\n---INFORMAZIONI DELL'INVITO---" +
+                "\nID invito: " + id_invito +
+                "\nID mittente: " + id_mittente +
+                "\nID esperienza: " + id_esperienza +
+                "\nEmail destinatario: '" + email_destinatario + '\'' +
+                "\nData creazione: " + data_creazione +
+                "\nData di scadenza della riserva: " + data_scadenza_riserva +
+                "\nN. posti riservati: " + posti_riservati +
+                "\nCosto totale: " + importo + " " + Currency.getInstance(valuta).getSymbol();
+    }
+
+    public String shortToString() {
+        return "\n\tID esperienza: " + id_esperienza +
+                "\n\tID mittente: " + id_mittente +
+                "\n\tData di scadenza della riserva: " + data_scadenza_riserva +
+                "\n\tN. posti riservati: " + posti_riservati +
+                "\n\tCosto totale: " + importo + " " + Currency.getInstance(valuta).getSymbol();
     }
 }

@@ -1,6 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
 
+import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
@@ -18,17 +19,18 @@ import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class GestoreRimborsi {
 
-    private static GestoreRimborsi gestoreRimborsi = null;
+    Logger logger = Logger.getLogger(Piattaforma.class.getName());
 
-    private IUtente iUtente;
+    private final IUtente iUtente;
 
     private Set<RichiestaRimborso> rimborsi;
 
-    private GestoreRimborsi(IUtente iUtente){
+    public GestoreRimborsi(IUtente iUtente){
         this.iUtente = iUtente;
         rimborsi = new HashSet<>();
         carica();
@@ -36,33 +38,31 @@ public final class GestoreRimborsi {
 
     private void carica() {
         if(iUtente.getType().equals(UtenteType.ADMIN)){
+            logger.info("\tcaricamento delle richieste di rimborso..");
             rimborsi = ServiceRimborso.getInstance().getRichiesteRimborso();
-        }
-        else {
-            rimborsi = ServiceRimborso.getInstance().getRichiesteRimborsoUtente(iUtente.getUID());
+            logger.info("richieste caricate.\n");
         }
     }
-
-
-    public static GestoreRimborsi getInstance(IUtente turista){
-        if(gestoreRimborsi ==null){
-            gestoreRimborsi = new GestoreRimborsi(turista);
-        }return gestoreRimborsi;
-    }
-
 
     /**
      * Verifica se il rimborso può avvenire automaticamente.
      * @param beanPrenotazione
      * @return
      */
-    public boolean rimborsa(BeanPrenotazione beanPrenotazione){
+    public boolean isAutoRefundable(BeanPrenotazione beanPrenotazione){
         Esperienza esperienza = ServiceEsperienza.getInstance().getEsperienza(beanPrenotazione.getID_esperienza());
-        if(esperienza.getStatus().equals(EsperienzaStatus.IDLE) || esperienza.getStatus().equals(EsperienzaStatus.VALIDA) ){
-            return true;
-        }else{
-            return false;
-        }
+        EsperienzaStatus es = esperienza.getStatus();
+        return es.equals(EsperienzaStatus.IDLE) || es.equals(EsperienzaStatus.VALIDA);
+    }
+
+    /**
+     * Verifica se il rimborso può avvenire tramite richiesta
+     * @param beanPrenotazione
+     * @return
+     */
+    public boolean isRequestRefundable(BeanPrenotazione beanPrenotazione){
+        Esperienza esperienza = ServiceEsperienza.getInstance().getEsperienza(beanPrenotazione.getID_esperienza());
+        return esperienza.getStatus().equals(EsperienzaStatus.CONCLUSA);
     }
 
     /**
@@ -71,7 +71,8 @@ public final class GestoreRimborsi {
      * @param motivo
      */
     public void crea_rimborso( BeanFattura beanFattura, String motivo) {
-        ServiceRimborso.getInstance().insertRichiestaRimborso(beanFattura.getId_fattura(), motivo, RimborsoStatus.PENDING);
+        RichiestaRimborso r = ServiceRimborso.getInstance().insertRichiestaRimborso(beanFattura.getId_fattura(), motivo, RimborsoStatus.PENDING);
+        rimborsi.add(r);
     }
 
 
@@ -79,17 +80,17 @@ public final class GestoreRimborsi {
      * Accetta la richiesta di rimborso specificata.
      * @param richiesta richiesta di rimborso da accettare.
      */
-    public BeanFattura accettaRichiestaRimborso(RichiestaRimborso richiesta){
-       changeStatus(richiesta,RimborsoStatus.ACCETTATA);
-       return ServiceFattura.getInstance().sql_select(richiesta.getId()).iterator().next();
+    public BeanFattura accettaRichiestaRimborso(RichiestaRimborso richiesta, String motivo){
+       changeStatus(richiesta,RimborsoStatus.ACCETTATA, motivo);
+       return ServiceFattura.getInstance().sql_select(richiesta.getIdFattura()).iterator().next();
     }
 
     /**
      * Rifiuta la richiesta di rimborso specificata.
      * @param richiesta richiesta di rimborso da rifiutare.
      */
-    public void rifiutaRichiestaRimborso(RichiestaRimborso richiesta){
-        changeStatus(richiesta,RimborsoStatus.RIFIUTATA);
+    public void rifiutaRichiestaRimborso(RichiestaRimborso richiesta, String motivo){
+        changeStatus(richiesta,RimborsoStatus.RIFIUTATA, motivo);
     }
 
     /**
@@ -97,9 +98,10 @@ public final class GestoreRimborsi {
      * @param richiesta
      * @param stato
      */
-    private void changeStatus(RichiestaRimborso richiesta, RimborsoStatus stato){
+    private void changeStatus(RichiestaRimborso richiesta, RimborsoStatus stato, String motivo){
         ServiceRimborso serviceRimborso=ServiceRimborso.getInstance();
-        serviceRimborso.updateRichiestaRimborsoStatus(richiesta,stato);
+        serviceRimborso.updateRichiestaRimborsoStatus(richiesta, stato, motivo);
+        carica();
     }
 
     /**

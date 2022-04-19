@@ -22,7 +22,7 @@ public class Piattaforma {
         ch.setFormatter(new SimpleFormatter() {
             @Override
             public String format(LogRecord record) {
-                return record.getMessage() + "\n";
+                return record.getMessage();
             }
         });
         logger.addHandler(ch);

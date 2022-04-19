@@ -14,8 +14,10 @@ public class GestoreAutenticazione {
 
     private static GestoreAutenticazione instance = null;
     private final ServiceUtente serviceUtente;
+    private final Piattaforma piattaforma;
 
     private GestoreAutenticazione(){
+        piattaforma = Piattaforma.getInstance();
         serviceUtente = ServiceUtente.getInstance();
     }
 
@@ -29,18 +31,17 @@ public class GestoreAutenticazione {
 
     public boolean login(String username, String password) {
         boolean result = false;
-        UtenteAutenticato utenteAutenticato;
         try {
-            Ctrl_Utente ctrl_utente = serviceUtente.selectUtente(username, password);
-            Piattaforma.getInstance().setCtrl_utente(ctrl_utente);
+            IUtente u = serviceUtente.selectUtente(username, password);
+            piattaforma.setCtrl_utente(getCtrl_utente(u.getUID(), username, u.getEmail(), password, u.getType()));
             result = true;
         } catch (PersistenceErrorException ignored) {}
         return result;
     }
 
     public void signUp(String username, String email, String password, UtenteType uType) {
-        Ctrl_Utente ctrl_utente = serviceUtente.upload(username, email, password, uType);
-        Piattaforma.getInstance().setCtrl_utente(ctrl_utente);
+        IUtente u = serviceUtente.upload(username, email, password, uType);
+        piattaforma.setCtrl_utente(getCtrl_utente(u.getUID(), username, u.getEmail(), password, u.getType()));
     }
 
     /**
@@ -59,5 +60,21 @@ public class GestoreAutenticazione {
      */
     public boolean isAlreadyTaken(String username) {
         return serviceUtente.fetchThroughUsername(username).isPresent();
+    }
+
+    private Ctrl_Utente getCtrl_utente(int uid, String username, String email, String password, UtenteType uType) {
+        Ctrl_Utente ctrl_utente = null;
+        switch (uType) {
+            case ADMIN:
+                ctrl_utente = new Ctrl_Amministratore(new Amministratore(uid, username, email, password));
+                break;
+            case CICERONE:
+                ctrl_utente = new Ctrl_Cicerone(new Cicerone(uid, username, email, password));
+                break;
+            case TURISTA:
+                ctrl_utente = new Ctrl_Turista(new Turista(uid, username, email, password));
+                break;
+        }
+        return ctrl_utente;
     }
 }

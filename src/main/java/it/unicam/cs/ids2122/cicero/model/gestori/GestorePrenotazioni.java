@@ -1,14 +1,15 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
-import com.google.common.collect.Sets;
+import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceDisponibilita;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceInvito;
 import it.unicam.cs.ids2122.cicero.model.services.ServicePrenotazione;
-import it.unicam.cs.ids2122.cicero.ruoli.Turista;
+import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -16,33 +17,25 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class GestorePrenotazioni {
+    Logger logger = Logger.getLogger(Piattaforma.class.getName());
+    private ServicePrenotazione servicePrenotazione;
 
-
-    private static GestorePrenotazioni gestorePrenotazioni = null;
-
-    private Turista utente_corrente;
+    private final IUtente utente_corrente;
 
     /**
      * lista delle prenotazioni effettuale riferite all' utente corrente
      */
     private Set<BeanPrenotazione> prenotazioni;
 
-
-
-    private GestorePrenotazioni(Turista iUtente) {
+    public GestorePrenotazioni(IUtente iUtente) {
         utente_corrente = iUtente;
         prenotazioni = new HashSet<>();
+        servicePrenotazione = ServicePrenotazione.getInstance();
         carica();
-    }
-
-    public static GestorePrenotazioni getInstance(Turista iUtente)  {
-        if(gestorePrenotazioni ==null){
-            gestorePrenotazioni = new GestorePrenotazioni(iUtente);
-        }
-        return gestorePrenotazioni;
     }
 
     /**
@@ -51,7 +44,9 @@ public final class GestorePrenotazioni {
      * @throws SQLException possibile eccezione dal db o dal resultset
      */
     private void carica()  {
-        prenotazioni = ServicePrenotazione.getInstance().sql_select(utente_corrente.getUID());
+        logger.info("\tcaricamento delle prenotazioni..");
+        prenotazioni = servicePrenotazione.sql_select(utente_corrente.getUID());
+        logger.info("prenotazioni caricate.\n");
     }
 
     /**
@@ -69,7 +64,7 @@ public final class GestorePrenotazioni {
         beanPrenotazione.setStatoPrenotazione(StatoPrenotazione.RISERVATA);
         beanPrenotazione.setID_esperienza(propEsperienza.getId());
 
-        ServicePrenotazione.getInstance().insert(beanPrenotazione);
+        servicePrenotazione.insert(beanPrenotazione);
         prenotazioni.add(beanPrenotazione);
 
         propEsperienza.cambiaPostiDisponibili('-', posti_prenotati);
@@ -89,16 +84,20 @@ public final class GestorePrenotazioni {
         beanPrenotazione.setID_turista(utente_corrente.getUID());
         beanPrenotazione.setStatoPrenotazione(StatoPrenotazione.RISERVATA);
         beanPrenotazione.setScadenza(invito_ricevuto.getData_scadenza_riserva());
-        beanPrenotazione.setData_prenotazione(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
+        beanPrenotazione.setData_prenotazione(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         beanPrenotazione.setPrezzo_totale(invito_ricevuto.getImporto());
         beanPrenotazione.setValuta(invito_ricevuto.getValuta());
         beanPrenotazione.setID_esperienza(invito_ricevuto.getId_esperienza());
         beanPrenotazione.setPosti(invito_ricevuto.getPosti_riservati());
-        ServicePrenotazione.getInstance().insert(beanPrenotazione);
+        servicePrenotazione.insert(beanPrenotazione);
         prenotazioni.add(beanPrenotazione);
         ServiceInvito.getInstance().delete(invito_ricevuto.getId_invito());
     }
 
+
+    public Esperienza getEsperienzaAssociata(BeanPrenotazione b) {
+        return ServiceEsperienza.getInstance().getEsperienza(b.getID_esperienza());
+    }
 
      /**
      * Modifica stato di una prenotazione ed elimina se è CANCELLATA
@@ -106,29 +105,21 @@ public final class GestorePrenotazioni {
      * @param nuovo_stato
      */
     public void modifica_stato(BeanPrenotazione beanPrenotazione, StatoPrenotazione nuovo_stato){
-        ServicePrenotazione.getInstance().update(beanPrenotazione.getID_prenotazione(), nuovo_stato);
+        servicePrenotazione.update(beanPrenotazione.getID_prenotazione(), nuovo_stato);
         beanPrenotazione.setStatoPrenotazione(nuovo_stato);
-
         if(nuovo_stato.equals(StatoPrenotazione.CANCELLATA)){
             int posti = ServiceDisponibilita.getInstance().select(beanPrenotazione.getID_esperienza());
             posti = posti + beanPrenotazione.getPosti();
             ServiceDisponibilita.getInstance().update(posti, beanPrenotazione.getID_esperienza());
+            // TODO : annulla i biglietti
         }
     }
 
 
-    public Set<BeanPrenotazione> getPrenotazioni() {
-        return prenotazioni;
+    public Set<BeanPrenotazione> getPrenotazioni(Predicate<BeanPrenotazione> p) {
+        return prenotazioni.stream().filter(p).collect(Collectors.toSet());
     }
 
-    /**
-     * Filtra le prenotazioni run-time.
-     * @param filtro lo stato ricercato.
-     * @return
-     */
-    public Set<BeanPrenotazione> getPrenotazioni(StatoPrenotazione filtro){
-        return prenotazioni.stream().filter(beanPrenotazione -> beanPrenotazione.getStatoPrenotazione().getN()==filtro.getN()).collect(Collectors.toSet());
-    }
 
     /**
      * Filtra le prenotazioni per un predicato qualsiasi.
@@ -136,10 +127,7 @@ public final class GestorePrenotazioni {
      * @return
      */
     public BeanPrenotazione getPrenotazione(Predicate<BeanPrenotazione> predicate){
-        return prenotazioni.stream().filter(predicate).findFirst().get();
+        return prenotazioni.stream().filter(predicate).findFirst().orElseThrow();
     }
-
-
-
 
 }

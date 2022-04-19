@@ -53,12 +53,17 @@ public class SimpleRichiestaRimborso implements RichiestaRimborso {
 
     @Override
     public String toString() {
-        return "SimpleRichiestaRimborso{" +
-                "id=" + id +
-                ", idFattura=" + idFattura +
-                ", motivoRichiesta='" + motivoRichiesta + '\'' +
-                ", stato=" + stato +
-                ", infoEsito='" + infoEsito + '\'' +
-                '}';
+        return "\n---INFO RICHIESTA DI RIMBORSO---" +
+                "\nID richiesta: " + id +
+                "\nID fattura associata: " + idFattura +
+                "\nMotivo della richiesta: '" + motivoRichiesta + '\'' +
+                "\nStato della richiesta: " + stato +
+                "\nInfo Esito deciso: '" + infoEsito + '\'';
+    }
+
+    @Override
+    public String shortToString() {
+        return "\nID fattura associata: " + idFattura +
+                "\nMotivo della richiesta: '" + motivoRichiesta + '\'';
     }
 }

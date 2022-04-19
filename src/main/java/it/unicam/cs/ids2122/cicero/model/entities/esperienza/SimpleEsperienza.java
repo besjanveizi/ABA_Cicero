@@ -168,7 +168,7 @@ public class SimpleEsperienza implements Esperienza {
 
     @Override
     public boolean isAvailable() {
-        return postiDisponibili>0;
+        return postiDisponibili>0 && (status.equals(EsperienzaStatus.IDLE) || status.equals(EsperienzaStatus.VALIDA));
     }
 
     @Override
@@ -223,6 +223,7 @@ public class SimpleEsperienza implements Esperienza {
                 "\nNome: '" + getName() + '\'' +
                 "\nDescrizione: " + getDescrizione() +
                 "\nUsername cicerone: '" + getCiceroneCreatore().getUsername() + '\'' +
+                "\nStato: " + getStatus() +
                 "\nData d'inizio: " + getDataInizio() +
                 "\nData di conclusione: " + getDataFine() +
                 "\nNumero max partecipanti: " + getMaxPartecipanti() +
@@ -230,15 +231,27 @@ public class SimpleEsperienza implements Esperienza {
                 "\nCosto per posto: " + getCostoIndividuale().getValore() + " "
                 + getCostoIndividuale().getValuta().getSymbol() +
                 "\nMassimo giorni di riserva: " + getMaxRiserva() +
-                "\ntoponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
-                "\npostiDisponibili: " + getPostiDisponibili() +
-                "\ntags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet());
+                "\nPosti disponibili: " + getPostiDisponibili() +
+                "\nToponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
+                "\nTags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet());
     }
+
     @Override
     public String shortToString(){
-        return "\nNome: '" + getName() + '\'' +
-                "\nDescrizione: " + getDescrizione() +
-                "\ntoponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
-                "\ntags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet());
+        return "\n---INFORMAZIONI DELL'ESPERIENZA---" +
+                "\nNome: '" + getName() + '\'' +
+                "\nData d'inizio: " + getDataInizio() +
+                "\nData di conclusione: " + getDataFine() +
+                "\nPosti disponibili: " + getPostiDisponibili() +
+                "\nStato: " + getStatus() +
+                "\nCosto per posto: " + getCostoIndividuale().getValore() + " "
+                + getCostoIndividuale().getValuta().getSymbol() +
+                "\nToponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
+                "\nTags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet());
+    }
+
+    @Override
+    public String longToString() {
+        return this + percorso.toString();
     }
 }

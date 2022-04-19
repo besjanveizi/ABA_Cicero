@@ -11,6 +11,7 @@ import it.unicam.cs.ids2122.cicero.util.Money;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
@@ -76,8 +77,8 @@ public class ServiceEsperienza extends AbstractService<Esperienza> {
                                    LocalDateTime dF, int minP, int maxP, Percorso percorso, Money costoIndividuale,
                                    int maxRiserva, Set<Tag> chosenTags) {
 
-        LocalDateTime dP = LocalDateTime.now();
-        LocalDateTime dT = LocalDateTime.now().plusDays(2);
+        LocalDateTime dP = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        LocalDateTime dT = LocalDateTime.now().plusDays(2).truncatedTo(ChronoUnit.SECONDS);
         EsperienzaStatus status = EsperienzaStatus.IDLE;
 
         int idEgenKey = getGeneratedKey(
@@ -177,7 +178,7 @@ public class ServiceEsperienza extends AbstractService<Esperienza> {
      * @param newStatus nuovo stato dell'{@code Esperienza}.
      */
     public void updateStatus(int id, EsperienzaStatus newStatus) {
-        getGeneratedKey("UPDATE public.esperienze SET stato =" + newStatus +
+        getGeneratedKey("UPDATE public.esperienze SET stato =" + newStatus.getCode() +
                 " WHERE id_esperienza=" + id +" ;");
     }
 }

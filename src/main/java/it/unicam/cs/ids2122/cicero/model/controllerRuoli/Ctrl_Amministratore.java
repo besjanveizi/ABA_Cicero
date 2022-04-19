@@ -1,6 +1,11 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
+import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.rimborso.RichiestaRimborso;
 import it.unicam.cs.ids2122.cicero.model.entities.rimborso.RimborsoStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.segnalazione.Segnalazione;
@@ -12,10 +17,10 @@ import it.unicam.cs.ids2122.cicero.model.entities.tag.TagStatus;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
-import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,9 +29,26 @@ import java.util.stream.Collectors;
  */
 public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_Utente {
 
+    private final GestoreTag gestoreTag;
+    private final GestoreAree gestoreAree;
+    private final GestoreUtenti gestoreUtenti;
+    private final GestoreRicerca gestoreRicerca;
+    private final GestoreSegnalazioni gestoreSegnalazioni;
+    private final ServiceEsperienza serviceEsperienza;
+    private final GestoreRimborsi gestoreRimborsi;
+    private final GestoreEsperienze gestoreEsperienze;
+
     public Ctrl_Amministratore(Amministratore amministratore) {
         super(amministratore);
         impostaMenu();
+        gestoreTag = GestoreTag.getInstance();
+        gestoreAree = GestoreAree.getInstance();
+        gestoreEsperienze = new GestoreEsperienze(amministratore);
+        gestoreUtenti = GestoreUtenti.getInstance();
+        gestoreSegnalazioni = GestoreSegnalazioni.getInstance();
+        serviceEsperienza = ServiceEsperienza.getInstance();
+        gestoreRimborsi = new GestoreRimborsi(utente);
+        gestoreRicerca = new GestoreRicerca();
     }
 
     @Override
@@ -49,7 +71,10 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
                 gestisciSegnalazioni();
                 break;
             case 9:
-                gestisciRimborsi();
+                gestisciRichiesteRimborso();
+                break;
+            case 10:
+                cancellaEsperienza();
                 break;
             default:
                 loop = super.switchMenu(scelta);
@@ -59,7 +84,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void gestisciTagProposti() {
         while(true){
-            GestoreTag gestoreTag= GestoreTag.getInstance();
             Set<Tag> proposti = gestoreTag.getTags(e -> e.getState().equals(TagStatus.PROPOSTO));
             Set<String> viewSet=proposti.stream().map(Tag::getName).collect(Collectors.toSet());
             if(proposti.isEmpty()){
@@ -75,8 +99,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     }
 
     private void approvaTag(Tag t){
-        view.message("Tag "+t.getName()+" selezionato, descrizione: "+t.getDescrizione()+"."+"\nVuoi approvare il tag?");
-        GestoreTag gestoreTag= GestoreTag.getInstance();
+        view.message("Tag '"+t.getName()+"' selezionato\nDescrizione: "+t.getDescrizione()+"\nVuoi approvare il tag? [Y/n]");
         if(view.fetchBool()){
             gestoreTag.changeStatus(t,TagStatus.APPROVATO);
         }else{
@@ -85,7 +108,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     }
 
     private void definisciTag() {
-        GestoreTag gestoreTag= GestoreTag.getInstance();
         Set<Tag> allTags = gestoreTag.getTags(t->true);
         boolean done=false,annulla=false;
         String nome="";
@@ -120,7 +142,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         }
         view.message("Vuoi confermare la definizione del tag "+nome+" con descrizione "+descrizione+"?");
         if(view.fetchBool()){
-            gestoreTag.add(nome,descrizione,TagStatus.APPROVATO);
+            gestoreTag.definisci(nome,descrizione,TagStatus.APPROVATO);
             view.message("il tag "+nome+" è stato aggiunto alla collezione di tag della piattaforma.");
         }else{
             annullaDefinizione("tag");
@@ -131,7 +153,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     }
 
     private void definisciArea() {
-        GestoreAree gestoreAree=GestoreAree.getInstance();
         Set<Area> allAree=gestoreAree.getAree();
         boolean done=false, annulla=false;
         String nome="";
@@ -175,12 +196,11 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void gestisciUtenti(){
         while(true){
-            GestoreUtenti gestoreUtenti=GestoreUtenti.getInstance();
             Set<IUtente> utenti=gestoreUtenti.getUtenti(u->u.getType().equals(UtenteType.CICERONE)||u.getType().equals(UtenteType.TURISTA));
             Set<String> viewSet=utenti.stream().map(IUtente::getUsername).collect(Collectors.toSet());
             view.message("Selezionare uno degli utenti registrati nella piattaforma:",viewSet);
             String nomeUtente=view.fetchSingleChoice(viewSet);
-            IUtente utenteScelto=utenti.stream().filter(u->u.getUsername().equals(nomeUtente)).findFirst().get();
+            IUtente utenteScelto=utenti.stream().filter(u->u.getUsername().equals(nomeUtente)).findFirst().orElseThrow();
             view.message("Utente scelto: \nusername:"+utenteScelto.getUsername()+"\nID:"+utenteScelto.getUID()+"\nTipo:"+utenteScelto.getType()+"\nEmail:"+utenteScelto.getEmail()+"\nProcedere con l'eliminazione dell'utente selezionato?");
             if(view.fetchBool()){
                 gestoreUtenti.deleteUtente(utenteScelto.getUID());
@@ -194,7 +214,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void gestisciSegnalazioni(){
         while(true){
-            GestoreSegnalazioni gestoreSegnalazioni= GestoreSegnalazioni.getInstance();
             Set<Segnalazione> segnalazioni=gestoreSegnalazioni.getSegnalazioni(s->s.getState().equals(SegnalazioneStatus.PENDING));
             if(segnalazioni.isEmpty()){
                 view.message("Non sono presenti segnalazioni nella piattaforma.");
@@ -202,14 +221,12 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             }
             Set<String> viewSet=segnalazioni.stream().map(Segnalazione::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
             view.message("Selezionare una delle segnalazioni presenti nella piattaforma:",viewSet);
-            Integer id =Integer.parseInt(view.fetchSingleChoice(viewSet));
-            Segnalazione segnalazione= segnalazioni.stream().filter(s->s.getId()==id).findFirst().get();
+            int id = Integer.parseInt(view.fetchSingleChoice(viewSet));
+            Segnalazione segnalazione= segnalazioni.stream().filter(s->s.getId()==id).findFirst().orElseThrow();
             view.message("Segnalazione scelta:\nID:"+segnalazione.getId()+"\nID esperienza:"+segnalazione.getEsperienzaId()+"\nId utente:"+segnalazione.getUId()+"\nDescrizione:"+segnalazione.getDescrizione());
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la segnalazione e cancellare l'esperienza associata\n2)Rifiutare la segnalazione",2)==1) {
                 gestoreSegnalazioni.accettaSegnalazione(segnalazione);
                 view.message("Pratica di cancellazione esperienza iniziata");
-                ServiceEsperienza serviceEsperienza=ServiceEsperienza.getInstance();
-                serviceEsperienza.remove(segnalazione.getEsperienzaId());
             }else{
                 gestoreSegnalazioni.rifiutaSegnalazione(segnalazione);
                 view.message("Segnalazione rifiutata");
@@ -218,31 +235,80 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         }
     }
 
-    private void gestisciRimborsi(){
+    private void gestisciRichiesteRimborso(){
         while(true){
-            GestoreRimborsi gestoreRimborso= GestoreRimborsi.getInstance(utente);
-            Set<RichiestaRimborso> richieste=gestoreRimborso.getRimborsi(r -> r.getState().equals(RimborsoStatus.PENDING));
-            if(richieste.isEmpty()){
-                view.message("Non sono presenti richieste di rimborso nella piattaforma.");
-                break;
+            RichiestaRimborso richiesta = selezionaRichiesta(
+                    gestoreRimborsi.getRimborsi(r -> r.getState().equals(RimborsoStatus.PENDING)));
+            if (richiesta == null) {
+                view.message("Non ci sono richieste di rimborso in attesa di gestione.");
+                return;
             }
-            Set<String> viewSet=richieste.stream().map(RichiestaRimborso::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
-            view.message("Selezionare una delle richieste di rimborso presenti nella piattaforma:",viewSet);
-            Integer id =Integer.parseInt(view.fetchSingleChoice(viewSet));
-            RichiestaRimborso richiesta= richieste.stream().filter(s->s.getId()==id).findFirst().get();
-            view.message("Richiesta di rimborso scelta:\nID:"+richiesta.getId()+"\nID della fattura:"+richiesta.getIdFattura()+"\nMotivazione richiesta:"+richiesta.getMotivoRichiesta());
-            if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la richiesta di rimborso\n2)Rifiutare la richiesta di rimborso",2)==1) {
-
-                BeanFattura beanFattura = GestoreRimborsi.getInstance(utente).accettaRichiestaRimborso(richiesta);
-                GestorePagamenti.getInstance((Turista) utente).crea_fattura(beanFattura);
-
-                view.message("Pratica di rimborso iniziata");
+            view.message(richiesta.toString());
+            int scelta = view.fetchChoice("\n1) Accettare la richiesta di rimborso" +
+                    "\n2) Rifiutare la richiesta di rimborso", 2);
+            String motivo = view.ask("Inserisci il motivo della scelta appena fatta:");
+            if(scelta == 1) {
+                BeanFattura beanFattura = gestoreRimborsi.accettaRichiestaRimborso(richiesta, motivo);
+                view.message("Richiesta di rimborso accettata");
+                new GestoreFatture( utente).crea_fattura(beanFattura);
+                view.message("Rimborso effettuato");
             }else{
-               GestoreRimborsi.getInstance((Turista) utente).rifiutaRichiestaRimborso(richiesta);
+               gestoreRimborsi.rifiutaRichiestaRimborso(richiesta, motivo);
                 view.message("Richiesta di rimborso rifiutata");
             }
-            if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Selezionare una nuova richiesta di rimborso da gestire\n2)Uscire",2)==2)break;
+            if(view.fetchChoice("\n1) Selezionare una nuova richiesta di rimborso da gestire" +
+                    "\n2) Uscire",2) == 2) break;
         }
+    }
+
+    private RichiestaRimborso selezionaRichiesta(Set<RichiestaRimborso> richieste) {
+        if (richieste.isEmpty()) {
+            return null;
+        }
+        List<String> viewList = new ArrayList<>();
+        List<Integer> idList = new ArrayList<>();
+        int i = 1;
+        for (RichiestaRimborso r : richieste) {
+            viewList.add(i++ + ") "+ r.shortToString());
+            idList.add(r.getId());
+        }
+        view.message("Richieste di rimborso:", viewList);
+        int indice = view.fetchChoice("Scegli l'indice della richiesta", viewList.size());
+        int idRichiesta = idList.get(indice-1);
+        return richieste.stream().filter(p -> p.getId() == idRichiesta).findFirst().orElseThrow();
+    }
+
+    private void cancellaEsperienza() {
+        Set<Esperienza> esperienze = gestoreEsperienze
+                .getAllEsperienze(e-> e.getStatus()== EsperienzaStatus.IDLE || e.getStatus()== EsperienzaStatus.VALIDA);
+        Esperienza e = selezionaEsperienza(esperienze);
+        if (e == null){
+            view.message("Non ci sono esperienze da cancellare");
+        }
+        else {
+            view.message(e.toString());
+            Set<BeanPrenotazione> prenotazioni = gestoreEsperienze.getPrenotazioni(e,  p -> !p.getStatoPrenotazione().equals(StatoPrenotazione.CANCELLATA));
+            Set<BeanInvito> inviti = gestoreEsperienze.getInviti(e);
+            if (!prenotazioni.isEmpty() || !inviti.isEmpty()) {
+                view.message("\nLa cancellazione dell'esperienza comporterà la cancellazione automatica " +
+                        "(e rimborso se previsto) di " + prenotazioni.size() + " prenotazioni e "  + inviti.size() +
+                        " inviti associati.\n");
+            }
+            int scelta = view.fetchChoice("1) Prosegui con la cancellazione\n2) Torna al menu principale",
+                    2);
+            if (scelta == 2) {
+                view.message("L'esperienza non è stata cancellata");
+            }
+            else {
+                gestoreEsperienze.cancellaEsperienza(e, prenotazioni, inviti);
+                view.message("L'esperienza '" + e.getName() + "' è stata cancellata");
+            }
+        }
+    }
+
+    @Override
+    protected Set<Esperienza> setRicerca(String filtroNome, Set<Area> filtroAree, Set<Tag> filtroTags) {
+        return gestoreRicerca.ricerca_avanzata(filtroNome, filtroTags, filtroAree);
     }
 
     private void impostaMenu() {
@@ -251,7 +317,8 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         menuItems.add("6) Gestisci Tag Proposti");
         menuItems.add("7) Gestisci utenti");
         menuItems.add("8) Gestisci segnalazioni");
-        menuItems.add("9) Gestisci rimborsi");
+        menuItems.add("9) Gestisci richieste rimborso");
+        menuItems.add("10) Cancella Esperienza");
     }
 }
 

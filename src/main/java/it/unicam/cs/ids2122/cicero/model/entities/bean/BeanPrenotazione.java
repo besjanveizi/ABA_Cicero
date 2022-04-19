@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Currency;
 import java.util.Objects;
 
 public final class BeanPrenotazione implements Serializable {
@@ -65,7 +66,7 @@ public final class BeanPrenotazione implements Serializable {
 
     public BeanPrenotazione(LocalDateTime data_inizio_esperienza, int maxGiorniRiserva,int posti, BigDecimal importo, String valuta){
 
-        this.scadenza = LocalDateTime.now().plus(maxGiorniRiserva, ChronoUnit.DAYS).truncatedTo(ChronoUnit.HOURS);
+        this.scadenza = LocalDateTime.now().plus(maxGiorniRiserva, ChronoUnit.DAYS).truncatedTo(ChronoUnit.SECONDS);
 
         if(scadenza.isAfter(data_inizio_esperienza)){
             this.scadenza = data_inizio_esperienza;
@@ -74,7 +75,7 @@ public final class BeanPrenotazione implements Serializable {
         this.posti = posti;
         this.prezzo_totale = importo.multiply(BigDecimal.valueOf(posti));
         this.valuta = valuta;
-        this.data_prenotazione = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
+        this.data_prenotazione = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
     }
 
 
@@ -158,6 +159,14 @@ public final class BeanPrenotazione implements Serializable {
         this.valuta = valuta;
     }
 
+    /**
+     * Controlla se un'{@code Esperienza} &egrave valida.
+     * @return {@code true} se lo stato dell'{@code Esperienza} non &egrave {@link StatoPrenotazione#CANCELLATA},
+     * altrimenti restituisce {@code false}.
+     */
+    public boolean isValida() {
+        return statoPrenotazione != StatoPrenotazione.CANCELLATA;
+    }
 
     public StatoPrenotazione getStatoPrenotazione() {
         return statoPrenotazione;
@@ -185,16 +194,25 @@ public final class BeanPrenotazione implements Serializable {
 
     @Override
     public String toString() {
-        return "BeanPrenotazione{" +
-                "ID_prenotazione=" + ID_prenotazione +
-                ", ID_esperienza=" + ID_esperienza +
-                ", ID_turista=" + ID_turista +
-                ", posti=" + posti +
-                ", data_prenotazione=" + data_prenotazione +
-                ", scadenza=" + scadenza +
-                ", prezzo_totale=" + prezzo_totale +
-                ", valuta='" + valuta + '\'' +
-                ", statoPrenotazione=" + statoPrenotazione +
-                '}';
+        return "\n---INFORMAZIONI DELLA PRENOTAZIONE---" +
+                "\nID prenotazione: " + ID_prenotazione +
+                "\nID esperienza: " + ID_esperienza +
+                "\nID turista: " + ID_turista +
+                "\nPosti prenotati: " + posti +
+                "\nData di prenotazione: " + data_prenotazione +
+                (statoPrenotazione == StatoPrenotazione.RISERVATA ?
+                        "\nData di scadenza della riserva: " + scadenza : "") +
+                "\nStato: " + statoPrenotazione +
+                "\nCosto totale: " + prezzo_totale + " " + Currency.getInstance(valuta).getSymbol();
+    }
+
+    public String shortToString() {
+        return "\n\tID esperienza associata: " + ID_esperienza +
+                "\n\tN. posti prenotati: " + posti +
+                "\n\tData di prenotazione: " + data_prenotazione +
+                (statoPrenotazione == StatoPrenotazione.RISERVATA ?
+                        "\n\tData di scadenza della riserva: " + scadenza : "") +
+                "\n\tStato: " + statoPrenotazione +
+                "\n\tCosto totale: " + prezzo_totale + " " + Currency.getInstance(valuta).getSymbol();
     }
 }

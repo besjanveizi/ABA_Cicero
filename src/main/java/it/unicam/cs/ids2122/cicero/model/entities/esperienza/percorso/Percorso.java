@@ -48,10 +48,10 @@ public class Percorso {
 
     @Override
     public String toString() {
-        return "Percorso: " +
+        return "\nPercorso: \n" +
                 spostamenti.stream()
                 .map(Spostamento::toString)
-                .collect(Collectors.toList()) + '}';
+                .collect(Collectors.toList());
     }
 
     public void reset() {
