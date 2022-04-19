@@ -36,8 +36,8 @@ public class Attivita {
 
     @Override
     public String toString() {
-        return "\n\t\t\tAttivita n." + getIndice() +
+        return "\t\t\tAttivita n." + getIndice() +
                 "\n\t\t\t\tnome: '" + nome + '\'' +
-                "\n\t\t\t\tdescrizione: '" + descrizione + '\'';
+                "\n\t\t\t\tdescrizione: '" + descrizione + "'\n";
     }
 }

@@ -1,6 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
 
+import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
@@ -15,18 +16,19 @@ import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class GestoreFatture {
 
-    private static GestoreFatture gestorePagamenti = null;
+    Logger logger = Logger.getLogger(Piattaforma.class.getName());
 
-    private IUtente utente_corrente;
+    private final IUtente utente_corrente;
 
     private Set<BeanFattura> ricevuti;
     private Set<BeanFattura> effettuati;
 
-    private GestoreFatture(IUtente iUtente) {
+    public GestoreFatture(IUtente iUtente) {
         this.utente_corrente = iUtente;
         if(utente_corrente.getType().equals(UtenteType.TURISTA)) {
             carica();
@@ -37,23 +39,18 @@ public final class GestoreFatture {
      * Carica i pagamenti, ricevuti ed effettuati.
      */
     private void carica() {
+        logger.info("\tcaricamento delle fatture..");
+        Set<BeanFattura> tot = ServiceFattura.getInstance().sql_select(utente_corrente.getID_Client());
+        ricevuti = tot
+                .stream()
+                .filter(beanFattura -> beanFattura.getId_client_destinatario().equals(utente_corrente.getID_Client()))
+                .collect(Collectors.toSet());
 
-    Set<BeanFattura> tot = ServiceFattura.getInstance().sql_select(utente_corrente.getID_Client());
-     ricevuti = tot
-             .stream()
-             .filter(beanFattura -> beanFattura.getId_client_destinatario().equals(utente_corrente.getID_Client()))
-             .collect(Collectors.toSet());
-
-     effettuati = tot
+        effettuati = tot
              .stream()
              .filter(beanFattura -> beanFattura.getId_client_origine().equals(utente_corrente.getID_Client()))
              .collect(Collectors.toSet());
-    }
-
-    public static GestoreFatture getInstance(IUtente iUtente){
-        if(gestorePagamenti == null) {
-            gestorePagamenti = new GestoreFatture(iUtente);
-        }return gestorePagamenti;
+        logger.info("fatture caricate.\n");
     }
 
     /**
@@ -63,7 +60,7 @@ public final class GestoreFatture {
      */
     public void crea_fattura(BeanPrenotazione beanPrenotazione) {
         BeanFattura beanFattura = new BeanFattura();
-        beanFattura.setData_pagamento(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
+        beanFattura.setData_pagamento(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         beanFattura.setImporto(beanPrenotazione.getPrezzo_totale());
         beanFattura.setValuta(beanPrenotazione.getValuta());
         beanFattura.setStatoPagamento(TipoFattura.PAGAMENTO);
@@ -81,7 +78,7 @@ public final class GestoreFatture {
      */
     public void crea_fattura(BeanFattura beanFattura){
          BeanFattura newBeanFattura = new BeanFattura();
-         newBeanFattura.setData_pagamento(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
+         newBeanFattura.setData_pagamento(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
          newBeanFattura.setStatoPagamento(TipoFattura.RIMBORSO);
          newBeanFattura.setId_client_destinatario(beanFattura.getId_client_origine());
          newBeanFattura.setId_client_origine(beanFattura.getId_client_destinatario());

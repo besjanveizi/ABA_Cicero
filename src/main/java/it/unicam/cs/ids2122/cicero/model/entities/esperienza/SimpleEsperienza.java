@@ -231,14 +231,18 @@ public class SimpleEsperienza implements Esperienza {
                 "\nCosto per posto: " + getCostoIndividuale().getValore() + " "
                 + getCostoIndividuale().getValuta().getSymbol() +
                 "\nMassimo giorni di riserva: " + getMaxRiserva() +
-                "\npostiDisponibili: " + getPostiDisponibili() +
+                "\nPosti disponibili: " + getPostiDisponibili() +
                 "\nToponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
                 "\nTags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet());
     }
+
     @Override
     public String shortToString(){
-        return "\nNome: '" + getName() + '\'' +
-                "\nDescrizione: " + getDescrizione() +
+        return "\n---INFORMAZIONI DELL'ESPERIENZA---" +
+                "\nNome: '" + getName() + '\'' +
+                "\nData d'inizio: " + getDataInizio() +
+                "\nData di conclusione: " + getDataFine() +
+                "\nPosti disponibili: " + getPostiDisponibili() +
                 "\nToponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
                 "\nTags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet());
     }

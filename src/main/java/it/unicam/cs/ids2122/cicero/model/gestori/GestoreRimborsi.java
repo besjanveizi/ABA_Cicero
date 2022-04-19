@@ -1,6 +1,7 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
 
+import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
@@ -18,17 +19,18 @@ import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class GestoreRimborsi {
 
-    private static GestoreRimborsi gestoreRimborsi = null;
+    Logger logger = Logger.getLogger(Piattaforma.class.getName());
 
-    private IUtente iUtente;
+    private final IUtente iUtente;
 
     private Set<RichiestaRimborso> rimborsi;
 
-    private GestoreRimborsi(IUtente iUtente){
+    public GestoreRimborsi(IUtente iUtente){
         this.iUtente = iUtente;
         rimborsi = new HashSet<>();
         carica();
@@ -36,30 +38,21 @@ public final class GestoreRimborsi {
 
     private void carica() {
         if(iUtente.getType().equals(UtenteType.ADMIN)){
+            logger.info("\tcaricamento delle richieste di rimborso..");
             rimborsi = ServiceRimborso.getInstance().getRichiesteRimborso();
+            logger.info("richieste caricate.\n");
         }
     }
-
-
-    public static GestoreRimborsi getInstance(IUtente turista){
-        if(gestoreRimborsi ==null){
-            gestoreRimborsi = new GestoreRimborsi(turista);
-        }return gestoreRimborsi;
-    }
-
 
     /**
      * Verifica se il rimborso può avvenire automaticamente.
      * @param beanPrenotazione
      * @return
      */
-    public boolean rimborsa(BeanPrenotazione beanPrenotazione){
+    public boolean isAutoRefundable(BeanPrenotazione beanPrenotazione){
         Esperienza esperienza = ServiceEsperienza.getInstance().getEsperienza(beanPrenotazione.getID_esperienza());
-        if(esperienza.getStatus().equals(EsperienzaStatus.IDLE) || esperienza.getStatus().equals(EsperienzaStatus.VALIDA) ){
-            return true;
-        }else{
-            return false;
-        }
+        EsperienzaStatus es = esperienza.getStatus();
+        return es.equals(EsperienzaStatus.IDLE) || es.equals(EsperienzaStatus.VALIDA);
     }
 
     /**
@@ -67,13 +60,9 @@ public final class GestoreRimborsi {
      * @param beanPrenotazione
      * @return
      */
-    public boolean richiedi_rimborso(BeanPrenotazione beanPrenotazione){
+    public boolean isRequestRefundable(BeanPrenotazione beanPrenotazione){
         Esperienza esperienza = ServiceEsperienza.getInstance().getEsperienza(beanPrenotazione.getID_esperienza());
-        if(esperienza.getStatus().equals(EsperienzaStatus.CONCLUSA) ){
-            return true;
-        }else{
-            return false;
-        }
+        return esperienza.getStatus().equals(EsperienzaStatus.CONCLUSA);
     }
 
     /**

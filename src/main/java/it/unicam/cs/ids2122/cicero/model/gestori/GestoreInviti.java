@@ -11,25 +11,16 @@ import java.util.Set;
 
 public final class GestoreInviti {
 
-    private static GestoreInviti sinGestorePagamento= null;
-
     private final IUtente utente_corrente;
+    private Set<BeanInvito> ricevuti;
 
-   private Set<BeanInvito> ricevuti;
-
-    private GestoreInviti(IUtente corrente){
+    public GestoreInviti(IUtente corrente){
         this.utente_corrente = corrente;
             carica();
     }
 
     private void carica() {
         ricevuti = ServiceInvito.getInstance().select(utente_corrente.getEmail());
-    }
-
-    public  static GestoreInviti getInstance(IUtente iUtente)  {
-        if(sinGestorePagamento == null){
-           sinGestorePagamento = new GestoreInviti(iUtente);
-        }return sinGestorePagamento;
     }
 
     /**
@@ -69,6 +60,7 @@ public final class GestoreInviti {
      * @return {@code Set} degli inviti.
      */
     public Set<BeanInvito> getRicevuti() {
+        carica();
         return ricevuti;
     }
 }

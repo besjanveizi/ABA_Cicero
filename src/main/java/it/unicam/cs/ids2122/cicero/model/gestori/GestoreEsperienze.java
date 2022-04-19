@@ -3,6 +3,7 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 import it.unicam.cs.ids2122.cicero.model.Bacheca;
 import it.unicam.cs.ids2122.cicero.model.IBacheca;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
@@ -28,7 +29,6 @@ public class GestoreEsperienze {
 
     private Set<Esperienza> esperienze;
     private final IUtente utente;
-    private static GestoreEsperienze instance = null;
     private static ServiceEsperienza serviceEsperienza;
     private static IBacheca bacheca;
 
@@ -36,16 +36,11 @@ public class GestoreEsperienze {
      * Crea un gestore delle esperienze per il dato <code>Cicerone</code>.
      * @param utente <code>Cicerone</code> a cui il gestore si riferisce.
      */
-    private GestoreEsperienze(IUtente utente) {
+    public GestoreEsperienze(IUtente utente) {
         this.utente = utente;
         serviceEsperienza = ServiceEsperienza.getInstance();
         bacheca = Bacheca.getInstance();
         updateEsperienze();
-    }
-
-    public static GestoreEsperienze getInstance(IUtente utente) {
-        if (instance == null) instance = new GestoreEsperienze(utente);
-        return instance;
     }
 
     private void updateEsperienze() {
@@ -53,7 +48,7 @@ public class GestoreEsperienze {
         if (utente.getType() == UtenteType.CICERONE){
             esperienze.addAll(bacheca.getEsperienze(e -> e.getCiceroneCreatore().equals(utente)));
         }
-        else esperienze.addAll(bacheca.getEsperienze(e -> true));
+        else if (utente.getType() == UtenteType.ADMIN) esperienze.addAll(bacheca.getEsperienze(e -> true));
     }
 
     /**
@@ -87,11 +82,11 @@ public class GestoreEsperienze {
         updateEsperienze();
     }
 
-    public Set<BeanPrenotazione> getPrenotazioni(Esperienza e) {
-        return ServicePrenotazione.getInstance().getPrenotazioniOfEsperienza(e.getId());
+    public Set<BeanPrenotazione> getPrenotazioni(Esperienza e, Predicate<BeanPrenotazione> f) {
+        return ServicePrenotazione.getInstance().getPrenotazioniOfEsperienza(e.getId()).stream().filter(f).collect(Collectors.toSet());
     }
 
-    public void cancellaEsperienza(Esperienza e, Set<BeanPrenotazione> prenotazioni) {
+    public void cancellaEsperienza(Esperienza e, Set<BeanPrenotazione> prenotazioni, Set<BeanInvito> inviti) {
         serviceEsperienza.updateStatus(e.getId(), EsperienzaStatus.CANCELLATA);
         for (BeanPrenotazione p : prenotazioni) {
             if (p.getStatoPrenotazione() == StatoPrenotazione.CANCELLATA) continue;
@@ -103,11 +98,17 @@ public class GestoreEsperienze {
                                 .stream()
                                 .filter(f -> f.getId_client_origine().equals(turista.getID_Client()) &&
                                         f.getId_prenotazione() == p.getID_prenotazione())
-                                .findFirst()
-                                .get();
-                GestoreFatture.getInstance(turista).crea_fattura(fattura);
+                                .findFirst().orElseThrow();
+                new GestoreFatture(turista).crea_fattura(fattura);
             }
-            GestorePrenotazioni.getInstance(turista).modifica_stato(p, StatoPrenotazione.CANCELLATA);
+            new GestorePrenotazioni(turista).modifica_stato(p, StatoPrenotazione.CANCELLATA);
         }
+        for (BeanInvito i : inviti) {
+            ServiceInvito.getInstance().delete(i.getId_invito());
+        }
+    }
+
+    public Set<BeanInvito> getInviti(Esperienza e) {
+        return ServiceInvito.getInstance().download(e);
     }
 }

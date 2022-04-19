@@ -1,7 +1,9 @@
 package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
+import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.EsperienzaStatus;
 import it.unicam.cs.ids2122.cicero.model.entities.rimborso.RichiestaRimborso;
@@ -31,7 +33,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     private final GestoreRicerca gestoreRicerca;
     private final GestoreSegnalazioni gestoreSegnalazioni;
     private final ServiceEsperienza serviceEsperienza;
-    private final GestoreRimborsi gestoreRimborso;
+    private final GestoreRimborsi gestoreRimborsi;
     private final GestoreEsperienze gestoreEsperienze;
 
     public Ctrl_Amministratore(Amministratore amministratore) {
@@ -39,11 +41,11 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         impostaMenu();
         gestoreTag = GestoreTag.getInstance();
         gestoreAree = GestoreAree.getInstance();
-        gestoreEsperienze = GestoreEsperienze.getInstance(amministratore);
+        gestoreEsperienze = new GestoreEsperienze(amministratore);
         gestoreUtenti = GestoreUtenti.getInstance();
         gestoreSegnalazioni = GestoreSegnalazioni.getInstance();
         serviceEsperienza = ServiceEsperienza.getInstance();
-        gestoreRimborso = GestoreRimborsi.getInstance(utente);
+        gestoreRimborsi = new GestoreRimborsi(utente);
         gestoreRicerca = new GestoreRicerca();
     }
 
@@ -95,7 +97,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     }
 
     private void approvaTag(Tag t){
-        view.message("Tag "+t.getName()+" selezionato, descrizione: "+t.getDescrizione()+"."+"\nVuoi approvare il tag?");
+        view.message("Tag '"+t.getName()+"' selezionato\nDescrizione: "+t.getDescrizione()+"\nVuoi approvare il tag? [Y/n]");
         if(view.fetchBool()){
             gestoreTag.changeStatus(t,TagStatus.APPROVATO);
         }else{
@@ -223,7 +225,6 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la segnalazione e cancellare l'esperienza associata\n2)Rifiutare la segnalazione",2)==1) {
                 gestoreSegnalazioni.accettaSegnalazione(segnalazione);
                 view.message("Pratica di cancellazione esperienza iniziata");
-                serviceEsperienza.remove(segnalazione.getEsperienzaId());
             }else{
                 gestoreSegnalazioni.rifiutaSegnalazione(segnalazione);
                 view.message("Segnalazione rifiutata");
@@ -234,7 +235,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
 
     private void gestisciRimborsi(){
         while(true){
-            Set<RichiestaRimborso> richieste=gestoreRimborso.getRimborsi(r -> r.getState().equals(RimborsoStatus.PENDING));
+            Set<RichiestaRimborso> richieste= gestoreRimborsi.getRimborsi(r -> r.getState().equals(RimborsoStatus.PENDING));
             if(richieste.isEmpty()){
                 view.message("Non sono presenti richieste di rimborso nella piattaforma.");
                 break;
@@ -245,11 +246,11 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             RichiestaRimborso richiesta= richieste.stream().filter(s->s.getId()==id).findFirst().orElseThrow();
             view.message("Richiesta di rimborso scelta:\nID:"+richiesta.getId()+"\nID della fattura:"+richiesta.getIdFattura()+"\nMotivazione richiesta:"+richiesta.getMotivoRichiesta());
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la richiesta di rimborso\n2)Rifiutare la richiesta di rimborso",2)==1) {
-                BeanFattura beanFattura = gestoreRimborso.accettaRichiestaRimborso(richiesta);
-                GestoreFatture.getInstance( utente).crea_fattura(beanFattura);
+                BeanFattura beanFattura = gestoreRimborsi.accettaRichiestaRimborso(richiesta);
+                new GestoreFatture( utente).crea_fattura(beanFattura);
                 view.message("Pratica di rimborso iniziata");
             }else{
-               GestoreRimborsi.getInstance( utente).rifiutaRichiestaRimborso(richiesta);
+               gestoreRimborsi.rifiutaRichiestaRimborso(richiesta);
                 view.message("Richiesta di rimborso rifiutata");
             }
             if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Selezionare una nuova richiesta di rimborso da gestire\n2)Uscire",2)==2)break;
@@ -259,16 +260,18 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
     private void cancellaEsperienza() {
         Set<Esperienza> esperienze = gestoreEsperienze
                 .getAllEsperienze(e-> e.getStatus()== EsperienzaStatus.IDLE || e.getStatus()== EsperienzaStatus.VALIDA);
-        if (esperienze.isEmpty()){
+        Esperienza e = selezionaEsperienza(esperienze);
+        if (e == null){
             view.message("Non ci sono esperienze da cancellare");
         }
         else {
-            Esperienza e = selezionaEsperienza(esperienze);
             view.message(e.toString());
-            Set<BeanPrenotazione> prenotazioni = gestoreEsperienze.getPrenotazioni(e);
-            if (!prenotazioni.isEmpty()) {
+            Set<BeanPrenotazione> prenotazioni = gestoreEsperienze.getPrenotazioni(e,  p -> !p.getStatoPrenotazione().equals(StatoPrenotazione.CANCELLATA));
+            Set<BeanInvito> inviti = gestoreEsperienze.getInviti(e);
+            if (!prenotazioni.isEmpty() && !inviti.isEmpty()) {
                 view.message("\nLa cancellazione dell'esperienza comporterà la cancellazione automatica " +
-                        "(e rimborso se previsto) di " + prenotazioni.size() + " prenotazioni associate.\n");
+                        "(e rimborso se previsto) di " + prenotazioni.size() + " prenotazioni e "  + inviti.size() +
+                        " inviti associati.\n");
             }
             int scelta = view.fetchChoice("1) Prosegui con la cancellazione\n2) Torna al menu principale",
                     2);
@@ -276,8 +279,8 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
                 view.message("L'esperienza non è stata cancellata");
             }
             else {
-                gestoreEsperienze.cancellaEsperienza(e, prenotazioni);
-                view.message("L'esperienza + " + e.getName() + " è stata cancellata");
+                gestoreEsperienze.cancellaEsperienza(e, prenotazioni, inviti);
+                view.message("L'esperienza '" + e.getName() + "' è stata cancellata");
             }
         }
     }

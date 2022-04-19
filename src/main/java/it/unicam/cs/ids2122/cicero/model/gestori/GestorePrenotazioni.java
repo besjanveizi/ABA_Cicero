@@ -1,5 +1,6 @@
 package it.unicam.cs.ids2122.cicero.model.gestori;
 
+import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
@@ -8,7 +9,6 @@ import it.unicam.cs.ids2122.cicero.model.services.ServiceDisponibilita;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceInvito;
 import it.unicam.cs.ids2122.cicero.model.services.ServicePrenotazione;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
-import it.unicam.cs.ids2122.cicero.ruoli.Turista;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -16,33 +16,23 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class GestorePrenotazioni {
+    Logger logger = Logger.getLogger(Piattaforma.class.getName());
 
-
-    private static GestorePrenotazioni gestorePrenotazioni = null;
-
-    private IUtente utente_corrente;
+    private final IUtente utente_corrente;
 
     /**
      * lista delle prenotazioni effettuale riferite all' utente corrente
      */
     private Set<BeanPrenotazione> prenotazioni;
 
-
-
-    private GestorePrenotazioni(IUtente iUtente) {
+    public GestorePrenotazioni(IUtente iUtente) {
         utente_corrente = iUtente;
         prenotazioni = new HashSet<>();
         carica();
-    }
-
-    public static GestorePrenotazioni getInstance(IUtente iUtente)  {
-        if(gestorePrenotazioni ==null){
-            gestorePrenotazioni = new GestorePrenotazioni(iUtente);
-        }
-        return gestorePrenotazioni;
     }
 
     /**
@@ -51,7 +41,9 @@ public final class GestorePrenotazioni {
      * @throws SQLException possibile eccezione dal db o dal resultset
      */
     private void carica()  {
+        logger.info("\tcaricamento delle prenotazioni..");
         prenotazioni = ServicePrenotazione.getInstance().sql_select(utente_corrente.getUID());
+        logger.info("prenotazioni caricate.\n");
     }
 
     /**
@@ -89,7 +81,7 @@ public final class GestorePrenotazioni {
         beanPrenotazione.setID_turista(utente_corrente.getUID());
         beanPrenotazione.setStatoPrenotazione(StatoPrenotazione.RISERVATA);
         beanPrenotazione.setScadenza(invito_ricevuto.getData_scadenza_riserva());
-        beanPrenotazione.setData_prenotazione(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS));
+        beanPrenotazione.setData_prenotazione(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         beanPrenotazione.setPrezzo_totale(invito_ricevuto.getImporto());
         beanPrenotazione.setValuta(invito_ricevuto.getValuta());
         beanPrenotazione.setID_esperienza(invito_ricevuto.getId_esperienza());
@@ -117,8 +109,8 @@ public final class GestorePrenotazioni {
     }
 
 
-    public Set<BeanPrenotazione> getPrenotazioni() {
-        return prenotazioni;
+    public Set<BeanPrenotazione> getPrenotazioni(Predicate<BeanPrenotazione> p) {
+        return prenotazioni.stream().filter(p).collect(Collectors.toSet());
     }
 
 
@@ -128,7 +120,7 @@ public final class GestorePrenotazioni {
      * @return
      */
     public BeanPrenotazione getPrenotazione(Predicate<BeanPrenotazione> predicate){
-        return prenotazioni.stream().filter(predicate).findFirst().get();
+        return prenotazioni.stream().filter(predicate).findFirst().orElseThrow();
     }
 
 

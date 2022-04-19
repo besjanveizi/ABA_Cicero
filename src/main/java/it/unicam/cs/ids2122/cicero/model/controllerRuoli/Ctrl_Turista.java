@@ -2,6 +2,7 @@ package it.unicam.cs.ids2122.cicero.model.controllerRuoli;
 
 import it.unicam.cs.ids2122.cicero.model.Bacheca;
 import it.unicam.cs.ids2122.cicero.model.IBacheca;
+import it.unicam.cs.ids2122.cicero.model.Piattaforma;
 import it.unicam.cs.ids2122.cicero.model.entities.esperienza.Esperienza;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanFattura;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
@@ -9,12 +10,17 @@ import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.gestori.*;
 import it.unicam.cs.ids2122.cicero.ruoli.Turista;
+import it.unicam.cs.ids2122.cicero.util.Money;
 
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 /**
  * Rappresenta un gestore radice un utente <code>Turista</code> che elabora le sue interazioni con il sistema.
@@ -27,15 +33,17 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
     private final GestoreRimborsi gestoreRimborsi;
     private final IBacheca bacheca;
 
+    Logger logger = Logger.getLogger(Piattaforma.class.getName());
+
 
     public Ctrl_Turista(Turista turista) {
         super(turista);
         impostaMenu();
         bacheca = Bacheca.getInstance();
-        gestoreFatture = GestoreFatture.getInstance(utente);
-        gestorePrenotazioni = GestorePrenotazioni.getInstance(utente);
-        gestoreRimborsi = GestoreRimborsi.getInstance(utente);
-        gestoreInviti = GestoreInviti.getInstance(utente);
+        gestoreFatture = new GestoreFatture(utente);
+        gestorePrenotazioni = new GestorePrenotazioni(utente);
+        gestoreRimborsi = new GestoreRimborsi(utente);
+        gestoreInviti = new GestoreInviti(utente);
     }
 
     @Override
@@ -66,21 +74,151 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         return loop;
     }
 
-    private void cancellaPrenotazione() {
-
-        BeanPrenotazione b = seleziona_prenotazione();
-
-        if(b!= null && b.getStatoPrenotazione().equals(StatoPrenotazione.PAGATA)){
-            cancellaPrenotazione_pagata(b);
+    /**
+     * Realizza il caso d' uso prenota esperienza.
+     */
+    private void prenotaEsperienza() {
+        Esperienza esperienza = null;
+        while (true) {
+            esperienza = selezionaEsperienza(bacheca.getEsperienze(Esperienza::isAvailable));
+            if (esperienza == null) {
+                logger.info("Non ci sono esperienze disponibili da prenotare\n");
+                return;
+            }
+            view.message(esperienza.longToString());
+            int scelta = view.fetchChoice("\n1) Proseguire con la prenotazione dell'esperienza scelta\n" +
+                    "2) Scegli un'altra esperienza\n3) Torna al menu principale", 3);
+            if (scelta == 3) return;
+            if (scelta == 1) break;
         }
-        if(b!=null && b.getStatoPrenotazione().equals(StatoPrenotazione.RISERVATA)){
-            cancellaPrenotazione_riservata(b);
+        int postiDisponibili = esperienza.getPostiDisponibili();
+        int posti_scelti;
+        while (true) {
+            view.message("Inserisci il numero dei posti da riservare [max= " + postiDisponibili + "]");
+            posti_scelti = view.fetchInt();
+            if (posti_scelti > 0 && posti_scelti <= postiDisponibili) break;
+            else logger.info("Errore di inserimento, riprova.");
         }
-        if(b!=null && b.getStatoPrenotazione().equals(StatoPrenotazione.CANCELLATA)){
-            view.message("prenotazione già cancellata");
+        Money costoIndividuale = esperienza.getCostoIndividuale();
+        view.message("Costo totale = " + posti_scelti + " * " + costoIndividuale.toString() + " = " +
+                costoIndividuale.op_multi(String.valueOf(posti_scelti)) + costoIndividuale.getValuta().getSymbol());
+        view.message("Confermare prenotazione [Y/n]");
+        int id;
+        if (view.fetchBool()) {
+            id = gestorePrenotazioni.crea_prenotazione(esperienza, posti_scelti);
+            logger.info("Prenotazione creata.\n");
+        } else {
+            logger.info("Prenotazione annullata.\n");
+            return;
+        }
+        BeanPrenotazione p = gestorePrenotazioni.getPrenotazione(bp -> bp.getID_prenotazione() == id);
+        pagaPrenotazione(p);
+    }
+
+    /**
+     * Permette il pagamento di una prenotazione. (RISERVATA)
+     *
+     * @param prenotazione può essere null se l'accesso è diretto.
+     */
+    private void pagaPrenotazione(BeanPrenotazione prenotazione){
+        if(prenotazione == null){
+            prenotazione = seleziona_prenotazione(
+                    gestorePrenotazioni
+                            .getPrenotazioni(p -> p.getStatoPrenotazione().equals(StatoPrenotazione.RISERVATA)));
+            if (prenotazione == null) {
+                logger.info("Non ci sono prenotazioni da pagare\n");
+                return;
+            }
+        }
+        view.message(prenotazione.toString());
+        view.message("Vuoi pagare la prenotazione? [Y/n] ");
+        if (view.fetchBool()) {
+            stub_mod_pagamento();
+            gestoreFatture.crea_fattura(prenotazione);
+            gestorePrenotazioni.modifica_stato(prenotazione, StatoPrenotazione.PAGATA);
+            logger.info("La prenotazione è stata pagata");
+        }
+        else
+            view.message("La prenotazione rimarrà riservata fino a " + prenotazione.getScadenza());
+    }
+
+    /**
+     * realizza il caso d'uso, invita per un esperienza.
+     * L'invito modifica la disponibilità di un esperienza.
+     */
+    private void invitaEsperienza() {
+        Esperienza esperienza = selezionaEsperienza(bacheca.getEsperienze(Esperienza::isAvailable));
+
+        if (esperienza == null) {
+            logger.info("Non ci sono esperienze disponibili per effettuare un invito\n");
+            return;
+        }
+        view.message(esperienza.longToString());
+        String mail_invitato = view.ask("Inserisci l'email dell'invitato");
+        int posti_riservati, postiDisponibili = esperienza.getPostiDisponibili();
+        while (true) {
+            view.message("Inserisci il numero dei posti da riservare [max= " + postiDisponibili + "]");
+            posti_riservati = view.fetchInt();
+            if (posti_riservati > 0 && posti_riservati <= postiDisponibili) break;
+            else logger.info("Errore di inserimento, riprova.");
+        }
+        view.message("Confermare l'invito? [Y/n]");
+        boolean continua = view.fetchBool();
+        if (continua) {
+            gestoreInviti.crea_invito(esperienza, mail_invitato, posti_riservati);
+            logger.info("Invito eseguito\n");
+        }
+        else logger.info("Invito non eseguito\n");
+    }
+
+    /**
+     * Realizza i casi d' uso accetta/rifiuto invito.
+     * In caso di accettazione si genera una nova prenotazione.
+     * In caso di rifiuto l' invito viene eliminato.
+     */
+    private void gestisciInvitiRicevuti() {
+        BeanInvito beanInvito = seleziona_invito(gestoreInviti.getRicevuti());
+
+        if(beanInvito == null)
+            logger.info("Non hai inviti ricevuti\n");
+        else {
+            view.message(beanInvito.toString());
+            view.message("Vuoi accettare l'invito scelto? [Y/n]\nNota bene: l'accettazione comporterà la " +
+                    "generazione della prenotazione all'esperienza con i parametri impostati dall'invito");
+            boolean accetta = view.fetchBool();
+            if (accetta) {
+                gestorePrenotazioni.crea_prenotazione(beanInvito);
+                logger.info("Prenotazione generata\n");
+            } else {
+                view.message("Vuoi rifiutare l'invito? [Y/n]");
+                accetta = view.fetchBool();
+                if(accetta) {
+                    gestoreInviti.rifiuta_invito(beanInvito);
+                    logger.info("L'invito è stato cancellato dalla lista degli inviti ricevuti\n");
+                } else logger.info("Nessuna azione eseguita.\n");
+            }
         }
     }
 
+    private void cancellaPrenotazione() {
+        BeanPrenotazione b = seleziona_prenotazione(gestorePrenotazioni.getPrenotazioni(BeanPrenotazione::isValida));
+        if (b == null) {
+            logger.info("Non hai prenotazioni riservate o pagate\n");
+            return;
+        }
+        view.message(b.toString());
+        view.message("Sei sicuro di voler cancellare la prenotazione [Y/n]");
+        if (view.fetchBool()) {
+            if (b.getStatoPrenotazione().equals(StatoPrenotazione.PAGATA)) {
+                richiediRimborso(b);
+            }
+            else {
+                gestorePrenotazioni.modifica_stato(b, StatoPrenotazione.CANCELLATA);
+            }
+            logger.info("La prenotazione è stata cancellata.\n");
+        }
+        else logger.info("La prenotazione non è stata cancellata\n");
+    }
 
     /**
      * Realizza il caso d 'uso in collegato alla richiesta rimborso.
@@ -91,156 +229,34 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
      * @param beanPrenotazione può essere null se l' accesso al metodo è diretto.
      */
     private void richiediRimborso(BeanPrenotazione beanPrenotazione){
-        view.message("gestisci rimborsi");
-        if(beanPrenotazione== null) {
-            beanPrenotazione = seleziona_prenotazione();
+        if(beanPrenotazione == null) {
+            beanPrenotazione = seleziona_prenotazione(
+                    gestorePrenotazioni
+                            .getPrenotazioni(p -> p.getStatoPrenotazione().equals(StatoPrenotazione.PAGATA)));
+            if(beanPrenotazione == null)
+                logger.info("Non hai prenotazioni pagate\n");
         }
-        if(beanPrenotazione!=null && beanPrenotazione.getStatoPrenotazione().equals(StatoPrenotazione.PAGATA)) {
-            view.message(" elaborazione richiesta di rimborso... ");
+        else {
+            logger.info("\telaborazione della pratica di rimborso..\n");
             final BeanPrenotazione finalBeanPrenotazione = beanPrenotazione;
             BeanFattura beanFattura = gestoreFatture.getEffettuati()
                     .stream()
-                    .filter(f -> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione()).findFirst().orElseThrow();
-            if (gestoreRimborsi.rimborsa(beanPrenotazione)) {
-                view.message("rimborso automatico");
+                    .filter(f -> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione())
+                    .findFirst().orElseThrow();
+            if (gestoreRimborsi.isAutoRefundable(beanPrenotazione)) {
+                logger.info("\telaborazione del rimborso automatico..\n");
                 gestorePrenotazioni.modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
                 gestoreFatture.crea_fattura(beanFattura);
-            }else{
-                if(gestoreRimborsi.richiedi_rimborso(beanPrenotazione)){
-                    view.message("possibile richiesta rimborso");
-                    String motivo = view.ask("inserire motivazione rimborso");
-                    gestoreRimborsi.crea_rimborso(beanFattura,motivo);
-                }
+                logger.info("Rimborso automatico avvenuto con successo.\n");
             }
-        }view.message("nessuna prenotazione pagata da rimborsare o pagamento rimborsabile disponibile");
-    }
-
-    /**
-     * Realizza i casi d' uso accetta/rifiuto invito.
-     * In caso di accettazione si genera una nova prenotazione.
-     * In caso di rifiuto l' invito viene eliminato.
-     */
-    private void gestisciInvitiRicevuti() {
-        view.message("gestisci inviti ");
-
-        BeanInvito beanInvito = seleziona_invito();
-
-        if(beanInvito!= null){
-            view.message("accetta invito? [y/n] ");
-            boolean accetta = view.fetchBool();
-            if(accetta){
-                gestorePrenotazioni.crea_prenotazione(beanInvito);
-                view.message("prenotazione effettuata");
-            }else {
-                view.message("cancellare invito? [y/n] ");
-                accetta = view.fetchBool();
-                if(accetta) cancellaInvito(beanInvito);
+            else if(gestoreRimborsi.isRequestRefundable(beanPrenotazione)) {
+                logger.info("Non è possibile avere un rimborso automatico per la prenotazione scelta, " +
+                        "ma è possibile effettuare una richiesta di rimborso.");
+                String motivo = view.ask("Inserisci la motivazione del rimborso:");
+                gestoreRimborsi.crea_rimborso(beanFattura, motivo);
             }
-            view.message("prenotazione non effettuata");
+            else logger.info("Non è più possibile avere un rimborso dalla prenotazione scelta");
         }
-    }
-
-    /**
-     * Chiama il gestore per l' eliminazione dell' invito.
-     * @param beanInvito da eliminare
-     */
-    private void cancellaInvito(BeanInvito beanInvito) {
-          gestoreInviti.rifiuta_invito(beanInvito);
-    }
-
-    /**
-     * realizza il caso d'uso, invita per un esperienza.
-     * L'invito modifica la disponibilità di un esperienza.
-     */
-    private void invitaEsperienza() {
-       view.message("invita");
-
-       Esperienza esperienza = seleziona_esperienza();
-
-       if(esperienza!=null){
-           int posti = esperienza.getPostiDisponibili();
-
-           view.message("posti disponibili:  " + posti);
-           view.message("Continuare y/n ?");
-           boolean continua= view.fetchBool();
-           if(continua){
-               String mail_invitato = view.ask("inserire mail invitato");
-               view.message("inserire il numero di posti");
-               int posti_inseriti = view.fetchInt();
-               if(posti_inseriti>0 && posti_inseriti<= posti){
-                   gestoreInviti.crea_invito(esperienza, mail_invitato, posti_inseriti);
-                   view.message("invio spedito");
-               }
-           }
-       }
-
-    }
-
-    /**
-     * Realizza il caso d' uso prenota esperienza.
-     */
-    private void prenotaEsperienza() {
-         Esperienza esperienza = selezionaEsperienza(bacheca.getEsperienze(Esperienza::isAvailable));
-
-            if (esperienza != null) {
-                int posti = esperienza.getPostiDisponibili();
-                view.message("posti attualmente disponibili: " + posti);
-
-                if (posti < 0) {
-                    view.message("posti non disponibili ");
-                    view.message("scegli nuova esperienza");
-
-                }else {
-
-                    int posti_scelti;
-                    while (true) {
-                        view.message("inserire posti da riservare");
-                        posti_scelti = view.fetchInt();
-                        if (posti_scelti > 0 && posti_scelti <= posti) break;
-                        else view.message("riprova, valore non valido");
-                    }
-
-                    view.message("costo totale: " + esperienza.getCostoIndividuale().op_multi(String.valueOf(posti_scelti)));
-                    view.message("confermare prenotazione [y/n]");
-                    int id;
-                    boolean flag = view.fetchBool();
-                    if (flag) {
-                        view.message("confermata, creazione prenotazione...");
-                        id = gestorePrenotazioni.crea_prenotazione(esperienza, posti_scelti);
-                    } else {
-                        view.message("prenotazione annullata");
-                        view.message("uscita");
-                        return;
-                    }
-
-                    view.message("pagare la prenotazione? [y/n] ");
-                    if(view.fetchBool())
-                    {
-                        pagaPrenotazione(gestorePrenotazioni.getPrenotazione(bean-> bean.getID_prenotazione()==id));
-                        view.message("pagamento riuscito, arrivederci e grazie");
-                    }
-                }
-        }view.message("esperienza non selezionata");
-    }
-
-    /**
-     * Permette il pagamento di una prenotazione. (RISERVATA)
-     *
-     * @param beanPrenotazione può essere null se l'accesso è diretto.
-     */
-    private void pagaPrenotazione(BeanPrenotazione beanPrenotazione){
-        if(beanPrenotazione == null){
-             beanPrenotazione = seleziona_prenotazione();
-        }
-        if (beanPrenotazione!=null && beanPrenotazione.getStatoPrenotazione().equals(StatoPrenotazione.RISERVATA)){
-                view.message(beanPrenotazione.toString());
-                view.message(" avviare il pagamento? [y/n] ");
-                if (view.fetchBool()) {
-                    stub_mod_pagamento();
-                    gestoreFatture.crea_fattura(beanPrenotazione);
-                    gestorePrenotazioni.modifica_stato(beanPrenotazione, StatoPrenotazione.PAGATA);
-                }
-        }view.message("nessuna prenotazione presente, errore di selezione");
     }
 
     /**
@@ -268,120 +284,44 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
     }
 
     /**
-     * Permette di annullare una prenotazione, non pagata.
+     * Enumera e mostra le possibili scelte.
+     * @return la scelta
      */
-    private void cancellaPrenotazione_riservata(BeanPrenotazione ref) {
-        if(ref==null){
-            view.message("nessuna prenotazione disponibile");
-        }else {
-            view.message(ref.toString());
-            view.message("confermare y/n");
-            boolean flag = view.fetchBool();
-            if (flag) {
-                gestorePrenotazioni.modifica_stato(ref, StatoPrenotazione.CANCELLATA);
-                view.message("ok!");
-            } else {
-                view.message("la prenotazione non è stata cancellata");
-                view.message("uscita");
-            }
+    private BeanPrenotazione seleziona_prenotazione(Set<BeanPrenotazione> prenotazioni) {
+        if(prenotazioni.isEmpty()) {
+            return null;
         }
-    }
-
-    /**
-     * Permette di annullare una prenotazione, pagata.
-     * Richiama il metodo richiediRimborso()
-     */
-    private void cancellaPrenotazione_pagata(BeanPrenotazione ref){
-        if(ref==null){
-            view.message("nessuna prenotazione disponibile");
-        }else {
-            view.message(ref.toString());
-            view.message("confermare y/n");
-            boolean flag = view.fetchBool();
-            if (flag) {
-                richiediRimborso(ref);
-                view.message("ok!");
-            } else {
-                view.message("la prenotazione non è stata cancellata");
-                view.message("uscita");
-            }
+        List<String> viewList = new ArrayList<>();
+        List<Integer> idList = new ArrayList<>();
+        int i = 1;
+        for (BeanPrenotazione p : prenotazioni) {
+            viewList.add(i++ + ") "+ p.shortToString());
+            idList.add(p.getID_prenotazione());
         }
+        view.message("Prenotazioni:", viewList);
+        int indice = view.fetchChoice("Scegli l'indice della prenotazione", viewList.size());
+        int idPrenotazione = idList.get(indice-1);
+        return prenotazioni.stream().filter(p -> p.getID_prenotazione() == idPrenotazione).findFirst().orElseThrow();
     }
 
     /**
      * Enumera e mostra le possibili scelte.
      * @return la scelta
      */
-    private BeanPrenotazione seleziona_prenotazione() {
-        boolean flag = true;
-        if(gestorePrenotazioni.getPrenotazioni().isEmpty()) return null;
-        while(flag){
-            try {
-                view.message("=====PRENOTAZIONI DISPONIBILI=====");
-                view.message("=====SELEZIONA INDICE======");
-                AtomicInteger contatore = new AtomicInteger(0);
-                return  gestorePrenotazioni.getPrenotazioni()
-                        .stream()
-                        .peek(beanPrenotazione -> view.message(contatore.getAndIncrement()+") "+ beanPrenotazione.toString()))
-                        .collect(Collectors.toList()).get(view.fetchInt());
-            }catch (IndexOutOfBoundsException e){
-                flag =exit_selezione() ? false:true;
-            }
+    private BeanInvito seleziona_invito(Set<BeanInvito> inviti) {
+        if(inviti.isEmpty()) return null;
+
+        List<String> viewList = new ArrayList<>();
+        List<Integer> idList = new ArrayList<>();
+        int i = 1;
+        for (BeanInvito invito : inviti) {
+            viewList.add(i++ + ")" + invito.shortToString());
+            idList.add(invito.getId_invito());
         }
-        return null;
-    }
-
-    /**
-     * Enumera e mostra le possibili scelte.
-     * @return la scelta
-     */
-    private Esperienza seleziona_esperienza() {
-        boolean flag = true;
-        while(flag){
-            try {
-                view.message("=====ESPERIENZE DISPONIBILI=====");
-                view.message("=====SELEZIONA INDICE=====");
-                AtomicInteger contatore = new AtomicInteger(0);
-                return Bacheca.getInstance()
-                        .getEsperienze(Esperienza::isAvailable)
-                        .stream()
-                        .peek(esperienza -> view.message(contatore.getAndIncrement()+") " + esperienza.shortToString()))
-                        .collect(Collectors.toList())
-                        .get(view.fetchInt());
-            }catch (IndexOutOfBoundsException e){
-                flag =exit_selezione() ? false:true;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Enumera e mostra le possibili scelte.
-     * @return la scelta
-     */
-    private BeanInvito seleziona_invito() {
-        if(gestoreInviti.getRicevuti().isEmpty()) return null;
-        boolean flag = true;
-        while(flag){
-            try {
-                view.message("===== INVITI RICEVUTI=====");
-                view.message("=====SELEZIONA INVITO=====");
-                AtomicInteger contatore = new AtomicInteger(0);
-                return gestoreInviti
-                        .getRicevuti()
-                        .stream()
-                        .peek(invito -> view.message(contatore.getAndIncrement()+") " + invito.toString()))
-                        .collect(Collectors.toList())
-                        .get(view.fetchInt());
-            }catch (IndexOutOfBoundsException e){
-                flag = !exit_selezione();
-            }
-        }return null;
-    }
-
-    private boolean exit_selezione(){
-        view.message("uscire dalla selezione? [y/n]");
-        return view.fetchBool();
+        view.message("Inviti ricevuti:", viewList);
+        int indice = view.fetchChoice("Scegli l'indice dell'invito", viewList.size());
+        int idInvito = idList.get(indice-1);
+        return inviti.stream().filter(ir -> ir.getId_invito() == idInvito).findFirst().orElseThrow();
     }
 
     private void impostaMenu() {
@@ -392,6 +332,4 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
         menuItems.add("8) Cancella Prenotazione");
         menuItems.add("9) Richiedi Rimborso");
     }
-
-
 }

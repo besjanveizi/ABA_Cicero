@@ -62,7 +62,7 @@ public class GestorePercorso {
 
     private Area impostaArea() {
         Set<String> viewSet = aree.stream().map(Area::getToponimo).collect(Collectors.toSet());
-        view.message("Imposta il toponimo della tappa", viewSet);
+        view.message("Scegli il toponimo della tappa", viewSet);
         String toponimo = view.fetchSingleChoice(viewSet);
         return aree.stream().filter(e -> Objects.equals(e.getToponimo(), toponimo)).findFirst().orElse(null);
     }

@@ -54,11 +54,11 @@ public class DBManager {
         logger = Logger.getLogger(DBManager.class.getName());
         logger.setUseParentHandlers(false);
         ConsoleHandler ch = new ConsoleHandler();
-        ch.setLevel(Level.SEVERE);
+        ch.setLevel(Level.ALL);
         ch.setFormatter(new SimpleFormatter() {
             @Override
             public String format(LogRecord record) {
-                return record.getMessage() + "\n";
+                return record.getMessage();
             }
         });
         logger.addHandler(ch);

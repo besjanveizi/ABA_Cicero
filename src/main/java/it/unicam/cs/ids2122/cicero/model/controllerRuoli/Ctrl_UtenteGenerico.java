@@ -78,18 +78,22 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         do {
             view.message("\n--AUTENTICAZIONE--\nScegli una delle due operazioni:");
             int choice = view.fetchChoice("1) LogIn\n2) SignIn\n3) Torna al menù principale", 3);
-            if (choice == 2) signUp();
+            if (choice == 2) {
+                boolean reAuthenticate = signUp();
+                if (!reAuthenticate) return;
+            }
             else if (choice == 3) return;
             else {
                 view.message("\n--LOGIN--");
                 String username = view.ask("Inserisci lo username:");
                 String password = view.ask("Inserisci la password:");
+                logger.info("\tcontrollo delle credenziali.. ");
                 if (gestoreAutenticazione.login(username, password)) break;
             }
         } while (true);
     }
 
-    private void signUp() {
+    private boolean signUp() {
         String email;
         boolean backtrack = false;
         view.message("\n--REGISTRAZIONE--");
@@ -98,34 +102,35 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
             if (!gestoreAutenticazione.isAlreadySignedIn(email))
                 break;
             else {
-                logger.info("L'email è già registrata ad un profilo nel sistema.");
+                logger.info("L'email è già registrata ad un profilo nel sistema.\n");
                 view.message("Vuoi tornare all'autenticazione? [Y,n]");
                 backtrack = view.fetchBool();
             }
         } while (!backtrack);
-        if (backtrack) return;
+        if (backtrack) return true;
         String username;
         do {
             username = view.ask("Scegli lo username: ");
             if (!gestoreAutenticazione.isAlreadyTaken(username))
                 break;
             else {
-                logger.info("Lo username scelto è già registrato ad un profilo nel sistema con un'altra email.");
+                logger.info("Lo username scelto è già registrato ad un profilo nel sistema con un'altra email.\n");
                 view.message("Vuoi tornare all'autenticazione? [Y,n]");
                 backtrack = view.fetchBool();
             }
         } while (!backtrack);
-        if (backtrack) return;
+        if (backtrack) return true;
         String password;
         while (true) {
             password = view.ask("Inserisci la password: ");
             if (view.ask("Reinserisci la password: ").equals(password)) break;
             else logger.info("Le due password inserite non coincidono: bisogna reinserirle");
         }
-        UtenteType utype = UtenteType.fetchUtype(
+        UtenteType uType = UtenteType.fetchUtype(
                 view.fetchChoice("Scegli il tipo di utente:\n1) Cicerone;\n2) Turista;", 2));
 
-        gestoreAutenticazione.signUp(username, email, password, utype);
+        gestoreAutenticazione.signUp(username, email, password, uType);
+        return false;
     }
 
     /**
@@ -141,10 +146,17 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         Set<Area> filtroAree = impostaFiltroAree();
         Set<Tag> filtroTags = impostaFiltroTag();
         lastRicerca = setRicerca(filtroNome, filtroAree, filtroTags);
-        showEsperienze(lastRicerca);
-        if (view.fetchChoice("\n\n1) Selezionare un'esperienza per vedere maggiori dettagli" +
-                "\n2) Torna al menu principale", 2) == 1)
-            view.message(selezionaEsperienza(lastRicerca).toString());
+        if(lastRicerca.isEmpty()){
+            view.message("Non sono state trovate esperienze che rientrano nei filtri imposti per la ricerca.");
+        } else {
+            view.message("Risultati della ricerca:", lastRicerca.stream()
+                    .map(Esperienza::shortToString)
+                    .collect(Collectors.toSet()));
+            if (view.fetchChoice("\n\n1) Selezionare un'esperienza per vedere maggiori dettagli" +
+                    "\n2) Torna al menu principale", 2) == 1) {
+                view.message(selezionaEsperienza(lastRicerca).longToString());
+            }
+        }
     }
 
     /**
@@ -184,22 +196,15 @@ public class Ctrl_UtenteGenerico implements Ctrl_Utente {
         return chosenTags;
     }
 
-    private void showEsperienze(Set<Esperienza> esperienze){
-        if(esperienze.isEmpty()){
-            view.message("Non sono state trovate esperienze che rientrano nei filtri imposti per la ricerca.");
-        } else {
-            view.message("Risultati della ricerca:", esperienze.stream()
-                                                                        .map(Esperienza::shortToString)
-                                                                        .collect(Collectors.toSet()));
-        }
-    }
-
     /**
      * Permette la selezione di un'{@code Esperienza} da un insieme.
      * @param esperienze {@code Set} di esperienze su cui effettuare la selezione.
-     * @return l'{@code Esperienza} selezionata.
+     * @return l'{@code Esperienza} selezionata, {@code null} se non ci sono esperienze da selezionare nel {@code Set}.
      */
     protected Esperienza selezionaEsperienza(Set<Esperienza> esperienze) {
+        if (esperienze.isEmpty()) {
+            return null;
+        }
         List<String> viewList = new ArrayList<>();
         List<Integer> idList = new ArrayList<>();
         int i = 1;

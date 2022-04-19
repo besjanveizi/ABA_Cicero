@@ -143,23 +143,6 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
         }
     }
 
-
-
-    /**
-    * trasforma una stringa predefinita nel suo corrispondente <code>{@link StatoPrenotazione}</code>
-    *
-    * @param n  valore corrispondente allo stato
-    * @return <code>{@link StatoPrenotazione}</code>
-    */
-    private StatoPrenotazione trasformazione(int n){
-        switch(n){
-            case 1 : return StatoPrenotazione.RISERVATA;
-            case 0 : return StatoPrenotazione.PAGATA;
-            case 2 : return StatoPrenotazione.CANCELLATA;
-            default: return null;
-        }
-    }
-
     public Set<BeanPrenotazione> getPrenotazioniOfEsperienza(int idEsperienza) {
         return parseDataResult( getDataResult(sql_select_base + " WHERE id_esperienza=" + idEsperienza +";" ));
     }
@@ -184,7 +167,7 @@ public final class ServicePrenotazione extends AbstractService<BeanPrenotazione>
                 switch (key) {
                     case "id_esperienza": beanPrenotazione.setID_esperienza(Integer.parseInt(val));break;
                     case "uid_turista":beanPrenotazione.setID_turista(Integer.parseInt(val));break;
-                    case "stato_prenotazione":beanPrenotazione.setStatoPrenotazione(trasformazione(Integer.parseInt(val)));break;
+                    case "stato_prenotazione":beanPrenotazione.setStatoPrenotazione(StatoPrenotazione.fetchStatus(Integer.parseInt(val)));break;
                     case "posti_prenotati": beanPrenotazione.setPosti(Integer.parseInt(val));break;
                     case "data_prenotazione": beanPrenotazione.setData_prenotazione(LocalDateTime.parse(val.replace(' ', 'T')));break;
                     case "data_scadenza_riserva": beanPrenotazione.setScadenza(LocalDateTime.parse(val.replace(' ', 'T')));break;

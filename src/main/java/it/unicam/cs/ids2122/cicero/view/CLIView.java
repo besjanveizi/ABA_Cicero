@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -72,7 +73,7 @@ public class CLIView implements IView<String> {
 
     @Override
     public LocalDateTime fetchDate() {
-        LocalDateTime result = LocalDateTime.now();
+        LocalDateTime result = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         boolean inside = true;
         while (inside) {
             try {
@@ -109,7 +110,8 @@ public class CLIView implements IView<String> {
             }
             else return Collections.emptySet();
             if (superSet.containsAll(subSet) || subSet.isEmpty()) break;
-            else message("Scegli solo elementi elencati");
+            else message("Inserisci solo elementi elencati, separandoli da una virgola ',', " +
+                    "oppure premi invio per selezionarli tutti");
         }
         return subSet;
     }

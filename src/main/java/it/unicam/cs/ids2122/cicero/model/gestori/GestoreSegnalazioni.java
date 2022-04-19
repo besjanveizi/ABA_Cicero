@@ -2,8 +2,10 @@ package it.unicam.cs.ids2122.cicero.model.gestori;
 
 import it.unicam.cs.ids2122.cicero.model.entities.segnalazione.Segnalazione;
 import it.unicam.cs.ids2122.cicero.model.entities.segnalazione.SegnalazioneStatus;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceSegnalazione;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -14,8 +16,11 @@ import java.util.stream.Collectors;
 public class GestoreSegnalazioni {
     private static GestoreSegnalazioni instance = null;
     private Set<Segnalazione> allSegnalazioni;
+    private final ServiceSegnalazione serviceSegnalazione;
 
     private GestoreSegnalazioni() {
+        serviceSegnalazione = ServiceSegnalazione.getInstance();
+        allSegnalazioni = new HashSet<>();
         updateSegnalazioni();
     }
 
@@ -28,8 +33,7 @@ public class GestoreSegnalazioni {
     }
 
     private void updateSegnalazioni() {
-        ServiceSegnalazione service = ServiceSegnalazione.getInstance();
-        allSegnalazioni = service.getSegnalazioni();
+        allSegnalazioni.addAll(serviceSegnalazione.getSegnalazioni());
     }
 
     /**
@@ -48,16 +52,16 @@ public class GestoreSegnalazioni {
      * @param descrizione descrizione della segnalazione.
      */
     public void add(int id_esperienza, int uid, String descrizione){
-        ServiceSegnalazione service = ServiceSegnalazione.getInstance();
-        allSegnalazioni.add(service.insertSegnalazione(id_esperienza, uid, descrizione, SegnalazioneStatus.PENDING));
+        allSegnalazioni.add(serviceSegnalazione.insertSegnalazione(id_esperienza, uid, descrizione, SegnalazioneStatus.PENDING));
     }
 
     /**
-     * Accetta la segnalazione specificata.
+     * Accetta la segnalazione specificata ed elimina l'esperienza relativa.
      * @param segnalazione segnalazione da accettare.
      */
     public void accettaSegnalazione(Segnalazione segnalazione){
         changeStatus(segnalazione,SegnalazioneStatus.ACCETTATA);
+       ServiceEsperienza.getInstance().remove(segnalazione.getEsperienzaId());
     }
 
     /**
@@ -69,8 +73,7 @@ public class GestoreSegnalazioni {
     }
 
     private void changeStatus(Segnalazione segnalazione, SegnalazioneStatus stato){
-        ServiceSegnalazione service = ServiceSegnalazione.getInstance();
-        service.updateSegnalazioneStatus(segnalazione,stato);
+        serviceSegnalazione.updateSegnalazioneStatus(segnalazione,stato);
         updateSegnalazioni();
     }
 }

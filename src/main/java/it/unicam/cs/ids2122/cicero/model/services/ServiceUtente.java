@@ -81,10 +81,11 @@ public class ServiceUtente extends AbstractService<IUtente> {
                 getDataResult(select_base_query + " WHERE username = '" + username +
                                                         "' AND password = '" + password + "'"));
         if (!resultSet.isEmpty()) {
+            logger.warning("authentication success!");
             return resultSet.stream().findFirst().get();
         }
         else {
-            logger.warning("Authentication error: couldn't log in.\n");
+            logger.warning("authentication error: couldn't log in.");
             throw new PersistenceErrorException();
         }
     }
