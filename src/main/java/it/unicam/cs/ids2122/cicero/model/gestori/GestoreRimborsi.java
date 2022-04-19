@@ -80,8 +80,8 @@ public final class GestoreRimborsi {
      * Accetta la richiesta di rimborso specificata.
      * @param richiesta richiesta di rimborso da accettare.
      */
-    public BeanFattura accettaRichiestaRimborso(RichiestaRimborso richiesta){
-       changeStatus(richiesta,RimborsoStatus.ACCETTATA);
+    public BeanFattura accettaRichiestaRimborso(RichiestaRimborso richiesta, String motivo){
+       changeStatus(richiesta,RimborsoStatus.ACCETTATA, motivo);
        return ServiceFattura.getInstance().sql_select(richiesta.getIdFattura()).iterator().next();
     }
 
@@ -89,8 +89,8 @@ public final class GestoreRimborsi {
      * Rifiuta la richiesta di rimborso specificata.
      * @param richiesta richiesta di rimborso da rifiutare.
      */
-    public void rifiutaRichiestaRimborso(RichiestaRimborso richiesta){
-        changeStatus(richiesta,RimborsoStatus.RIFIUTATA);
+    public void rifiutaRichiestaRimborso(RichiestaRimborso richiesta, String motivo){
+        changeStatus(richiesta,RimborsoStatus.RIFIUTATA, motivo);
     }
 
     /**
@@ -98,9 +98,9 @@ public final class GestoreRimborsi {
      * @param richiesta
      * @param stato
      */
-    private void changeStatus(RichiestaRimborso richiesta, RimborsoStatus stato){
+    private void changeStatus(RichiestaRimborso richiesta, RimborsoStatus stato, String motivo){
         ServiceRimborso serviceRimborso=ServiceRimborso.getInstance();
-        serviceRimborso.updateRichiestaRimborsoStatus(richiesta,stato);
+        serviceRimborso.updateRichiestaRimborsoStatus(richiesta, stato, motivo);
         carica();
     }
 

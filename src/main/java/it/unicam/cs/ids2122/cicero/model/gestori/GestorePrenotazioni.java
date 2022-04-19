@@ -6,6 +6,7 @@ import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanInvito;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.BeanPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.entities.bean.StatoPrenotazione;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceDisponibilita;
+import it.unicam.cs.ids2122.cicero.model.services.ServiceEsperienza;
 import it.unicam.cs.ids2122.cicero.model.services.ServiceInvito;
 import it.unicam.cs.ids2122.cicero.model.services.ServicePrenotazione;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 public final class GestorePrenotazioni {
     Logger logger = Logger.getLogger(Piattaforma.class.getName());
+    private ServicePrenotazione servicePrenotazione;
 
     private final IUtente utente_corrente;
 
@@ -32,6 +34,7 @@ public final class GestorePrenotazioni {
     public GestorePrenotazioni(IUtente iUtente) {
         utente_corrente = iUtente;
         prenotazioni = new HashSet<>();
+        servicePrenotazione = ServicePrenotazione.getInstance();
         carica();
     }
 
@@ -42,7 +45,7 @@ public final class GestorePrenotazioni {
      */
     private void carica()  {
         logger.info("\tcaricamento delle prenotazioni..");
-        prenotazioni = ServicePrenotazione.getInstance().sql_select(utente_corrente.getUID());
+        prenotazioni = servicePrenotazione.sql_select(utente_corrente.getUID());
         logger.info("prenotazioni caricate.\n");
     }
 
@@ -61,7 +64,7 @@ public final class GestorePrenotazioni {
         beanPrenotazione.setStatoPrenotazione(StatoPrenotazione.RISERVATA);
         beanPrenotazione.setID_esperienza(propEsperienza.getId());
 
-        ServicePrenotazione.getInstance().insert(beanPrenotazione);
+        servicePrenotazione.insert(beanPrenotazione);
         prenotazioni.add(beanPrenotazione);
 
         propEsperienza.cambiaPostiDisponibili('-', posti_prenotati);
@@ -86,11 +89,15 @@ public final class GestorePrenotazioni {
         beanPrenotazione.setValuta(invito_ricevuto.getValuta());
         beanPrenotazione.setID_esperienza(invito_ricevuto.getId_esperienza());
         beanPrenotazione.setPosti(invito_ricevuto.getPosti_riservati());
-        ServicePrenotazione.getInstance().insert(beanPrenotazione);
+        servicePrenotazione.insert(beanPrenotazione);
         prenotazioni.add(beanPrenotazione);
         ServiceInvito.getInstance().delete(invito_ricevuto.getId_invito());
     }
 
+
+    public Esperienza getEsperienzaAssociata(BeanPrenotazione b) {
+        return ServiceEsperienza.getInstance().getEsperienza(b.getID_esperienza());
+    }
 
      /**
      * Modifica stato di una prenotazione ed elimina se è CANCELLATA
@@ -98,7 +105,7 @@ public final class GestorePrenotazioni {
      * @param nuovo_stato
      */
     public void modifica_stato(BeanPrenotazione beanPrenotazione, StatoPrenotazione nuovo_stato){
-        ServicePrenotazione.getInstance().update(beanPrenotazione.getID_prenotazione(), nuovo_stato);
+        servicePrenotazione.update(beanPrenotazione.getID_prenotazione(), nuovo_stato);
         beanPrenotazione.setStatoPrenotazione(nuovo_stato);
         if(nuovo_stato.equals(StatoPrenotazione.CANCELLATA)){
             int posti = ServiceDisponibilita.getInstance().select(beanPrenotazione.getID_esperienza());
@@ -122,8 +129,5 @@ public final class GestorePrenotazioni {
     public BeanPrenotazione getPrenotazione(Predicate<BeanPrenotazione> predicate){
         return prenotazioni.stream().filter(predicate).findFirst().orElseThrow();
     }
-
-
-
 
 }

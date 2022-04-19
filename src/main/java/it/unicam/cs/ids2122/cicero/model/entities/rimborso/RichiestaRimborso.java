@@ -30,4 +30,6 @@ public interface RichiestaRimborso {
      * @return
      */
     String getInfoEsito();
+
+    String shortToString();
 }

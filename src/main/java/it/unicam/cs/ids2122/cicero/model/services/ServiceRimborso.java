@@ -18,7 +18,7 @@ public class ServiceRimborso extends AbstractService<RichiestaRimborso>{
     private final String col_values = "VALUES ( {0} , {1} , {2} , {3} )";
     private final String select_base_query = "SELECT " + pk_name + ", " + col_names + " FROM " + table_name_richieste_rimborsi;
     private final String insert_query = "INSERT INTO " + table_name_richieste_rimborsi + " (" + col_names + ") " + col_values + ";";
-    private final String update_query = "UPDATE " + table_name_richieste_rimborsi + " SET stato= {0} WHERE "+pk_name+"= {1}";
+    private final String update_query = "UPDATE " + table_name_richieste_rimborsi + " SET stato= {0}, info_esito= {1} WHERE "+pk_name+"= {2}";
 
     private static ServiceRimborso instance = null;
 
@@ -46,7 +46,7 @@ public class ServiceRimborso extends AbstractService<RichiestaRimborso>{
      * @return Richiesta di rimborso generata
      */
     public RichiestaRimborso insertRichiestaRimborso(int id_fattura, String motivoRichiesta, RimborsoStatus stato){
-        int id= getGeneratedKey(MessageFormat.format(insert_query,id_fattura,"'"+motivoRichiesta+"'",stato.getCode()));
+        int id= getGeneratedKey(MessageFormat.format(insert_query,id_fattura,"'"+motivoRichiesta+"'",stato.getCode(), "''"));
         return new SimpleRichiestaRimborso(id,id_fattura,motivoRichiesta,stato);
     }
 
@@ -55,8 +55,8 @@ public class ServiceRimborso extends AbstractService<RichiestaRimborso>{
      * @param richiesta richiesta di rimborso di cui si vuole cambiare stato.
      * @param stato nuovo stato della richiesta di rimborso.
      */
-    public void updateRichiestaRimborsoStatus(RichiestaRimborso richiesta, RimborsoStatus stato){
-        getGeneratedKey(MessageFormat.format(update_query,stato.getCode(),richiesta.getId()));
+    public void updateRichiestaRimborsoStatus(RichiestaRimborso richiesta, RimborsoStatus stato, String motivo){
+        getGeneratedKey(MessageFormat.format(update_query,stato.getCode(), "'"+motivo+"'",richiesta.getId()));
     }
 
     @Override

@@ -186,7 +186,7 @@ public class Ctrl_Cicerone extends Ctrl_UtenteAutenticato implements Ctrl_Utente
             view.message(e.toString());
             Set<BeanPrenotazione> prenotazioni = gestoreEsperienze.getPrenotazioni(e, p -> !p.getStatoPrenotazione().equals(StatoPrenotazione.CANCELLATA));
             Set<BeanInvito> inviti = gestoreEsperienze.getInviti(e);
-            if (!prenotazioni.isEmpty() && !inviti.isEmpty()) {
+            if (!prenotazioni.isEmpty() || !inviti.isEmpty()) {
                 view.message("\nLa cancellazione dell'esperienza comporterà la cancellazione automatica " +
                         "(e rimborso se previsto) di " + prenotazioni.size() + " prenotazioni e "  + inviti.size() +
                         " inviti associati.\n");

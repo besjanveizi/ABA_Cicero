@@ -168,7 +168,7 @@ public class SimpleEsperienza implements Esperienza {
 
     @Override
     public boolean isAvailable() {
-        return postiDisponibili>0;
+        return postiDisponibili>0 && (status.equals(EsperienzaStatus.IDLE) || status.equals(EsperienzaStatus.VALIDA));
     }
 
     @Override
@@ -243,6 +243,9 @@ public class SimpleEsperienza implements Esperienza {
                 "\nData d'inizio: " + getDataInizio() +
                 "\nData di conclusione: " + getDataFine() +
                 "\nPosti disponibili: " + getPostiDisponibili() +
+                "\nStato: " + getStatus() +
+                "\nCosto per posto: " + getCostoIndividuale().getValore() + " "
+                + getCostoIndividuale().getValuta().getSymbol() +
                 "\nToponimi: " + getAree().stream().map(Area::getToponimo).collect(Collectors.toSet()) +
                 "\nTags: " + getTags().stream().map(Tag::getName).collect(Collectors.toSet());
     }

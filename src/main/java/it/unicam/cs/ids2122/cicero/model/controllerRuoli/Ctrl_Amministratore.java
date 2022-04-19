@@ -19,6 +19,8 @@ import it.unicam.cs.ids2122.cicero.ruoli.Amministratore;
 import it.unicam.cs.ids2122.cicero.ruoli.IUtente;
 import it.unicam.cs.ids2122.cicero.ruoli.UtenteType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,7 +71,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
                 gestisciSegnalazioni();
                 break;
             case 9:
-                gestisciRimborsi();
+                gestisciRichiesteRimborso();
                 break;
             case 10:
                 cancellaEsperienza();
@@ -233,28 +235,47 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         }
     }
 
-    private void gestisciRimborsi(){
+    private void gestisciRichiesteRimborso(){
         while(true){
-            Set<RichiestaRimborso> richieste= gestoreRimborsi.getRimborsi(r -> r.getState().equals(RimborsoStatus.PENDING));
-            if(richieste.isEmpty()){
-                view.message("Non sono presenti richieste di rimborso nella piattaforma.");
-                break;
+            RichiestaRimborso richiesta = selezionaRichiesta(
+                    gestoreRimborsi.getRimborsi(r -> r.getState().equals(RimborsoStatus.PENDING)));
+            if (richiesta == null) {
+                view.message("Non ci sono richieste di rimborso in attesa di gestione.");
+                return;
             }
-            Set<String> viewSet=richieste.stream().map(RichiestaRimborso::getId).collect(Collectors.toSet()).stream().map(String::valueOf).collect(Collectors.toSet());
-            view.message("Selezionare una delle richieste di rimborso presenti nella piattaforma:",viewSet);
-            int id = Integer.parseInt(view.fetchSingleChoice(viewSet));
-            RichiestaRimborso richiesta= richieste.stream().filter(s->s.getId()==id).findFirst().orElseThrow();
-            view.message("Richiesta di rimborso scelta:\nID:"+richiesta.getId()+"\nID della fattura:"+richiesta.getIdFattura()+"\nMotivazione richiesta:"+richiesta.getMotivoRichiesta());
-            if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Accettare la richiesta di rimborso\n2)Rifiutare la richiesta di rimborso",2)==1) {
-                BeanFattura beanFattura = gestoreRimborsi.accettaRichiestaRimborso(richiesta);
+            view.message(richiesta.toString());
+            int scelta = view.fetchChoice("\n1) Accettare la richiesta di rimborso" +
+                    "\n2) Rifiutare la richiesta di rimborso", 2);
+            String motivo = view.ask("Inserisci il motivo della scelta appena fatta:");
+            if(scelta == 1) {
+                BeanFattura beanFattura = gestoreRimborsi.accettaRichiestaRimborso(richiesta, motivo);
+                view.message("Richiesta di rimborso accettata");
                 new GestoreFatture( utente).crea_fattura(beanFattura);
-                view.message("Pratica di rimborso iniziata");
+                view.message("Rimborso effettuato");
             }else{
-               gestoreRimborsi.rifiutaRichiestaRimborso(richiesta);
+               gestoreRimborsi.rifiutaRichiestaRimborso(richiesta, motivo);
                 view.message("Richiesta di rimborso rifiutata");
             }
-            if(view.fetchChoice("Selezionare una delle seguenti alternative:\n1)Selezionare una nuova richiesta di rimborso da gestire\n2)Uscire",2)==2)break;
+            if(view.fetchChoice("\n1) Selezionare una nuova richiesta di rimborso da gestire" +
+                    "\n2) Uscire",2) == 2) break;
         }
+    }
+
+    private RichiestaRimborso selezionaRichiesta(Set<RichiestaRimborso> richieste) {
+        if (richieste.isEmpty()) {
+            return null;
+        }
+        List<String> viewList = new ArrayList<>();
+        List<Integer> idList = new ArrayList<>();
+        int i = 1;
+        for (RichiestaRimborso r : richieste) {
+            viewList.add(i++ + ") "+ r.shortToString());
+            idList.add(r.getId());
+        }
+        view.message("Richieste di rimborso:", viewList);
+        int indice = view.fetchChoice("Scegli l'indice della richiesta", viewList.size());
+        int idRichiesta = idList.get(indice-1);
+        return richieste.stream().filter(p -> p.getId() == idRichiesta).findFirst().orElseThrow();
     }
 
     private void cancellaEsperienza() {
@@ -268,7 +289,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
             view.message(e.toString());
             Set<BeanPrenotazione> prenotazioni = gestoreEsperienze.getPrenotazioni(e,  p -> !p.getStatoPrenotazione().equals(StatoPrenotazione.CANCELLATA));
             Set<BeanInvito> inviti = gestoreEsperienze.getInviti(e);
-            if (!prenotazioni.isEmpty() && !inviti.isEmpty()) {
+            if (!prenotazioni.isEmpty() || !inviti.isEmpty()) {
                 view.message("\nLa cancellazione dell'esperienza comporterà la cancellazione automatica " +
                         "(e rimborso se previsto) di " + prenotazioni.size() + " prenotazioni e "  + inviti.size() +
                         " inviti associati.\n");
@@ -296,7 +317,7 @@ public class Ctrl_Amministratore extends Ctrl_UtenteAutenticato implements Ctrl_
         menuItems.add("6) Gestisci Tag Proposti");
         menuItems.add("7) Gestisci utenti");
         menuItems.add("8) Gestisci segnalazioni");
-        menuItems.add("9) Gestisci rimborsi");
+        menuItems.add("9) Gestisci richieste rimborso");
         menuItems.add("10) Cancella Esperienza");
     }
 }

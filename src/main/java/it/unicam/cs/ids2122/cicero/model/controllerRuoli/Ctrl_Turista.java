@@ -214,8 +214,8 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             }
             else {
                 gestorePrenotazioni.modifica_stato(b, StatoPrenotazione.CANCELLATA);
+                logger.info("La prenotazione è stata cancellata.\n");
             }
-            logger.info("La prenotazione è stata cancellata.\n");
         }
         else logger.info("La prenotazione non è stata cancellata\n");
     }
@@ -233,30 +233,34 @@ public class Ctrl_Turista extends Ctrl_UtenteAutenticato implements Ctrl_Utente 
             beanPrenotazione = seleziona_prenotazione(
                     gestorePrenotazioni
                             .getPrenotazioni(p -> p.getStatoPrenotazione().equals(StatoPrenotazione.PAGATA)));
-            if(beanPrenotazione == null)
+            if(beanPrenotazione == null) {
                 logger.info("Non hai prenotazioni pagate\n");
-        }
-        else {
-            logger.info("\telaborazione della pratica di rimborso..\n");
-            final BeanPrenotazione finalBeanPrenotazione = beanPrenotazione;
-            BeanFattura beanFattura = gestoreFatture.getEffettuati()
-                    .stream()
-                    .filter(f -> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione())
-                    .findFirst().orElseThrow();
-            if (gestoreRimborsi.isAutoRefundable(beanPrenotazione)) {
-                logger.info("\telaborazione del rimborso automatico..\n");
-                gestorePrenotazioni.modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
-                gestoreFatture.crea_fattura(beanFattura);
-                logger.info("Rimborso automatico avvenuto con successo.\n");
+                return;
             }
-            else if(gestoreRimborsi.isRequestRefundable(beanPrenotazione)) {
-                logger.info("Non è possibile avere un rimborso automatico per la prenotazione scelta, " +
-                        "ma è possibile effettuare una richiesta di rimborso.");
-                String motivo = view.ask("Inserisci la motivazione del rimborso:");
-                gestoreRimborsi.crea_rimborso(beanFattura, motivo);
-            }
-            else logger.info("Non è più possibile avere un rimborso dalla prenotazione scelta");
         }
+        logger.info("\telaborazione della pratica di rimborso..\n");
+        final BeanPrenotazione finalBeanPrenotazione = beanPrenotazione;
+        BeanFattura beanFattura = gestoreFatture.getEffettuati()
+                .stream()
+                .filter(f -> f.getId_prenotazione() == finalBeanPrenotazione.getID_prenotazione())
+                .findFirst().orElseThrow();
+        if (gestoreRimborsi.isAutoRefundable(beanPrenotazione)) {
+            logger.info("\telaborazione del rimborso automatico..\n");
+            gestoreFatture.crea_fattura(beanFattura);
+            logger.info("Rimborso automatico avvenuto con successo.\n");
+            gestorePrenotazioni.modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
+            logger.info("La prenotazione è stata cancellata.\n");
+        }
+        else if(gestoreRimborsi.isRequestRefundable(beanPrenotazione)) {
+            logger.info("Non è possibile avere un rimborso automatico per la prenotazione scelta, " +
+                    "ma è possibile effettuare una richiesta di rimborso.\n");
+            String motivo = view.ask("Inserisci la motivazione del rimborso:");
+            gestoreRimborsi.crea_rimborso(beanFattura, motivo);
+            logger.info("La richiesta di rimborso è stata inviata all'amministrazione.\n");
+            gestorePrenotazioni.modifica_stato(beanPrenotazione, StatoPrenotazione.CANCELLATA);
+            logger.info("La prenotazione è stata cancellata.\n");
+        }
+        else logger.info("Non è più possibile avere un rimborso dalla prenotazione scelta");
     }
 
     /**
